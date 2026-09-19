@@ -128,7 +128,7 @@ CONTEXT FROM KNOWLEDGE BASE:
 """
 
 # ---------------------------------------------------------------------------
-# Custom Vibrant Emerald & Teal UI (Zero Blue / Zero Plain Grey)
+# Custom Vibrant Slate & Seafoam UI (Zero Blue / Zero Pink / Zero Purple)
 # ---------------------------------------------------------------------------
 def inject_css():
     st.markdown(
@@ -137,14 +137,14 @@ def inject_css():
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
         :root {
-            --primary-bg: #f4fbf7;
-            --hero-gradient: linear-gradient(135deg, #064e3b 0%, #047857 50%, #0f766e 100%);
-            --btn-gradient: linear-gradient(135deg, #0d9488 0%, #059669 100%);
-            --btn-hover: linear-gradient(135deg, #0f766e 0%, #047857 100%);
-            --user-msg-bg: #e6f4f1;
+            --primary-bg: #f3f7f6;
+            --hero-gradient: linear-gradient(135deg, #112a2e 0%, #1a3d42 50%, #224d53 100%);
+            --btn-gradient: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+            --btn-hover: linear-gradient(135deg, #115e59 0%, #0f766e 100%);
+            --user-msg-bg: #e6f2f0;
             --assistant-msg-bg: #ffffff;
-            --border-emerald: #a7f3d0;
-            --text-dark: #022c22;
+            --border-color: #99f6e4;
+            --text-dark: #0f172a;
         }
 
         html, body, .stApp {
@@ -153,52 +153,77 @@ def inject_css():
             color: var(--text-dark);
         }
 
-        /* Hero Banner */
+        /* Hero Banner Redesign */
         .hero-banner {
             background: var(--hero-gradient);
-            border-radius: 18px;
+            border-radius: 20px;
             padding: 2.2rem 2.5rem;
             margin-bottom: 1.8rem;
             color: #ffffff;
-            box-shadow: 0 12px 30px -8px rgba(4, 120, 87, 0.35);
+            box-shadow: 0 14px 35px -10px rgba(17, 42, 46, 0.45);
+            border: 1px solid rgba(153, 246, 228, 0.2);
+            position: relative;
+        }
+        .hero-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
         }
         .hero-banner h1 {
             color: #ffffff !important;
-            margin: 0 0 0.6rem 0;
-            font-size: 2.4rem;
+            margin: 0;
+            font-size: 2.3rem;
             font-weight: 700;
             letter-spacing: -0.02em;
         }
         .hero-banner p {
-            color: #ecfdf5 !important;
+            color: #ccfbf1 !important;
             margin: 0;
             font-size: 1.05rem;
             line-height: 1.6;
-            max-width: 880px;
+            max-width: 820px;
         }
-        .creator-text {
-            color: #6ee7b7 !important;
-            font-weight: 700;
-            margin-left: 0.3rem;
+        /* Top-Right Creator Badge */
+        .creator-badge {
+            background: rgba(45, 212, 191, 0.12);
+            border: 1px solid rgba(45, 212, 191, 0.4);
+            color: #2dd4bf !important;
+            padding: 0.45rem 1rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(8px);
+            white-space: nowrap;
+        }
+        .creator-badge span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #2dd4bf;
+            border-radius: 50%;
         }
 
         /* Sidebar Styling */
         section[data-testid="stSidebar"] {
-            background-color: #022c22 !important;
-            border-right: 1px solid rgba(167, 243, 208, 0.15);
+            background-color: #112a2e !important;
+            border-right: 1px solid rgba(153, 246, 228, 0.15);
         }
         section[data-testid="stSidebar"] h1, 
         section[data-testid="stSidebar"] h2, 
         section[data-testid="stSidebar"] h3, 
         section[data-testid="stSidebar"] label,
         section[data-testid="stSidebar"] p {
-            color: #f0fdf4 !important;
+            color: #f0fdfa !important;
         }
 
         .sidebar-brand {
             padding: 0.5rem 0 1rem 0;
             margin-bottom: 1rem;
-            border-bottom: 1px solid rgba(167, 243, 208, 0.2);
+            border-bottom: 1px solid rgba(153, 246, 228, 0.2);
         }
         .sidebar-brand h2 {
             font-size: 1.6rem;
@@ -208,8 +233,8 @@ def inject_css():
         }
 
         .sidebar-info-card {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(167, 243, 208, 0.25);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(153, 246, 228, 0.25);
             border-radius: 12px;
             padding: 1.1rem;
             margin-bottom: 1rem;
@@ -218,7 +243,7 @@ def inject_css():
             font-size: 0.95rem;
             font-weight: 600;
             margin: 0 0 0.6rem 0;
-            color: #34d399 !important;
+            color: #2dd4bf !important;
             text-transform: uppercase;
             letter-spacing: 0.03em;
         }
@@ -227,10 +252,10 @@ def inject_css():
             padding-left: 1.2rem;
             font-size: 0.88rem;
             line-height: 1.5;
-            color: #ecfdf5 !important;
+            color: #f0fdfa !important;
         }
         .sidebar-info-card li {
-            color: #ecfdf5 !important;
+            color: #f0fdfa !important;
         }
 
         /* Button Styles */
@@ -241,38 +266,38 @@ def inject_css():
             border: none !important;
             font-weight: 600 !important;
             padding: 0.6rem 1.3rem !important;
-            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25) !important;
+            box-shadow: 0 4px 14px rgba(13, 148, 136, 0.25) !important;
             transition: all 0.2s ease-in-out !important;
         }
         .stButton > button:hover {
             background: var(--btn-hover) !important;
             transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(5, 150, 105, 0.4) !important;
+            box-shadow: 0 6px 18px rgba(13, 148, 136, 0.4) !important;
         }
 
         /* Sidebar Buttons */
         section[data-testid="stSidebar"] .stButton > button {
-            background: rgba(52, 211, 153, 0.15) !important;
-            border: 1px solid rgba(52, 211, 153, 0.4) !important;
+            background: rgba(45, 212, 191, 0.15) !important;
+            border: 1px solid rgba(45, 212, 191, 0.4) !important;
             color: #ffffff !important;
             width: 100%;
             box-shadow: none !important;
         }
         section[data-testid="stSidebar"] .stButton > button:hover {
-            background: rgba(52, 211, 153, 0.3) !important;
+            background: rgba(45, 212, 191, 0.3) !important;
         }
 
-        /* Custom Selectbox Dropdown Fix */
+        /* Selectbox Styling Fix */
         div[data-baseweb="select"] {
             border-radius: 10px !important;
-            border: 1.5px solid #059669 !important;
+            border: 1.5px solid #0d9488 !important;
             background-color: #ffffff !important;
         }
         div[data-baseweb="select"] * {
-            color: #022c22 !important;
+            color: #0f172a !important;
         }
         div[data-baseweb="popover"] * {
-            color: #022c22 !important;
+            color: #0f172a !important;
             background-color: #ffffff !important;
         }
 
@@ -290,8 +315,8 @@ def inject_css():
         /* Assistant Response Style */
         [data-testid="stChatMessage"]:nth-child(odd) {
             background-color: var(--assistant-msg-bg) !important;
-            border: 1px solid var(--border-emerald) !important;
-            box-shadow: 0 4px 15px rgba(6, 78, 59, 0.05) !important;
+            border: 1px solid var(--border-color) !important;
+            box-shadow: 0 4px 15px rgba(17, 42, 46, 0.05) !important;
         }
 
         /* Response Metadata Badge */
@@ -300,23 +325,24 @@ def inject_css():
             align-items: center;
             gap: 10px;
             font-size: 0.8rem;
-            color: #059669;
+            color: #0d9488;
             font-weight: 600;
             margin-top: 0.8rem;
             padding-top: 0.5rem;
-            border-top: 1px dashed #a7f3d0;
+            border-top: 1px dashed #99f6e4;
         }
 
-        /* Custom Rich Footer Banner */
+        /* Custom Footer Banner */
         .custom-footer {
             background: var(--hero-gradient);
             border-radius: 14px;
             padding: 1.3rem;
             text-align: center;
-            color: #ecfdf5;
+            color: #ccfbf1;
             margin-top: 2rem;
             font-size: 0.9rem;
-            box-shadow: 0 8px 20px rgba(4, 120, 87, 0.2);
+            box-shadow: 0 8px 20px rgba(17, 42, 46, 0.2);
+            border: 1px solid rgba(153, 246, 228, 0.2);
         }
         .custom-footer p {
             margin: 0.2rem 0;
@@ -746,11 +772,15 @@ def render_header():
     st.markdown(
         """
         <div class="hero-banner">
-            <h1>Healthcare Assistant</h1>
+            <div class="hero-top-row">
+                <h1>Healthcare Assistant</h1>
+                <div class="creator-badge">
+                    <span></span> Created by Areeba Imran
+                </div>
+            </div>
             <p>Welcome to <b>Healthcare Assistant</b> — an advanced, retrieval-augmented healthcare information system. 
             Designed to deliver fast, verified, and grounded answers directly from hospital documentation, 
-            empowering users with accurate guidance on registration, services, policies, and care.
-            <span class="creator-text">• Created by Areeba Imran</span></p>
+            empowering users with accurate guidance on registration, services, policies, and care.</p>
         </div>
         """,
         unsafe_allow_html=True,
