@@ -81,11 +81,16 @@ WHISPER_LANG_HINT = {
 
 QUICK_PROMPT_OPTIONS = [
     "-- Select a sample question to ask --",
-    "🚨 What are the emergency protocols and contact rules?",
-    "🕒 What are the visiting hours for general and ICU wards?",
-    "🏥 Which specialized medical departments are available?",
+    "🚨 What are the emergency protocols and helpline numbers?",
+    "🕒 What are the visiting hours for general wards and ICU?",
+    "🏥 Which specialized medical departments and consultants are available?",
     "📋 What documents and steps are required for patient admission?",
-    "💳 What insurance and billing policies are supported?",
+    "💳 What insurance panels and billing policies are supported?",
+    "🩺 How can I book an appointment with a specialist doctor?",
+    "🧪 What are the operating timings for laboratory and radiology services?",
+    "📜 What is the step-by-step procedure for patient discharge?",
+    "💊 Is the hospital pharmacy open 24/7 for medicine delivery?",
+    "🚙 What are the parking and ambulance service facilities available?"
 ]
 
 NOT_FOUND_MESSAGE = (
@@ -797,7 +802,7 @@ def render_header():
 
 
 def render_quick_prompt_dropdown():
-    st.markdown("**💡 Explore Common Questions (Select from Dropdown)**")
+    st.markdown("**🏥 Frequently Asked Questions**")
     selected_option = st.selectbox(
         "Select a frequent question to ask immediately:",
         QUICK_PROMPT_OPTIONS,
@@ -805,7 +810,19 @@ def render_quick_prompt_dropdown():
     )
     
     if selected_option and selected_option != QUICK_PROMPT_OPTIONS[0]:
-        clean_query = selected_option.replace("🚨 ", "").replace("🕒 ", "").replace("🏥 ", "").replace("📋 ", "").replace("💳 ", "")
+        clean_query = (
+            selected_option
+            .replace("🚨 ", "")
+            .replace("🕒 ", "")
+            .replace("🏥 ", "")
+            .replace("📋 ", "")
+            .replace("💳 ", "")
+            .replace("🩺 ", "")
+            .replace("🧪 ", "")
+            .replace("📜 ", "")
+            .replace("💊 ", "")
+            .replace("🚙 ", "")
+        )
         handle_question(clean_query)
         st.rerun()
 
