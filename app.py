@@ -133,7 +133,7 @@ CONTEXT FROM KNOWLEDGE BASE:
 """
 
 # ---------------------------------------------------------------------------
-# Custom Vibrant Slate & Seafoam UI (Zero Blue / Zero Pink / Zero Purple)
+# Custom Vibrant Slate & Seafoam UI (Modern Dedicated Chat Widget Container)
 # ---------------------------------------------------------------------------
 def inject_css():
     st.markdown(
@@ -162,41 +162,41 @@ def inject_css():
         .hero-banner {
             background: var(--hero-gradient);
             border-radius: 20px;
-            padding: 2.2rem 2.5rem;
-            margin-bottom: 1.8rem;
+            padding: 1.8rem 2.2rem;
+            margin-bottom: 1.5rem;
             color: #ffffff;
             box-shadow: 0 14px 35px -10px rgba(17, 42, 46, 0.45);
             border: 1px solid rgba(153, 246, 228, 0.2);
-            position: relative;
         }
         .hero-top-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.8rem;
+            margin-bottom: 0.6rem;
         }
         .hero-banner h1 {
             color: #ffffff !important;
             margin: 0;
-            font-size: 2.3rem;
+            font-size: 2.1rem;
             font-weight: 700;
             letter-spacing: -0.02em;
         }
         .hero-banner p {
             color: #ccfbf1 !important;
             margin: 0;
-            font-size: 1.05rem;
-            line-height: 1.6;
+            font-size: 0.98rem;
+            line-height: 1.5;
             max-width: 820px;
         }
-        /* Top-Right Creator Badge */
+
+        /* Creator Badge */
         .creator-badge {
             background: rgba(45, 212, 191, 0.12);
             border: 1px solid rgba(45, 212, 191, 0.4);
             color: #2dd4bf !important;
-            padding: 0.45rem 1rem;
+            padding: 0.4rem 0.9rem;
             border-radius: 30px;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: 600;
             display: inline-flex;
             align-items: center;
@@ -231,7 +231,7 @@ def inject_css():
             border-bottom: 1px solid rgba(153, 246, 228, 0.2);
         }
         .sidebar-brand h2 {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 700;
             margin: 0;
             color: #ffffff !important;
@@ -241,22 +241,22 @@ def inject_css():
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(153, 246, 228, 0.25);
             border-radius: 12px;
-            padding: 1.1rem;
-            margin-bottom: 1rem;
+            padding: 1rem;
+            margin-bottom: 0.9rem;
         }
         .sidebar-info-card h4 {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 600;
-            margin: 0 0 0.6rem 0;
+            margin: 0 0 0.5rem 0;
             color: #2dd4bf !important;
             text-transform: uppercase;
             letter-spacing: 0.03em;
         }
         .sidebar-info-card ul {
             margin: 0;
-            padding-left: 1.2rem;
-            font-size: 0.88rem;
-            line-height: 1.5;
+            padding-left: 1.1rem;
+            font-size: 0.85rem;
+            line-height: 1.4;
             color: #f0fdfa !important;
         }
         .sidebar-info-card li {
@@ -270,7 +270,7 @@ def inject_css():
             border-radius: 10px !important;
             border: none !important;
             font-weight: 600 !important;
-            padding: 0.6rem 1.3rem !important;
+            padding: 0.55rem 1.2rem !important;
             box-shadow: 0 4px 14px rgba(13, 148, 136, 0.25) !important;
             transition: all 0.2s ease-in-out !important;
         }
@@ -288,11 +288,8 @@ def inject_css():
             width: 100%;
             box-shadow: none !important;
         }
-        section[data-testid="stSidebar"] .stButton > button:hover {
-            background: rgba(45, 212, 191, 0.3) !important;
-        }
 
-        /* Selectbox Styling Fix */
+        /* Selectbox Styling */
         div[data-baseweb="select"] {
             border-radius: 10px !important;
             border: 1.5px solid #0d9488 !important;
@@ -301,39 +298,73 @@ def inject_css():
         div[data-baseweb="select"] * {
             color: #0f172a !important;
         }
-        div[data-baseweb="popover"] * {
-            color: #0f172a !important;
-            background-color: #ffffff !important;
+
+        /* Dedicated Chatbot Container Box */
+        .chatbot-container {
+            background: #ffffff;
+            border: 2px solid #99f6e4;
+            border-radius: 20px;
+            box-shadow: 0 12px 32px rgba(17, 42, 46, 0.12);
+            padding: 1.5rem;
+            margin: 0 auto 2rem auto;
+            max-width: 900px;
+        }
+
+        .chatbot-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--hero-gradient);
+            padding: 0.8rem 1.2rem;
+            border-radius: 14px;
+            color: white;
+            margin-bottom: 1.2rem;
+        }
+
+        .chatbot-avatar {
+            width: 40px;
+            height: 40px;
+            background: #2dd4bf;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .chat-scroll-area {
+            max-height: 480px;
+            overflow-y: auto;
+            padding-right: 8px;
+            margin-bottom: 1rem;
         }
 
         /* Output Chat Messages */
         [data-testid="stChatMessage"] {
             border-radius: 14px !important;
-            padding: 1.2rem !important;
-            margin-bottom: 1.1rem !important;
+            padding: 1rem !important;
+            margin-bottom: 0.9rem !important;
         }
-        /* User Message Style */
         [data-testid="stChatMessage"]:nth-child(even) {
             background-color: var(--user-msg-bg) !important;
             border: 1px solid #99f6e4 !important;
         }
-        /* Assistant Response Style */
         [data-testid="stChatMessage"]:nth-child(odd) {
             background-color: var(--assistant-msg-bg) !important;
             border: 1px solid var(--border-color) !important;
-            box-shadow: 0 4px 15px rgba(17, 42, 46, 0.05) !important;
+            box-shadow: 0 2px 10px rgba(17, 42, 46, 0.04) !important;
         }
 
-        /* Response Metadata Badge */
         .response-meta {
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             color: #0d9488;
             font-weight: 600;
-            margin-top: 0.8rem;
-            padding-top: 0.5rem;
+            margin-top: 0.6rem;
+            padding-top: 0.4rem;
             border-top: 1px dashed #99f6e4;
         }
 
@@ -341,11 +372,11 @@ def inject_css():
         .custom-footer {
             background: var(--hero-gradient);
             border-radius: 14px;
-            padding: 1.3rem;
+            padding: 1.1rem;
             text-align: center;
             color: #ccfbf1;
             margin-top: 2rem;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             box-shadow: 0 8px 20px rgba(17, 42, 46, 0.2);
             border: 1px solid rgba(153, 246, 228, 0.2);
         }
@@ -784,8 +815,7 @@ def render_header():
                 </div>
             </div>
             <p>Welcome to <b>Healthcare Assistant</b> — an advanced, retrieval-augmented healthcare information system. 
-            Designed to deliver fast, verified, and grounded answers directly from hospital documentation, 
-            empowering users with accurate guidance on registration, services, policies, and care.</p>
+            Designed to deliver fast, verified, and grounded answers directly from hospital documentation.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -827,7 +857,7 @@ def render_quick_prompt_dropdown():
         st.rerun()
 
 
-def render_chat_history():
+def render_chat_messages():
     for turn in st.session_state.chat_history:
         role = turn["role"]
         with st.chat_message(role):
@@ -838,42 +868,78 @@ def render_chat_history():
                 if turn.get("sources"):
                     render_sources(turn["sources"])
                 
-                # Output Metadata Footer
                 if turn.get("time"):
                     st.markdown(
                         f"""
                         <div class="response-meta">
                             <span>⚡ Response Time: {turn['time']}s</span> • 
-                            <span>🔒 Verified Grounded RAG</span>
+                            <span>🔒 Grounded Verification</span>
                         </div>
                         """,
                         unsafe_allow_html=True
                     )
 
 
-def render_voice_input():
-    st.markdown("**🎙️ Voice Interaction**")
-    try:
-        from streamlit_mic_recorder import mic_recorder
-    except Exception:
-        st.caption("Voice recording unavailable in current environment.")
-        return
-
-    audio = mic_recorder(
-        start_prompt="Start Recording Voice",
-        stop_prompt="Stop & Process Voice",
-        just_once=True,
-        use_container_width=True,
-        format="wav",
-        key="healthcare_mic",
+def render_chatbot_card():
+    # Centered dedicated Chatbot Card Box
+    st.markdown(
+        """
+        <div class="chatbot-header">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="chatbot-avatar">🤖</div>
+                <div>
+                    <h3 style="margin:0; font-size:1.15rem; color:#ffffff;">Healthcare Assistant Bot</h3>
+                    <span style="font-size:0.75rem; color:#2dd4bf;">● Online | Grounded AI</span>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
-    if audio and audio.get("bytes"):
-        audio_hash = hashlib.md5(audio["bytes"]).hexdigest()
-        if st.session_state.last_audio_hash != audio_hash:
-            st.session_state.last_audio_hash = audio_hash
-            handle_voice(audio["bytes"])
+    # Chat history viewport inside card
+    render_chat_messages()
+
+    st.markdown("<hr style='margin:1rem 0; border-color:#99f6e4;'>", unsafe_allow_html=True)
+
+    # Unified Text + Voice Control Bar inside the bot card
+    col_text, col_voice, col_send = st.columns([4, 1.2, 1])
+
+    with st.form("chatbot_card_form", clear_on_submit=True):
+        col_inp, col_btn = st.columns([5, 1])
+        with col_inp:
+            typed_question = st.text_input(
+                "Type query...",
+                label_visibility="collapsed",
+                placeholder="Ask doctor availability, visiting hours, or hospital rules...",
+            )
+        with col_btn:
+            submitted = st.form_submit_button("Send 💬", use_container_width=True)
+
+        if submitted and typed_question.strip():
+            handle_question(typed_question)
             st.rerun()
+
+    # Integrated Mic Recorder underneath text input inside card
+    try:
+        from streamlit_mic_recorder import mic_recorder
+        st.caption("🎙️ Or click below to ask via voice:")
+        audio = mic_recorder(
+            start_prompt="🔴 Tap to Speak",
+            stop_prompt="🟩 Stop & Process",
+            just_once=True,
+            use_container_width=True,
+            format="wav",
+            key="chatbot_mic",
+        )
+        if audio and audio.get("bytes"):
+            audio_hash = hashlib.md5(audio["bytes"]).hexdigest()
+            if st.session_state.last_audio_hash != audio_hash:
+                st.session_state.last_audio_hash = audio_hash
+                handle_voice(audio["bytes"])
+                st.rerun()
+    except Exception:
+        st.caption("Voice recording component unavailable.")
 
 
 def render_info_panel():
@@ -966,33 +1032,20 @@ def main():
 
     st.markdown("---")
     render_quick_prompt_dropdown()
-    st.markdown("---")
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    col_heading, col_clear = st.columns([4, 1])
-    with col_heading:
-        st.subheader("💬 Assistant Chat Workspace")
-    with col_clear:
+    # Header controls
+    c_title, c_clear = st.columns([4, 1])
+    with c_title:
+        st.subheader("🤖 Interactive Assistant Window")
+    with c_clear:
         if st.button("🗑️ Clear Chat", use_container_width=True):
             st.session_state.chat_history = []
             st.session_state.last_audio_hash = None
             st.rerun()
 
-    with st.container():
-        with st.form("text_question_form", clear_on_submit=True):
-            col_input, col_submit = st.columns([5, 1])
-            with col_input:
-                typed_question = st.text_input(
-                    "Ask Healthcare Assistant a question...",
-                    label_visibility="collapsed",
-                    placeholder="Type your medical query, hospital policy question, or registration inquiry...",
-                )
-            with col_submit:
-                submitted = st.form_submit_button("Submit", use_container_width=True)
-        if submitted and typed_question.strip():
-            handle_question(typed_question)
-
-    render_voice_input()
-    render_chat_history()
+    # Chatbot Card Widget
+    render_chatbot_card()
 
     render_footer()
 
