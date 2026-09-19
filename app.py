@@ -130,7 +130,7 @@ CONTEXT FROM AREEBACARE KNOWLEDGE BASE:
 """
 
 # ---------------------------------------------------------------------------
-# Clean, Professional UI Styling
+# Modern, Elegant UI Styling (No plain white look)
 # ---------------------------------------------------------------------------
 def inject_css():
     st.markdown(
@@ -139,56 +139,69 @@ def inject_css():
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
         :root {
-            --primary: #0f172a;
-            --accent: #2563eb;
-            --accent-hover: #1d4ed8;
-            --bg-main: #f8fafc;
-            --sidebar-bg: #0f172a;
+            --primary-dark: #0f172a;
+            --accent-blue: #2563eb;
+            --accent-blue-hover: #1d4ed8;
+            --bg-color: #f1f5f9;
             --card-bg: #ffffff;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --border-color: #e2e8f0;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border-subtle: #cbd5e1;
         }
 
         html, body, .stApp {
-            background-color: var(--bg-main);
+            background-color: var(--bg-color) !important;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        /* Top Header Area */
-        .areebacare-header {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            border-radius: 16px;
-            padding: 2.2rem 2.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1);
+        /* Hero Banner */
+        .areebacare-hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #1e40af 100%);
+            border-radius: 18px;
+            padding: 2.2rem 2.8rem;
+            margin-bottom: 1.8rem;
+            color: #ffffff;
+            box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.25);
+            position: relative;
         }
-        .areebacare-header h1 {
+        .areebacare-hero h1 {
             color: #ffffff !important;
-            margin: 0 0 0.4rem 0;
-            font-size: 2.2rem;
+            margin: 0 0 0.3rem 0;
+            font-size: 2.3rem;
             font-weight: 700;
             letter-spacing: -0.02em;
         }
-        .areebacare-header p {
-            color: #94a3b8 !important;
+        .areebacare-hero .creator-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.12);
+            color: #38bdf8;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .areebacare-hero p {
+            color: #cbd5e1 !important;
             margin: 0;
-            font-size: 1.05rem;
-            font-weight: 400;
+            font-size: 1.02rem;
+            line-height: 1.6;
+            max-width: 800px;
         }
 
         /* Sidebar Styling */
         section[data-testid="stSidebar"] {
-            background-color: var(--sidebar-bg) !important;
+            background-color: var(--primary-dark) !important;
             border-right: 1px solid rgba(255, 255, 255, 0.08);
         }
         section[data-testid="stSidebar"] * {
-            color: #f1f5f9 !important;
+            color: #f8fafc !important;
         }
-        
+
         .sidebar-brand {
             padding: 1rem 0;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         .sidebar-brand h2 {
@@ -198,7 +211,7 @@ def inject_css():
             color: #ffffff !important;
         }
         .sidebar-brand p {
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             color: #94a3b8 !important;
             margin: 0.2rem 0 0 0;
         }
@@ -213,13 +226,13 @@ def inject_css():
         .sidebar-info-card h4 {
             font-size: 0.95rem;
             font-weight: 600;
-            margin: 0 0 0.6rem 0;
+            margin: 0 0 0.5rem 0;
             color: #38bdf8 !important;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
         .sidebar-info-card p, .sidebar-info-card ul {
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             color: #cbd5e1 !important;
             margin: 0;
             line-height: 1.5;
@@ -228,19 +241,27 @@ def inject_css():
             padding-left: 1.2rem;
         }
 
+        /* Custom Cards in Main Area */
+        [data-testid="stVerticalBlockBorderWrapper"] {
+            background-color: var(--card-bg) !important;
+            border: 1px solid var(--border-subtle) !important;
+            border-radius: 14px !important;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03) !important;
+        }
+
         /* Buttons & Controls */
         .stButton > button {
-            background-color: var(--accent) !important;
+            background-color: var(--accent-blue) !important;
             color: #ffffff !important;
-            border-radius: 8px !important;
+            border-radius: 10px !important;
             border: none !important;
             font-weight: 600 !important;
-            padding: 0.6rem 1.2rem !important;
+            padding: 0.55rem 1.2rem !important;
             transition: all 0.2s ease !important;
         }
         .stButton > button:hover {
-            background-color: var(--accent-hover) !important;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+            background-color: var(--accent-blue-hover) !important;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3) !important;
         }
 
         section[data-testid="stSidebar"] .stButton > button {
@@ -250,28 +271,29 @@ def inject_css():
             width: 100%;
         }
         section[data-testid="stSidebar"] .stButton > button:hover {
-            background-color: rgba(255, 255, 255, 0.15) !important;
+            background-color: rgba(255, 255, 255, 0.16) !important;
         }
 
-        /* Chat UI Container */
+        /* Chat UI Messages */
         [data-testid="stChatMessage"] {
             background-color: var(--card-bg) !important;
-            border: 1px solid var(--border-color) !important;
-            border-radius: 12px !important;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02) !important;
-            padding: 1.25rem !important;
+            border: 1px solid var(--border-subtle) !important;
+            border-radius: 14px !important;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+            padding: 1.2rem !important;
             margin-bottom: 1rem !important;
         }
 
-        /* Form Inputs */
+        /* Input Controls */
         [data-testid="stTextInput"] input {
-            border-radius: 8px !important;
-            border: 1px solid var(--border-color) !important;
-            padding: 0.6rem 1rem !important;
+            border-radius: 10px !important;
+            border: 1px solid var(--border-subtle) !important;
+            padding: 0.65rem 1rem !important;
+            background-color: #ffffff !important;
         }
         [data-testid="stTextInput"] input:focus {
-            border-color: var(--accent) !important;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
+            border-color: var(--accent-blue) !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
         }
 
         footer {
@@ -607,6 +629,24 @@ def init_session_state():
 
 
 # ---------------------------------------------------------------------------
+# Smart Greetings Check
+# ---------------------------------------------------------------------------
+def is_greeting(query):
+    cleaned = re.sub(r"[^\w\s]", "", query.lower().strip())
+    greetings = {"hi", "hello", "hey", "salam", "aoa", "assalam o alaikum", "greetings"}
+    return cleaned in greetings
+
+
+def get_greeting_response(language):
+    if language == "Urdu":
+        return "السلام علیکم! میں AreebaCare ہیلتھ کیئر اسسٹنٹ ہوں۔ میں آپ کی کیا مدد کر سکتا ہوں؟ آپ ہسپتال کی سہولیات، رجسٹریشن اور دیگر معلومات کے بارے میں پوچھ سکتے ہیں۔"
+    elif language == "Roman Urdu":
+        return "Aoa! Main AreebaCare Healthcare Assistant hoon. Main aap ki kya madad kar sakta hoon? Aap hospital ki visiting hours, registration ya kisi bhi policy ke baray mein pooch saktay hain."
+    else:
+        return "Hello! Welcome to AreebaCare Healthcare Assistant. How can I assist you today? You can ask me about hospital services, visiting hours, registration, and patient guidelines."
+
+
+# ---------------------------------------------------------------------------
 # Core question handling
 # ---------------------------------------------------------------------------
 def handle_question(query, label=None):
@@ -619,27 +659,32 @@ def handle_question(query, label=None):
 
     language = st.session_state.language
 
-    with st.spinner("Retrieving knowledge and generating answer..."):
-        if st.session_state.kb_status != "ready" or st.session_state.kb_index is None:
-            answer = KB_NOT_READY_MESSAGE
-            context_chunks = []
-        else:
-            model = get_embedding_model()
-            context_chunks = retrieve_context(
-                query, st.session_state.kb_index, st.session_state.kb_chunks, model
-            )
-            if not context_chunks:
-                answer = NOT_FOUND_MESSAGE
+    # Quick Greeting Handling
+    if is_greeting(query):
+        answer = get_greeting_response(language)
+        context_chunks = []
+    else:
+        with st.spinner("Retrieving knowledge and generating answer..."):
+            if st.session_state.kb_status != "ready" or st.session_state.kb_index is None:
+                answer = KB_NOT_READY_MESSAGE
+                context_chunks = []
             else:
-                answer, error = generate_answer(query, context_chunks, language, st.session_state.chat_history)
-                if error == "missing_key":
-                    answer = MISSING_KEY_MESSAGE
-                    context_chunks = []
-                elif error:
-                    answer = GROQ_ERROR_MESSAGE
-                    context_chunks = []
+                model = get_embedding_model()
+                context_chunks = retrieve_context(
+                    query, st.session_state.kb_index, st.session_state.kb_chunks, model
+                )
+                if not context_chunks:
+                    answer = NOT_FOUND_MESSAGE
+                else:
+                    answer, error = generate_answer(query, context_chunks, language, st.session_state.chat_history)
+                    if error == "missing_key":
+                        answer = MISSING_KEY_MESSAGE
+                        context_chunks = []
+                    elif error:
+                        answer = GROQ_ERROR_MESSAGE
+                        context_chunks = []
 
-        audio_bytes = generate_tts(answer, language)
+    audio_bytes = generate_tts(answer, language)
 
     st.session_state.chat_history.append(
         {
@@ -676,9 +721,12 @@ def handle_voice(audio_bytes):
 def render_header():
     st.markdown(
         """
-        <div class="areebacare-header">
+        <div class="areebacare-hero">
+            <div class="creator-badge">Created by Areeba Imran</div>
             <h1>AreebaCare Healthcare Assistant</h1>
-            <p>Reliable, grounded healthcare information system.</p>
+            <p>Welcome to <b>AreebaCare</b> — your intelligent, retrieval-augmented healthcare information system. 
+            Designed to deliver fast, grounded, and accurate answers directly from official hospital knowledge bases, 
+            empowering patients with instant insights on registration, policies, departments, and general guidelines.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -686,7 +734,7 @@ def render_header():
 
     status = st.session_state.kb_status
     if status == "no_pdfs":
-        st.warning("No knowledge base documents found. Please insert PDF files into the designated folder.")
+        st.warning("No knowledge base documents found. Please insert PDF files into the knowledge_base folder.")
     elif status in ("faiss_error", "embedding_error"):
         st.error("System index build error. Please click 'Rebuild Index' in the sidebar.")
 
@@ -753,7 +801,7 @@ def render_info_panel():
             """
             <div class="sidebar-brand">
                 <h2>AreebaCare AI</h2>
-                <p>Enterprise Healthcare RAG System</p>
+                <p>Designed & Developed by Areeba Imran</p>
             </div>
             """,
             unsafe_allow_html=True
