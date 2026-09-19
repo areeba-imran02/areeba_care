@@ -135,11 +135,21 @@ def inject_css():
     st.markdown(
         """
         <style>
+        :root {
+            --navy: #16213e;
+            --charcoal: #1d1b26;
+            --body-bg: #f3f1f7;
+            --card-bg: #ffffff;
+            --card-border: #e2dfe9;
+            --text-main: #2a2733;
+            --text-muted: #6b6778;
+            --accent: #9c5f78;
+            --accent-hover: #874f66;
+            --accent-soft: #f1e4ea;
+        }
+
         html, body, .stApp {
-            background: linear-gradient(135deg, #f5f2fa 0%, #ece3f2 20%, #cfc0dd 42%, #7d6a95 65%, #362e49 85%, #1d1828 100%);
-            background-attachment: fixed;
-            background-size: cover;
-            min-height: 100vh;
+            background: var(--body-bg);
         }
         [data-testid="stAppViewContainer"],
         [data-testid="stMain"],
@@ -150,42 +160,74 @@ def inject_css():
         [data-testid="stHeader"] {
             background: rgba(0, 0, 0, 0);
         }
+
+        /* Sidebar: solid charcoal, distinct from header and body */
         section[data-testid="stSidebar"] {
-            background: linear-gradient(180deg, #211c30 0%, #2c2540 55%, #3a2f4d 100%);
-            border-right: 1px solid rgba(214, 196, 230, 0.15);
+            background: var(--charcoal);
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
         }
         section[data-testid="stSidebar"] h1,
         section[data-testid="stSidebar"] h2,
         section[data-testid="stSidebar"] h3,
         section[data-testid="stSidebar"] h4 {
-            color: #f5f2fa;
+            color: #f5f3f8;
         }
         section[data-testid="stSidebar"] p,
         section[data-testid="stSidebar"] span,
         section[data-testid="stSidebar"] label,
+        section[data-testid="stSidebar"] li,
         section[data-testid="stSidebar"] .stMarkdown,
         section[data-testid="stSidebar"] .stCaption {
-            color: #ded7ea;
+            color: #c7c3d4;
         }
         section[data-testid="stSidebar"] [data-testid="stVerticalBlockBorderWrapper"] {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(214, 196, 230, 0.22);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 12px;
         }
+        section[data-testid="stSidebar"] hr {
+            border-color: rgba(255, 255, 255, 0.10);
+        }
+
+        /* Header banner: solid navy, distinct shade from the rest of the app */
+        .areebacare-header {
+            background: var(--navy);
+            border-radius: 14px;
+            padding: 1.8rem 2.2rem;
+            margin-bottom: 1.4rem;
+        }
+        .areebacare-header h1 {
+            color: #ffffff;
+            margin: 0 0 0.35rem 0;
+            font-size: 2.1rem;
+            font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+        }
+        .areebacare-header p {
+            color: #c3c8dc;
+            margin: 0;
+            font-size: 1.02rem;
+        }
+
         h1, h2, h3, h4 {
-            color: #241f33;
+            color: var(--text-main);
             font-family: "Segoe UI", "Helvetica Neue", sans-serif;
             letter-spacing: 0.2px;
         }
         p, span, label, .stMarkdown, .stCaption {
-            color: #34293f;
+            color: var(--text-main);
         }
+
+        /* Cards: solid white, subtle border, no gradients */
         [data-testid="stVerticalBlockBorderWrapper"] {
-            background: rgba(255, 255, 255, 0.88);
-            border: 1px solid rgba(120, 100, 150, 0.20);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
             border-radius: 14px;
+            box-shadow: 0 1px 3px rgba(20, 15, 35, 0.05);
         }
+
+        /* Buttons: solid accent color, no gradients */
         .stButton > button {
-            background: linear-gradient(120deg, #5c4a78, #8a6f8f);
+            background: var(--accent);
             color: #ffffff;
             border: none;
             border-radius: 10px;
@@ -193,16 +235,24 @@ def inject_css():
             font-weight: 500;
         }
         .stButton > button:hover {
-            background: linear-gradient(120deg, #6d5a8c, #9c7f9f);
+            background: var(--accent-hover);
             color: #ffffff;
         }
-        [data-testid="stChatInput"] {
-            border-radius: 12px;
+        section[data-testid="stSidebar"] .stButton > button {
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.18);
         }
+        section[data-testid="stSidebar"] .stButton > button:hover {
+            background: rgba(255, 255, 255, 0.16);
+        }
+
         [data-testid="stChatMessage"] {
-            background: rgba(255, 255, 255, 0.85);
+            background: var(--card-bg);
             border-radius: 12px;
-            border: 1px solid rgba(120, 100, 150, 0.15);
+            border: 1px solid var(--card-border);
+        }
+        [data-testid="stTextInput"] input {
+            border-radius: 10px;
         }
         </style>
         """,
@@ -601,9 +651,15 @@ def handle_voice(audio_bytes):
 # UI sections
 # ---------------------------------------------------------------------------
 def render_header():
-    with st.container(border=True):
-        st.title("AreebaCare Healthcare Assistant")
-        st.caption("Reliable healthcare information, grounded in the AreebaCare knowledge base.")
+    st.markdown(
+        """
+        <div class="areebacare-header">
+            <h1>AreebaCare Healthcare Assistant</h1>
+            <p>Reliable healthcare information, grounded in the AreebaCare knowledge base.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     status = st.session_state.kb_status
     if status == "no_pdfs":
@@ -620,23 +676,12 @@ def render_header():
                 st.write(f"- {fname}")
 
 
-def render_controls():
-    col_lang, col_rebuild, col_clear = st.columns([2, 1, 1])
+def render_language_selector():
+    col_lang, _ = st.columns([1, 3])
     with col_lang:
         st.session_state.language = st.selectbox(
             "Language", LANGUAGE_OPTIONS, index=LANGUAGE_OPTIONS.index(st.session_state.language)
         )
-    with col_rebuild:
-        st.write("")
-        if st.button("Rebuild Knowledge Base", use_container_width=True):
-            load_or_build_knowledge_base(force_rebuild=True)
-            st.rerun()
-    with col_clear:
-        st.write("")
-        if st.button("Clear Conversation", use_container_width=True):
-            st.session_state.chat_history = []
-            st.session_state.last_audio_hash = None
-            st.rerun()
 
 
 def render_example_questions():
@@ -690,41 +735,53 @@ def render_info_panel():
         st.subheader("Information Panel")
 
         with st.container(border=True):
-            st.subheader("AreebaCare")
-            st.write(
+            st.markdown("**AreebaCare**")
+            st.caption(
                 "A fictional educational healthcare information assistant designed "
                 "to answer questions using a controlled hospital knowledge base."
             )
 
         with st.container(border=True):
-            st.subheader("Response Flow")
-            st.write("Question")
-            st.write("\u2192 Retrieval")
-            st.write("\u2192 Grounded Answer")
-            st.write("\u2192 Audio Response")
+            st.markdown("**Response Flow**")
+            st.markdown(
+                "- Question\n"
+                "- \u2192 Retrieval\n"
+                "- \u2192 Grounded Answer\n"
+                "- \u2192 Audio Response"
+            )
 
         with st.container(border=True):
-            st.subheader("Knowledge Base")
+            st.markdown("**Knowledge Base**")
             if st.session_state.kb_status == "ready":
-                st.write(f"{st.session_state.kb_loaded_count} documents")
-                st.caption("Knowledge base ready")
+                st.markdown(f"- {st.session_state.kb_loaded_count} documents loaded")
+                st.markdown("- Status: Ready")
             else:
-                st.caption("Knowledge base not ready yet")
-            st.write("PDF-based")
-            st.write("FAISS retrieval")
-            st.write("Grounded responses")
+                st.markdown("- Status: Not ready yet")
+            st.markdown(
+                "- PDF-based\n"
+                "- FAISS retrieval\n"
+                "- Grounded responses"
+            )
 
         with st.container(border=True):
-            st.subheader("Supported Languages")
-            for lang in LANGUAGE_OPTIONS:
-                st.write(lang)
+            st.markdown("**Supported Languages**")
+            st.markdown("\n".join(f"- {lang}" for lang in LANGUAGE_OPTIONS))
 
         with st.container(border=True):
-            st.subheader("Safety")
-            st.write("Educational information only.")
-            st.write("No diagnosis.")
-            st.write("No treatment prescription.")
-            st.write("No invented medical information.")
+            st.markdown("**Safety**")
+            st.markdown(
+                "- Educational information only\n"
+                "- No diagnosis\n"
+                "- No treatment prescription\n"
+                "- No invented medical information"
+            )
+
+        st.divider()
+        with st.expander("Admin Tools"):
+            st.caption("For advanced use only. Rebuilds the search index from the PDFs currently in knowledge_base/.")
+            if st.button("Rebuild Knowledge Base", use_container_width=True):
+                load_or_build_knowledge_base(force_rebuild=True)
+                st.rerun()
 
 
 def render_footer():
@@ -748,9 +805,18 @@ def main():
     render_info_panel()
 
     render_header()
-    render_controls()
+    render_language_selector()
 
-    st.subheader("Main Assistant")
+    col_heading, col_clear = st.columns([4, 1])
+    with col_heading:
+        st.subheader("Main Assistant")
+    with col_clear:
+        st.write("")
+        if st.button("Clear Conversation", use_container_width=True):
+            st.session_state.chat_history = []
+            st.session_state.last_audio_hash = None
+            st.rerun()
+
     render_example_questions()
 
     with st.container(border=True):
