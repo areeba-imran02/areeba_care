@@ -28,8 +28,9 @@ import streamlit as st
 # ---------------------------------------------------------------------------
 st.set_page_config(
     page_title="AreebaCare Healthcare Assistant",
+    page_icon="🏥",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
 
 # ---------------------------------------------------------------------------
@@ -129,130 +130,152 @@ CONTEXT FROM AREEBACARE KNOWLEDGE BASE:
 """
 
 # ---------------------------------------------------------------------------
-# Styling (CSS injected once; never rendered as visible text)
+# Clean, Professional UI Styling
 # ---------------------------------------------------------------------------
 def inject_css():
     st.markdown(
         """
         <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
         :root {
-            --navy: #16213e;
-            --charcoal: #1d1b26;
-            --body-bg: #f3f1f7;
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --bg-main: #f8fafc;
+            --sidebar-bg: #0f172a;
             --card-bg: #ffffff;
-            --card-border: #e2dfe9;
-            --text-main: #2a2733;
-            --text-muted: #6b6778;
-            --accent: #9c5f78;
-            --accent-hover: #874f66;
-            --accent-soft: #f1e4ea;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
         }
 
         html, body, .stApp {
-            background: var(--body-bg);
-        }
-        [data-testid="stAppViewContainer"],
-        [data-testid="stMain"],
-        .main,
-        .block-container {
-            background: transparent !important;
-        }
-        [data-testid="stHeader"] {
-            background: rgba(0, 0, 0, 0);
+            background-color: var(--bg-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        /* Sidebar: solid charcoal, distinct from header and body */
-        section[data-testid="stSidebar"] {
-            background: var(--charcoal);
-            border-right: 1px solid rgba(255, 255, 255, 0.06);
-        }
-        section[data-testid="stSidebar"] h1,
-        section[data-testid="stSidebar"] h2,
-        section[data-testid="stSidebar"] h3,
-        section[data-testid="stSidebar"] h4 {
-            color: #f5f3f8;
-        }
-        section[data-testid="stSidebar"] p,
-        section[data-testid="stSidebar"] span,
-        section[data-testid="stSidebar"] label,
-        section[data-testid="stSidebar"] li,
-        section[data-testid="stSidebar"] .stMarkdown,
-        section[data-testid="stSidebar"] .stCaption {
-            color: #c7c3d4;
-        }
-        section[data-testid="stSidebar"] [data-testid="stVerticalBlockBorderWrapper"] {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.09);
-            border-radius: 12px;
-        }
-        section[data-testid="stSidebar"] hr {
-            border-color: rgba(255, 255, 255, 0.10);
-        }
-
-        /* Header banner: solid navy, distinct shade from the rest of the app */
+        /* Top Header Area */
         .areebacare-header {
-            background: var(--navy);
-            border-radius: 14px;
-            padding: 1.8rem 2.2rem;
-            margin-bottom: 1.4rem;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 16px;
+            padding: 2.2rem 2.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1);
         }
         .areebacare-header h1 {
-            color: #ffffff;
-            margin: 0 0 0.35rem 0;
-            font-size: 2.1rem;
-            font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+            color: #ffffff !important;
+            margin: 0 0 0.4rem 0;
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
         }
         .areebacare-header p {
-            color: #c3c8dc;
+            color: #94a3b8 !important;
             margin: 0;
-            font-size: 1.02rem;
+            font-size: 1.05rem;
+            font-weight: 400;
         }
 
-        h1, h2, h3, h4 {
-            color: var(--text-main);
-            font-family: "Segoe UI", "Helvetica Neue", sans-serif;
-            letter-spacing: 0.2px;
+        /* Sidebar Styling */
+        section[data-testid="stSidebar"] {
+            background-color: var(--sidebar-bg) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
         }
-        p, span, label, .stMarkdown, .stCaption {
-            color: var(--text-main);
+        section[data-testid="stSidebar"] * {
+            color: #f1f5f9 !important;
+        }
+        
+        .sidebar-brand {
+            padding: 1rem 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-brand h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+            color: #ffffff !important;
+        }
+        .sidebar-brand p {
+            font-size: 0.85rem;
+            color: #94a3b8 !important;
+            margin: 0.2rem 0 0 0;
         }
 
-        /* Cards: solid white, subtle border, no gradients */
-        [data-testid="stVerticalBlockBorderWrapper"] {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            box-shadow: 0 1px 3px rgba(20, 15, 35, 0.05);
+        .sidebar-info-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+        .sidebar-info-card h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin: 0 0 0.6rem 0;
+            color: #38bdf8 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .sidebar-info-card p, .sidebar-info-card ul {
+            font-size: 0.9rem;
+            color: #cbd5e1 !important;
+            margin: 0;
+            line-height: 1.5;
+        }
+        .sidebar-info-card ul {
+            padding-left: 1.2rem;
         }
 
-        /* Buttons: solid accent color, no gradients */
+        /* Buttons & Controls */
         .stButton > button {
-            background: var(--accent);
-            color: #ffffff;
-            border: none;
-            border-radius: 10px;
-            padding: 0.5rem 1rem;
-            font-weight: 500;
+            background-color: var(--accent) !important;
+            color: #ffffff !important;
+            border-radius: 8px !important;
+            border: none !important;
+            font-weight: 600 !important;
+            padding: 0.6rem 1.2rem !important;
+            transition: all 0.2s ease !important;
         }
         .stButton > button:hover {
-            background: var(--accent-hover);
-            color: #ffffff;
-        }
-        section[data-testid="stSidebar"] .stButton > button {
-            background: rgba(255, 255, 255, 0.10);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-        }
-        section[data-testid="stSidebar"] .stButton > button:hover {
-            background: rgba(255, 255, 255, 0.16);
+            background-color: var(--accent-hover) !important;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
         }
 
-        [data-testid="stChatMessage"] {
-            background: var(--card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
+        section[data-testid="stSidebar"] .stButton > button {
+            background-color: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            color: #ffffff !important;
+            width: 100%;
         }
+        section[data-testid="stSidebar"] .stButton > button:hover {
+            background-color: rgba(255, 255, 255, 0.15) !important;
+        }
+
+        /* Chat UI Container */
+        [data-testid="stChatMessage"] {
+            background-color: var(--card-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02) !important;
+            padding: 1.25rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+        /* Form Inputs */
         [data-testid="stTextInput"] input {
-            border-radius: 10px;
+            border-radius: 8px !important;
+            border: 1px solid var(--border-color) !important;
+            padding: 0.6rem 1rem !important;
+        }
+        [data-testid="stTextInput"] input:focus {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
+        }
+
+        footer {
+            visibility: hidden;
         }
         </style>
         """,
@@ -655,7 +678,7 @@ def render_header():
         """
         <div class="areebacare-header">
             <h1>AreebaCare Healthcare Assistant</h1>
-            <p>Reliable healthcare information, grounded in the AreebaCare knowledge base.</p>
+            <p>Reliable, grounded healthcare information system.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -663,29 +686,24 @@ def render_header():
 
     status = st.session_state.kb_status
     if status == "no_pdfs":
-        st.warning("No knowledge-base documents were found. Please add PDF files to the knowledge_base folder.")
+        st.warning("No knowledge base documents found. Please insert PDF files into the designated folder.")
     elif status in ("faiss_error", "embedding_error"):
-        st.error("There was a problem preparing the knowledge base. Please try rebuilding it.")
+        st.error("System index build error. Please click 'Rebuild Index' in the sidebar.")
 
     if not os.getenv("GROQ_API_KEY"):
         st.warning(MISSING_KEY_MESSAGE)
-
-    if st.session_state.kb_failed:
-        with st.expander("Some documents could not be processed"):
-            for fname in st.session_state.kb_failed:
-                st.write(f"- {fname}")
 
 
 def render_language_selector():
     col_lang, _ = st.columns([1, 3])
     with col_lang:
         st.session_state.language = st.selectbox(
-            "Language", LANGUAGE_OPTIONS, index=LANGUAGE_OPTIONS.index(st.session_state.language)
+            "Select Response Language", LANGUAGE_OPTIONS, index=LANGUAGE_OPTIONS.index(st.session_state.language)
         )
 
 
 def render_example_questions():
-    with st.expander("Try asking"):
+    with st.expander("Suggested Questions"):
         for i, question in enumerate(EXAMPLE_QUESTIONS):
             if st.button(question, key=f"example_{i}", use_container_width=True):
                 handle_question(question)
@@ -699,22 +717,21 @@ def render_chat_history():
             st.markdown(turn["content"])
             if role == "assistant":
                 if turn.get("audio"):
-                    st.markdown("**Audio Response**")
                     st.audio(turn["audio"], format="audio/mp3")
                 if turn.get("sources"):
                     render_sources(turn["sources"])
 
 
 def render_voice_input():
-    st.markdown("**Voice Question**")
+    st.markdown("**Voice Input**")
     try:
         from streamlit_mic_recorder import mic_recorder
     except Exception:
-        st.caption("Voice input is currently unavailable in this environment.")
+        st.caption("Voice recording is unavailable in this environment.")
         return
 
     audio = mic_recorder(
-        start_prompt="Record",
+        start_prompt="Record Question",
         stop_prompt="Stop Recording",
         just_once=True,
         use_container_width=True,
@@ -732,64 +749,49 @@ def render_voice_input():
 
 def render_info_panel():
     with st.sidebar:
-        st.subheader("Information Panel")
+        st.markdown(
+            """
+            <div class="sidebar-brand">
+                <h2>AreebaCare AI</h2>
+                <p>Enterprise Healthcare RAG System</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-        with st.container(border=True):
-            st.markdown("**AreebaCare**")
-            st.caption(
-                "A fictional educational healthcare information assistant designed "
-                "to answer questions using a controlled hospital knowledge base."
-            )
+        st.markdown(
+            """
+            <div class="sidebar-info-card">
+                <h4>System Architecture</h4>
+                <p>Built with Retrieval-Augmented Generation (RAG) to deliver verified answers directly from structured medical documentation.</p>
+            </div>
 
-        with st.container(border=True):
-            st.markdown("**Response Flow**")
-            st.markdown(
-                "- Question\n"
-                "- \u2192 Retrieval\n"
-                "- \u2192 Grounded Answer\n"
-                "- \u2192 Audio Response"
-            )
+            <div class="sidebar-info-card">
+                <h4>Safety Protocols</h4>
+                <ul>
+                    <li>Grounded strictly on provided data</li>
+                    <li>No medical diagnosis</li>
+                    <li>No prescription generation</li>
+                </ul>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-        with st.container(border=True):
-            st.markdown("**Knowledge Base**")
-            if st.session_state.kb_status == "ready":
-                st.markdown(f"- {st.session_state.kb_loaded_count} documents loaded")
-                st.markdown("- Status: Ready")
-            else:
-                st.markdown("- Status: Not ready yet")
-            st.markdown(
-                "- PDF-based\n"
-                "- FAISS retrieval\n"
-                "- Grounded responses"
-            )
-
-        with st.container(border=True):
-            st.markdown("**Supported Languages**")
-            st.markdown("\n".join(f"- {lang}" for lang in LANGUAGE_OPTIONS))
-
-        with st.container(border=True):
-            st.markdown("**Safety**")
-            st.markdown(
-                "- Educational information only\n"
-                "- No diagnosis\n"
-                "- No treatment prescription\n"
-                "- No invented medical information"
-            )
-
-        st.divider()
-        with st.expander("Admin Tools"):
-            st.caption("For advanced use only. Rebuilds the search index from the PDFs currently in knowledge_base/.")
-            if st.button("Rebuild Knowledge Base", use_container_width=True):
+        st.markdown("---")
+        
+        if st.button("Rebuild Search Index", use_container_width=True):
+            with st.spinner("Rebuilding knowledge base..."):
                 load_or_build_knowledge_base(force_rebuild=True)
-                st.rerun()
+            st.success("Index updated successfully.")
+            st.rerun()
 
 
 def render_footer():
     st.divider()
-    st.caption("AreebaCare Healthcare Assistant \u2022 Educational Project")
-    st.caption("Created by Areeba Imran")
+    st.caption("AreebaCare Healthcare Assistant • Educational Demonstration")
     st.caption("Designed & Developed by Areeba Imran")
-    st.caption("\u00a9 2026 Areeba Imran. All rights reserved.")
+    st.caption("© 2026 Areeba Imran. All rights reserved.")
 
 
 # ---------------------------------------------------------------------------
@@ -809,25 +811,23 @@ def main():
 
     col_heading, col_clear = st.columns([4, 1])
     with col_heading:
-        st.subheader("Main Assistant")
+        st.subheader("Interactive Assistant")
     with col_clear:
-        st.write("")
-        if st.button("Clear Conversation", use_container_width=True):
+        if st.button("Clear History", use_container_width=True):
             st.session_state.chat_history = []
             st.session_state.last_audio_hash = None
             st.rerun()
 
     render_example_questions()
 
-    with st.container(border=True):
-        st.write("Ask AreebaCare a question")
+    with st.container():
         with st.form("text_question_form", clear_on_submit=True):
             col_input, col_submit = st.columns([5, 1])
             with col_input:
                 typed_question = st.text_input(
                     "Ask AreebaCare a question...",
                     label_visibility="collapsed",
-                    placeholder="Ask AreebaCare a question...",
+                    placeholder="Ask about visiting hours, registration, procedures...",
                 )
             with col_submit:
                 submitted = st.form_submit_button("Ask", use_container_width=True)
