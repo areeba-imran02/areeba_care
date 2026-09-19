@@ -100,7 +100,7 @@ NOT_FOUND_MESSAGE = (
 
 KB_NOT_READY_MESSAGE = (
     "The knowledge base is not ready yet. Please add PDF "
-    "documents to the knowledge_base folder and use \"Rebuild Knowledge Base\"."
+    "documents to the knowledge_base folder and use \"Rebuild Index\"."
 )
 
 MISSING_KEY_MESSAGE = (
@@ -133,7 +133,7 @@ CONTEXT FROM KNOWLEDGE BASE:
 """
 
 # ---------------------------------------------------------------------------
-# Custom Vibrant Slate & Seafoam UI (Modern Dedicated Chat Widget Container)
+# Custom Vibrant Slate & Light Red Chatbot UI
 # ---------------------------------------------------------------------------
 def inject_css():
     st.markdown(
@@ -146,9 +146,9 @@ def inject_css():
             --hero-gradient: linear-gradient(135deg, #112a2e 0%, #1a3d42 50%, #224d53 100%);
             --btn-gradient: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
             --btn-hover: linear-gradient(135deg, #115e59 0%, #0f766e 100%);
-            --user-msg-bg: #e6f2f0;
+            --user-msg-bg: #ffe4e6;
             --assistant-msg-bg: #ffffff;
-            --border-color: #99f6e4;
+            --border-color: #fecdd3;
             --text-dark: #0f172a;
         }
 
@@ -158,7 +158,7 @@ def inject_css():
             color: var(--text-dark);
         }
 
-        /* Hero Banner Redesign */
+        /* Hero Banner */
         .hero-banner {
             background: var(--hero-gradient);
             border-radius: 20px;
@@ -203,13 +203,6 @@ def inject_css():
             gap: 6px;
             backdrop-filter: blur(8px);
             white-space: nowrap;
-        }
-        .creator-badge span {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background-color: #2dd4bf;
-            border-radius: 50%;
         }
 
         /* Sidebar Styling */
@@ -263,7 +256,7 @@ def inject_css():
             color: #f0fdfa !important;
         }
 
-        /* Button Styles */
+        /* Standard Buttons */
         .stButton > button {
             background: var(--btn-gradient) !important;
             color: #ffffff !important;
@@ -299,12 +292,12 @@ def inject_css():
             color: #0f172a !important;
         }
 
-        /* Dedicated Chatbot Container Box */
+        /* --- LIGHT RED DISTINCT CHATBOT CONTAINER --- */
         .chatbot-container {
-            background: #ffffff;
-            border: 2px solid #99f6e4;
+            background: #fff1f2;
+            border: 2px solid #fecdd3;
             border-radius: 20px;
-            box-shadow: 0 12px 32px rgba(17, 42, 46, 0.12);
+            box-shadow: 0 12px 30px rgba(225, 29, 72, 0.08);
             padding: 1.5rem;
             margin: 0 auto 2rem auto;
             max-width: 900px;
@@ -314,46 +307,41 @@ def inject_css():
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: var(--hero-gradient);
-            padding: 0.8rem 1.2rem;
+            background: linear-gradient(135deg, #881337 0%, #9f1239 50%, #be123c 100%);
+            padding: 0.9rem 1.3rem;
             border-radius: 14px;
             color: white;
             margin-bottom: 1.2rem;
+            box-shadow: 0 6px 18px rgba(159, 18, 57, 0.25);
         }
 
         .chatbot-avatar {
-            width: 40px;
-            height: 40px;
-            background: #2dd4bf;
+            width: 42px;
+            height: 42px;
+            background: #ffe4e6;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.3rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            border: 2px solid #fecdd3;
         }
 
-        .chat-scroll-area {
-            max-height: 480px;
-            overflow-y: auto;
-            padding-right: 8px;
-            margin-bottom: 1rem;
-        }
-
-        /* Output Chat Messages */
+        /* Chat Messages inside Red Container */
         [data-testid="stChatMessage"] {
             border-radius: 14px !important;
             padding: 1rem !important;
             margin-bottom: 0.9rem !important;
         }
         [data-testid="stChatMessage"]:nth-child(even) {
-            background-color: var(--user-msg-bg) !important;
-            border: 1px solid #99f6e4 !important;
+            background-color: #ffe4e6 !important;
+            border: 1px solid #fecdd3 !important;
         }
         [data-testid="stChatMessage"]:nth-child(odd) {
-            background-color: var(--assistant-msg-bg) !important;
-            border: 1px solid var(--border-color) !important;
-            box-shadow: 0 2px 10px rgba(17, 42, 46, 0.04) !important;
+            background-color: #ffffff !important;
+            border: 1px solid #ffe4e6 !important;
+            box-shadow: 0 2px 10px rgba(159, 18, 57, 0.04) !important;
         }
 
         .response-meta {
@@ -361,14 +349,14 @@ def inject_css():
             align-items: center;
             gap: 10px;
             font-size: 0.78rem;
-            color: #0d9488;
+            color: #be123c;
             font-weight: 600;
             margin-top: 0.6rem;
             padding-top: 0.4rem;
-            border-top: 1px dashed #99f6e4;
+            border-top: 1px dashed #fecdd3;
         }
 
-        /* Custom Footer Banner */
+        /* Footer Styling */
         .custom-footer {
             background: var(--hero-gradient);
             border-radius: 14px;
@@ -802,7 +790,7 @@ def handle_voice(audio_bytes):
 
 
 # ---------------------------------------------------------------------------
-# UI Rendering
+# Custom Header Render
 # ---------------------------------------------------------------------------
 def render_header():
     st.markdown(
@@ -810,12 +798,9 @@ def render_header():
         <div class="hero-banner">
             <div class="hero-top-row">
                 <h1>Healthcare Assistant</h1>
-                <div class="creator-badge">
-                    <span></span> Created by Areeba Imran
-                </div>
+                <div class="creator-badge">🟢 Created by Areeba Imran</div>
             </div>
-            <p>Welcome to <b>Healthcare Assistant</b> — an advanced, retrieval-augmented healthcare information system. 
-            Designed to deliver fast, verified, and grounded answers directly from hospital documentation.</p>
+            <p>Welcome to Healthcare Assistant. Access verified hospital policies, specialist availability, and clinical department guidelines in real time.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -825,7 +810,7 @@ def render_header():
     if status == "no_pdfs":
         st.warning("No knowledge base documents found. Please add PDF files to the knowledge_base folder.")
     elif status in ("faiss_error", "embedding_error"):
-        st.error("System index build error. Please click 'Rebuild Search Index' in the sidebar.")
+        st.error("System index build error. Please click 'Rebuild Index' in the sidebar.")
 
     if not os.getenv("GROQ_API_KEY"):
         st.warning(MISSING_KEY_MESSAGE)
@@ -881,7 +866,7 @@ def render_chat_messages():
 
 
 def render_chatbot_card():
-    # Centered dedicated Chatbot Card Box
+    # Light Red / Rose Styled Chatbot Card Container
     st.markdown(
         """
         <div class="chatbot-header">
@@ -889,7 +874,7 @@ def render_chatbot_card():
                 <div class="chatbot-avatar">🤖</div>
                 <div>
                     <h3 style="margin:0; font-size:1.15rem; color:#ffffff;">Healthcare Assistant Bot</h3>
-                    <span style="font-size:0.75rem; color:#2dd4bf;">● Online | Grounded AI</span>
+                    <span style="font-size:0.75rem; color:#fecdd3;">● Online | Grounded AI</span>
                 </div>
             </div>
         </div>
@@ -900,7 +885,7 @@ def render_chatbot_card():
     # Chat history viewport inside card
     render_chat_messages()
 
-    st.markdown("<hr style='margin:1rem 0; border-color:#99f6e4;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin:1rem 0; border-color:#fecdd3;'>", unsafe_allow_html=True)
 
     # Unified Text Input Form inside the bot card
     with st.form("chatbot_card_form", clear_on_submit=True):
@@ -940,20 +925,23 @@ def render_chatbot_card():
         st.caption("Voice recording component unavailable.")
 
 
+# ---------------------------------------------------------------------------
+# Custom Sidebar Render
+# ---------------------------------------------------------------------------
 def render_info_panel():
     with st.sidebar:
         st.markdown(
             """
             <div class="sidebar-brand">
-                <h2>🏥 Controls & Status</h2>
+                <h2>Healthcare System</h2>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-        # Language Selection Dropdown
+        st.markdown("### 🌐 Language Settings")
         selected_lang = st.selectbox(
-            "🌐 Select Language:",
+            "Select Response Language",
             LANGUAGE_OPTIONS,
             index=LANGUAGE_OPTIONS.index(st.session_state.language),
         )
@@ -963,62 +951,42 @@ def render_info_panel():
 
         st.markdown("---")
 
-        # Knowledge Base Status Card
-        kb_count = st.session_state.kb_loaded_count
-        status_color = "#2dd4bf" if st.session_state.kb_status == "ready" else "#ef4444"
-        
-        st.markdown(
-            f"""
-            <div class="sidebar-info-card">
-                <h4>📚 Knowledge Base Status</h4>
-                <p>Status: <strong style="color: {status_color};">{st.session_state.kb_status.upper()}</strong></p>
-                <p>Indexed Documents: <strong>{kb_count}</strong></p>
-                <p>Total Chunks: <strong>{len(st.session_state.kb_chunks) if st.session_state.kb_chunks else 0}</strong></p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-        # Index Rebuild Trigger
-        if st.button("🔄 Rebuild Knowledge Base", use_container_width=True):
-            with st.spinner("Rebuilding FAISS index from PDFs..."):
-                load_or_build_knowledge_base(force_rebuild=True)
-            st.rerun()
-
-        # Chat History Clear Trigger
-        if st.button("🗑️ Clear Chat History", use_container_width=True):
-            st.session_state.chat_history = []
-            st.rerun()
-
-        st.markdown("---")
-
-        # System Architecture Info Card
+        # Hospital Info Card
         st.markdown(
             """
             <div class="sidebar-info-card">
-                <h4>⚙️ Architecture Overview</h4>
+                <h4>🏥 Hospital Info</h4>
                 <ul>
-                    <li><b>Embeddings:</b> MiniLM-L6-v2</li>
-                    <li><b>Vector Store:</b> FAISS Index</li>
-                    <li><b>LLM Core:</b> Groq (Llama-3/GPT-OSS)</li>
-                    <li><b>Speech-to-Text:</b> Faster-Whisper</li>
-                    <li><b>Text-to-Speech:</b> gTTS</li>
+                    <li>OPD & Emergency: 24/7 Care</li>
+                    <li>Specialties: Cardiology, Neurology, Pediatrics</li>
                 </ul>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
+        # Index Rebuild Trigger Button
+        if st.button("🔄 Rebuild Index", use_container_width=True):
+            with st.spinner("Rebuilding FAISS index from PDFs..."):
+                load_or_build_knowledge_base(force_rebuild=True)
+            st.rerun()
 
+        # Chat History Clear Trigger Button
+        if st.button("🗑️ Clear Chat History", use_container_width=True):
+            st.session_state.chat_history = []
+            st.rerun()
+
+
+# ---------------------------------------------------------------------------
+# Custom Footer Render
+# ---------------------------------------------------------------------------
 def render_footer():
     st.markdown(
         """
         <div class="custom-footer">
-            <p><strong>Healthcare Assistant</strong> — Demonstration & Educational Project</p>
-            <p style="font-size: 0.78rem; opacity: 0.85;">
-                ⚠️ <i>Disclaimer: This application is an automated demonstration using artificial intelligence. 
-                It does not render real medical diagnoses or treatment recommendations. Always consult a licensed medical professional for urgent or personal health concerns.</i>
-            </p>
+            <h3 style="margin: 0; font-size: 1.1rem; color: #ffffff;">Healthcare Assistant • Grounded System</h3>
+            <p style="margin: 0.3rem 0; font-weight: 500;">Designed & Developed by Areeba Imran</p>
+            <p style="font-size: 0.78rem; opacity: 0.85; margin-top: 0.4rem;">© 2026 All rights reserved.</p>
         </div>
         """,
         unsafe_allow_html=True,
