@@ -52,8 +52,8 @@ os.makedirs(INDEX_DIR, exist_ok=True)
 # ---------------------------------------------------------------------------
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 WHISPER_MODEL_SIZE = "small"
-GROQ_MODEL_NAME = "llama-3.1-8b-instant"
-GROQ_FALLBACK_MODEL_NAME = "openai/gpt-oss-120b"
+GROQ_MODEL_NAME = "openai/gpt-oss-120b"
+GROQ_FALLBACK_MODEL_NAME = "openai/gpt-oss-20b"
 
 CHUNK_SIZE_WORDS = 600
 CHUNK_OVERLAP_WORDS = 100
@@ -595,9 +595,12 @@ def _call_groq(client, messages, model):
     except Exception as e:
         import traceback
         status_code = getattr(e, "status_code", None)
-        if type(e).__name__ == "RateLimitError" or status_code == 429:
+        err_type = type(e).__name__
+        if err_type == "RateLimitError" or status_code == 429:
             return None, f"rate_limit::{e}"
-        return None, f"{type(e).__name__}: {e}\n{traceback.format_exc()}"
+        if err_type == "NotFoundError" or status_code == 404:
+            return None, f"model_unavailable::{e}"
+        return None, f"{err_type}: {e}\n{traceback.format_exc()}"
 
 
 def generate_answer(query, context_chunks, language, history):
@@ -630,11 +633,12 @@ def generate_answer(query, context_chunks, language, history):
 
     answer, error = _call_groq(client, messages, GROQ_MODEL_NAME)
 
-    if error and error.startswith("rate_limit::") and GROQ_FALLBACK_MODEL_NAME:
-        # Primary model's daily quota is exhausted — the fallback model has
-        # its own separate quota on Groq's free tier, so try it before
-        # giving up.
-        print(f"[Groq] {GROQ_MODEL_NAME} rate-limited, falling back to {GROQ_FALLBACK_MODEL_NAME}")
+    if error and (error.startswith("rate_limit::") or error.startswith("model_unavailable::")) and GROQ_FALLBACK_MODEL_NAME:
+        # Primary model's daily quota is exhausted, or it's no longer
+        # available on this account/tier — the fallback model has its own
+        # separate quota and availability, so try it before giving up.
+        reason = "rate-limited" if error.startswith("rate_limit::") else "unavailable"
+        print(f"[Groq] {GROQ_MODEL_NAME} {reason}, falling back to {GROQ_FALLBACK_MODEL_NAME}")
         fallback_answer, fallback_error = _call_groq(client, messages, GROQ_FALLBACK_MODEL_NAME)
         if fallback_answer:
             return fallback_answer, None
