@@ -357,21 +357,22 @@ def inject_css():
         }
 
         /* Footer Styling */
-        .custom-footer {
-            background: var(--hero-gradient);
-            border-radius: 14px;
-            padding: 1.1rem;
-            text-align: center;
-            color: #ccfbf1;
-            margin-top: 2rem;
-            font-size: 0.85rem;
-            box-shadow: 0 8px 20px rgba(17, 42, 46, 0.2);
-            border: 1px solid rgba(153, 246, 228, 0.2);
-        }
-        .custom-footer p {
-            margin: 0.2rem 0;
-        }
-
+        /* Compact & Centered Footer Styling */
+.custom-footer {
+    background: var(--hero-gradient);
+    border-radius: 12px;
+    padding: 0.6rem 1.8rem;
+    text-align: center;
+    color: #ccfbf1;
+    margin: 1.5rem auto 1rem auto;
+    font-size: 0.82rem;
+    box-shadow: 0 4px 12px rgba(17, 42, 46, 0.15);
+    border: 1px solid rgba(153, 246, 228, 0.2);
+    width: fit-content;
+}
+.custom-footer p {
+    margin: 0.15rem 0;
+}
         footer {
             visibility: hidden;
         }
