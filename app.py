@@ -143,8 +143,6 @@ def inject_css():
         }
         [data-testid="stAppViewContainer"],
         [data-testid="stMain"],
-        [data-testid="stBottomBlockContainer"],
-        [data-testid="stBottom"],
         .main,
         .block-container {
             background: transparent !important;
@@ -755,9 +753,20 @@ def main():
     st.subheader("Main Assistant")
     render_example_questions()
 
-    typed_question = st.chat_input("Ask AreebaCare a question...")
-    if typed_question:
-        handle_question(typed_question)
+    with st.container(border=True):
+        st.write("Ask AreebaCare a question")
+        with st.form("text_question_form", clear_on_submit=True):
+            col_input, col_submit = st.columns([5, 1])
+            with col_input:
+                typed_question = st.text_input(
+                    "Ask AreebaCare a question...",
+                    label_visibility="collapsed",
+                    placeholder="Ask AreebaCare a question...",
+                )
+            with col_submit:
+                submitted = st.form_submit_button("Ask", use_container_width=True)
+        if submitted and typed_question.strip():
+            handle_question(typed_question)
 
     render_voice_input()
     render_chat_history()
