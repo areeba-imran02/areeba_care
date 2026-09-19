@@ -1010,8 +1010,7 @@ def render_header():
                 <h1>Healthcare Assistant</h1>
                 <div class="creator-badge">🟢 Created by Areeba Imran</div>
             </div>
-            <p class="hero-welcome">Welcome to Healthcare Assistant.</p>
-            <p class="hero-sub">Your trusted companion for hospital services, specialist availability, and department guidance,anytime.</p>
+            <p class="hero-sub">Welcome to Healthcare Assistant. Access verified hospital policies, specialist availability, and clinical department guidelines in real time.</p>
         </div>
         """,
         unsafe_allow_html=True,
