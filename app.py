@@ -193,47 +193,83 @@ def inject_css():
         }
 
         /* ---------------------------------------------------------------
-           Hero banner
+           Hero banner — deliberately its own palette (deep teal-emerald
+           blend) so it reads as a distinct, premium "masthead" rather
+           than matching the plain navy of the chat panel title bar.
+           A soft glowing teal ring + top accent line gives it a
+           polished, unique identity at a glance.
         --------------------------------------------------------------- */
         .hero-banner {
-            background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-700) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.14);
+            position: relative;
+            background: linear-gradient(120deg, #0a2e33 0%, #124a49 45%, #1c7d74 100%);
+            border: 1px solid rgba(111, 214, 200, 0.35);
             border-radius: var(--radius-lg);
-            padding: 1.7rem 2.1rem;
+            padding: 1.9rem 2.2rem;
             margin-bottom: 1.4rem;
-            box-shadow: 0 10px 28px -14px rgba(12, 47, 53, 0.55);
+            overflow: hidden;
+            box-shadow:
+                0 14px 34px -16px rgba(12, 47, 53, 0.65),
+                0 0 0 1px rgba(111, 214, 200, 0.06) inset;
+        }
+        .hero-banner::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 88% 12%, rgba(111, 214, 200, 0.28), transparent 55%);
+            pointer-events: none;
+        }
+        .hero-banner::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #6fd6c8 0%, #1c7d74 50%, #b8823a 100%);
         }
         .hero-top-row {
+            position: relative;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 0.6rem;
-            margin-bottom: 0.55rem;
+            margin-bottom: 0.65rem;
         }
         .hero-banner h1 {
             color: #ffffff !important;
             margin: 0;
-            font-size: 2rem;
+            font-size: 2.15rem;
             font-weight: 800;
-            letter-spacing: -0.01em;
+            letter-spacing: -0.015em;
+            text-shadow: 0 2px 18px rgba(0, 0, 0, 0.25);
         }
-        .hero-banner p {
-            color: #d7e7e5 !important;
+        .hero-banner .hero-welcome {
+            position: relative;
+            color: #eafaf7 !important;
+            margin: 0 0 0.35rem 0;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+        .hero-banner p.hero-sub {
+            position: relative;
+            color: #cfe9e5 !important;
             margin: 0;
             font-size: 0.97rem;
-            line-height: 1.55;
+            line-height: 1.6;
             max-width: 780px;
+            font-weight: 400;
         }
         .creator-badge {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.35);
             color: #eafaf7 !important;
-            padding: 0.38rem 0.85rem;
+            padding: 0.4rem 0.9rem;
             border-radius: 30px;
             font-size: 0.78rem;
             font-weight: 600;
             white-space: nowrap;
+            backdrop-filter: blur(2px);
         }
 
         /* ---------------------------------------------------------------
@@ -974,7 +1010,8 @@ def render_header():
                 <h1>Healthcare Assistant</h1>
                 <div class="creator-badge">🟢 Created by Areeba Imran</div>
             </div>
-            <p>Access verified hospital policies, specialist availability, and clinical department guidelines in real time.</p>
+            <p class="hero-welcome">Welcome to Healthcare Assistant.</p>
+            <p class="hero-sub">Access verified hospital policies, specialist availability, and clinical department guidelines in real time.</p>
         </div>
         """,
         unsafe_allow_html=True,
