@@ -285,54 +285,66 @@ def inject_css():
             line-height: 1.55;
         }
 
-        /* ---------------------------------------------------------------
-           Selectbox styling (closed / collapsed box) — sidebar + main area
-        --------------------------------------------------------------- */
-        div[data-baseweb="select"] {
-            border-radius: 10px !important;
+        /* ==================================================================
+           SELECTBOX VISIBILITY — FULL OVERRIDE
+           Covers: (a) the closed/collapsed selectbox box wherever it sits
+           (sidebar or main area), and (b) the open dropdown options list,
+           which BaseWeb renders in a body-level portal outside the sidebar
+           DOM, so sidebar-scoped rules never reach it on their own.
+           Every rule below is solid-background + solid-text, no
+           transparency, so it can never blend into the dark sidebar or
+           inherit an invisible color from a parent.
+        ================================================================== */
+
+        /* Closed selectbox control, anywhere in the app */
+        div[data-baseweb="select"] > div {
+            background-color: #ffffff !important;
             border: 1.5px solid var(--teal-600) !important;
-            background-color: #ffffff !important;
+            border-radius: 10px !important;
         }
-        div[data-baseweb="select"] * {
+        div[data-baseweb="select"] > div * {
             color: var(--ink) !important;
+            fill: var(--ink) !important;
         }
-        section[data-testid="stSidebar"] div[data-baseweb="select"] {
+        /* Extra specificity so the sidebar's blanket
+           `section[data-testid="stSidebar"] * { color: #eafaf7 }` rule
+           cannot win against the closed-box text color */
+        section[data-testid="stSidebar"] div[data-baseweb="select"] > div {
             background-color: #ffffff !important;
         }
-        section[data-testid="stSidebar"] div[data-baseweb="select"] * {
+        section[data-testid="stSidebar"] div[data-baseweb="select"] > div,
+        section[data-testid="stSidebar"] div[data-baseweb="select"] > div * {
             color: var(--ink) !important;
         }
 
-        /* ---------------------------------------------------------------
-           Selectbox dropdown popover (the OPEN options list).
-           Streamlit/BaseWeb renders this in a body-level portal, so the
-           global `section[data-testid="stSidebar"] * { color: #eafaf7 }`
-           rule above does NOT reach it — but without an explicit
-           background/text color here it was inheriting dark-on-dark
-           styling and becoming unreadable. Force a solid white panel
-           with dark text so it's always visible, whether it was opened
-           from the sidebar or from the main content area.
-        --------------------------------------------------------------- */
-        div[data-baseweb="popover"] {
-            z-index: 9999 !important;
+        /* Open dropdown options list (rendered in a body-level portal) */
+        div[data-baseweb="popover"],
+        div[data-baseweb="popover"] * {
+            z-index: 999999 !important;
         }
-        div[data-baseweb="popover"] div[data-baseweb="menu"],
-        div[data-baseweb="popover"] ul[role="listbox"] {
+        div[data-baseweb="popover"] [data-baseweb="menu"],
+        div[data-baseweb="popover"] ul[role="listbox"],
+        div[data-baseweb="popover"] div[role="listbox"] {
             background-color: #ffffff !important;
             border: 1.5px solid var(--border-strong) !important;
             border-radius: 10px !important;
             box-shadow: 0 10px 24px -10px rgba(12, 47, 53, 0.35) !important;
         }
         div[data-baseweb="popover"] li[role="option"],
-        div[data-baseweb="popover"] li[role="option"] * {
-            color: var(--ink) !important;
+        div[data-baseweb="popover"] li[role="option"] *,
+        div[data-baseweb="popover"] [role="option"],
+        div[data-baseweb="popover"] [role="option"] * {
             background-color: #ffffff !important;
+            color: var(--ink) !important;
         }
         div[data-baseweb="popover"] li[role="option"]:hover,
-        div[data-baseweb="popover"] li[aria-selected="true"] {
+        div[data-baseweb="popover"] li[aria-selected="true"],
+        div[data-baseweb="popover"] [role="option"]:hover,
+        div[data-baseweb="popover"] [aria-selected="true"] {
             background-color: var(--teal-100) !important;
             color: var(--ink) !important;
         }
+        /* ================================================================== */
 
         /* Buttons */
         .stButton > button {
