@@ -133,7 +133,7 @@ CONTEXT FROM KNOWLEDGE BASE:
 """
 
 # ---------------------------------------------------------------------------
-# Custom Vibrant Slate & Gradient UI
+# Custom Vibrant Slate & Light Red Chatbot UI
 # ---------------------------------------------------------------------------
 def inject_css():
     st.markdown(
@@ -146,9 +146,9 @@ def inject_css():
             --hero-gradient: linear-gradient(135deg, #112a2e 0%, #1a3d42 50%, #224d53 100%);
             --btn-gradient: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
             --btn-hover: linear-gradient(135deg, #115e59 0%, #0f766e 100%);
-            --user-msg-bg: #e6f2f0;
+            --user-msg-bg: #ffe4e6;
             --assistant-msg-bg: #ffffff;
-            --border-color: #99f6e4;
+            --border-color: #fecdd3;
             --text-dark: #0f172a;
         }
 
@@ -158,7 +158,7 @@ def inject_css():
             color: var(--text-dark);
         }
 
-        /* Hero Banner Redesign */
+        /* Hero Banner */
         .hero-banner {
             background: var(--hero-gradient);
             border-radius: 20px;
@@ -256,7 +256,7 @@ def inject_css():
             color: #f0fdfa !important;
         }
 
-        /* Button Styles */
+        /* Standard Buttons */
         .stButton > button {
             background: var(--btn-gradient) !important;
             color: #ffffff !important;
@@ -292,12 +292,12 @@ def inject_css():
             color: #0f172a !important;
         }
 
-        /* Dedicated Chatbot Container Box */
+        /* --- LIGHT RED DISTINCT CHATBOT CONTAINER --- */
         .chatbot-container {
-            background: #ffffff;
-            border: 2px solid #99f6e4;
+            background: #fff1f2;
+            border: 2px solid #fecdd3;
             border-radius: 20px;
-            box-shadow: 0 12px 32px rgba(17, 42, 46, 0.12);
+            box-shadow: 0 12px 30px rgba(225, 29, 72, 0.08);
             padding: 1.5rem;
             margin: 0 auto 2rem auto;
             max-width: 900px;
@@ -307,39 +307,41 @@ def inject_css():
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: var(--hero-gradient);
-            padding: 0.8rem 1.2rem;
+            background: linear-gradient(135deg, #881337 0%, #9f1239 50%, #be123c 100%);
+            padding: 0.9rem 1.3rem;
             border-radius: 14px;
             color: white;
             margin-bottom: 1.2rem;
+            box-shadow: 0 6px 18px rgba(159, 18, 57, 0.25);
         }
 
         .chatbot-avatar {
-            width: 40px;
-            height: 40px;
-            background: #2dd4bf;
+            width: 42px;
+            height: 42px;
+            background: #ffe4e6;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.3rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            border: 2px solid #fecdd3;
         }
 
-        /* Output Chat Messages */
+        /* Chat Messages inside Red Container */
         [data-testid="stChatMessage"] {
             border-radius: 14px !important;
             padding: 1rem !important;
             margin-bottom: 0.9rem !important;
         }
         [data-testid="stChatMessage"]:nth-child(even) {
-            background-color: var(--user-msg-bg) !important;
-            border: 1px solid #99f6e4 !important;
+            background-color: #ffe4e6 !important;
+            border: 1px solid #fecdd3 !important;
         }
         [data-testid="stChatMessage"]:nth-child(odd) {
-            background-color: var(--assistant-msg-bg) !important;
-            border: 1px solid var(--border-color) !important;
-            box-shadow: 0 2px 10px rgba(17, 42, 46, 0.04) !important;
+            background-color: #ffffff !important;
+            border: 1px solid #ffe4e6 !important;
+            box-shadow: 0 2px 10px rgba(159, 18, 57, 0.04) !important;
         }
 
         .response-meta {
@@ -347,11 +349,11 @@ def inject_css():
             align-items: center;
             gap: 10px;
             font-size: 0.78rem;
-            color: #0d9488;
+            color: #be123c;
             font-weight: 600;
             margin-top: 0.6rem;
             padding-top: 0.4rem;
-            border-top: 1px dashed #99f6e4;
+            border-top: 1px dashed #fecdd3;
         }
 
         /* Footer Styling */
@@ -864,7 +866,7 @@ def render_chat_messages():
 
 
 def render_chatbot_card():
-    # Centered dedicated Chatbot Card Box
+    # Light Red / Rose Styled Chatbot Card Container
     st.markdown(
         """
         <div class="chatbot-header">
@@ -872,7 +874,7 @@ def render_chatbot_card():
                 <div class="chatbot-avatar">🤖</div>
                 <div>
                     <h3 style="margin:0; font-size:1.15rem; color:#ffffff;">Healthcare Assistant Bot</h3>
-                    <span style="font-size:0.75rem; color:#2dd4bf;">● Online | Grounded AI</span>
+                    <span style="font-size:0.75rem; color:#fecdd3;">● Online | Grounded AI</span>
                 </div>
             </div>
         </div>
@@ -883,7 +885,7 @@ def render_chatbot_card():
     # Chat history viewport inside card
     render_chat_messages()
 
-    st.markdown("<hr style='margin:1rem 0; border-color:#99f6e4;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin:1rem 0; border-color:#fecdd3;'>", unsafe_allow_html=True)
 
     # Unified Text Input Form inside the bot card
     with st.form("chatbot_card_form", clear_on_submit=True):
