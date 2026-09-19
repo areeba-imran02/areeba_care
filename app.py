@@ -2,7 +2,14 @@
 Healthcare Assistant
 --------------------
 A grounded, retrieval-augmented healthcare information assistant built on top
-of a local PDF knowledge base.
+of a local PDF knowledge base. This single-file Streamlit application covers
+the full pipeline:
+
+    PDFs -> text extraction -> cleaning -> chunking -> embeddings ->
+    FAISS index -> retrieval -> grounded Groq answer -> gTTS audio
+
+Educational / demonstration project only. This is NOT a real medical
+diagnosis or treatment system.
 """
 
 import os
@@ -18,7 +25,7 @@ import numpy as np
 import streamlit as st
 
 # ---------------------------------------------------------------------------
-# Page configuration
+# Page configuration (must be the first Streamlit call)
 # ---------------------------------------------------------------------------
 st.set_page_config(
     page_title="Healthcare Assistant",
@@ -72,12 +79,13 @@ WHISPER_LANG_HINT = {
     "Roman Urdu": "ur",
 }
 
-QUICK_PROMPTS = [
-    {"label": "🚨 Emergency Policy", "query": "What are the emergency protocols and contact rules?"},
-    {"label": "🕒 Visiting Hours", "query": "What are the visiting hours for general and ICU wards?"},
-    {"label": "🏥 Medical Departments", "query": "Which specialized medical departments are available?"},
-    {"label": "📋 Patient Admission", "query": "What documents and steps are required for patient admission?"},
-    {"label": "💳 Insurance & Billing", "query": "What insurance and billing procedures are supported?"},
+QUICK_PROMPT_OPTIONS = [
+    "-- Select a sample question to ask --",
+    "🚨 What are the emergency protocols and contact rules?",
+    "🕒 What are the visiting hours for general and ICU wards?",
+    "🏥 Which specialized medical departments are available?",
+    "📋 What documents and steps are required for patient admission?",
+    "💳 What insurance and billing policies are supported?",
 ]
 
 NOT_FOUND_MESSAGE = (
@@ -87,7 +95,7 @@ NOT_FOUND_MESSAGE = (
 
 KB_NOT_READY_MESSAGE = (
     "The knowledge base is not ready yet. Please add PDF "
-    "documents to the knowledge_base folder and click \"Rebuild Knowledge Base\"."
+    "documents to the knowledge_base folder and use \"Rebuild Knowledge Base\"."
 )
 
 MISSING_KEY_MESSAGE = (
@@ -120,7 +128,7 @@ CONTEXT FROM KNOWLEDGE BASE:
 """
 
 # ---------------------------------------------------------------------------
-# Custom Vibrant CSS Theme
+# Custom Vibrant Emerald & Teal UI (Zero Blue / Zero Plain Grey)
 # ---------------------------------------------------------------------------
 def inject_css():
     st.markdown(
@@ -128,140 +136,180 @@ def inject_css():
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
-        html, body, .stApp {
-            background-color: #f8fafc !important;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: #0f172a;
+        :root {
+            --primary-bg: #f4fbf7;
+            --hero-gradient: linear-gradient(135deg, #064e3b 0%, #047857 50%, #0f766e 100%);
+            --btn-gradient: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+            --btn-hover: linear-gradient(135deg, #0f766e 0%, #047857 100%);
+            --user-msg-bg: #e6f4f1;
+            --assistant-msg-bg: #ffffff;
+            --border-emerald: #a7f3d0;
+            --text-dark: #022c22;
         }
 
-        /* Hero Banner Box */
+        html, body, .stApp {
+            background-color: var(--primary-bg) !important;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-dark);
+        }
+
+        /* Hero Banner */
         .hero-banner {
-            background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #0f766e 100%);
-            border-radius: 16px;
-            padding: 2.2rem;
-            margin-bottom: 1.5rem;
+            background: var(--hero-gradient);
+            border-radius: 18px;
+            padding: 2.2rem 2.5rem;
+            margin-bottom: 1.8rem;
             color: #ffffff;
-            box-shadow: 0 10px 25px rgba(4, 120, 87, 0.2);
-            position: relative;
+            box-shadow: 0 12px 30px -8px rgba(4, 120, 87, 0.35);
         }
         .hero-banner h1 {
             color: #ffffff !important;
-            margin: 0 0 0.5rem 0;
-            font-size: 2.2rem;
+            margin: 0 0 0.6rem 0;
+            font-size: 2.4rem;
             font-weight: 700;
+            letter-spacing: -0.02em;
         }
         .hero-banner p {
-            color: #e6f4f1 !important;
+            color: #ecfdf5 !important;
             margin: 0;
-            font-size: 1rem;
+            font-size: 1.05rem;
             line-height: 1.6;
-            max-width: 850px;
+            max-width: 880px;
         }
-        .hero-banner .creator-badge {
-            margin-top: 1.2rem;
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            color: #ffffff !important;
-            padding: 0.35rem 0.9rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
+        .creator-text {
+            color: #6ee7b7 !important;
+            font-weight: 700;
+            margin-left: 0.3rem;
         }
 
-        /* Sidebar Styling & High Contrast Fixes */
+        /* Sidebar Styling */
         section[data-testid="stSidebar"] {
-            background-color: #0f172a !important;
-            border-right: 1px solid #1e293b;
+            background-color: #022c22 !important;
+            border-right: 1px solid rgba(167, 243, 208, 0.15);
         }
         section[data-testid="stSidebar"] * {
-            color: #f1f5f9 !important;
-        }
-        
-        /* Selectbox visibility fix */
-        section[data-testid="stSidebar"] div[data-baseweb="select"] {
-            background-color: #ffffff !important;
-            border-radius: 8px;
-        }
-        section[data-testid="stSidebar"] div[data-baseweb="select"] * {
-            color: #0f172a !important;
-            font-weight: 600;
+            color: #f0fdf4 !important;
         }
 
-        .sidebar-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+        .sidebar-brand {
+            padding: 0.5rem 0 1rem 0;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(167, 243, 208, 0.2);
+        }
+        .sidebar-brand h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 0;
+            color: #ffffff !important;
+        }
+
+        .sidebar-info-card {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(167, 243, 208, 0.25);
             border-radius: 12px;
-            padding: 1rem;
-            margin-top: 1rem;
+            padding: 1.1rem;
             margin-bottom: 1rem;
         }
-        .sidebar-card h4 {
-            color: #38bdf8 !important;
-            font-size: 0.9rem;
+        .sidebar-info-card h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
             margin: 0 0 0.6rem 0;
+            color: #34d399 !important;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.03em;
         }
-        .sidebar-card ul {
+        .sidebar-info-card ul {
             margin: 0;
-            padding-left: 1.1rem;
-            font-size: 0.85rem;
+            padding-left: 1.2rem;
+            font-size: 0.88rem;
             line-height: 1.5;
         }
 
-        /* Button Customizations */
+        /* Button Styles */
         .stButton > button {
-            background: linear-gradient(135deg, #0d9488 0%, #059669 100%) !important;
+            background: var(--btn-gradient) !important;
             color: #ffffff !important;
-            border-radius: 8px !important;
+            border-radius: 10px !important;
             border: none !important;
             font-weight: 600 !important;
-            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2) !important;
-            transition: all 0.2s ease;
+            padding: 0.6rem 1.3rem !important;
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25) !important;
+            transition: all 0.2s ease-in-out !important;
         }
         .stButton > button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(13, 148, 136, 0.3) !important;
+            background: var(--btn-hover) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(5, 150, 105, 0.4) !important;
         }
 
-        /* Sidebar Action Button */
+        /* Sidebar Buttons */
         section[data-testid="stSidebar"] .stButton > button {
-            background: rgba(255, 255, 255, 0.1) !important;
-            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            background: rgba(52, 211, 153, 0.15) !important;
+            border: 1px solid rgba(52, 211, 153, 0.4) !important;
             color: #ffffff !important;
+            width: 100%;
+            box-shadow: none !important;
         }
         section[data-testid="stSidebar"] .stButton > button:hover {
-            background: rgba(255, 255, 255, 0.2) !important;
+            background: rgba(52, 211, 153, 0.3) !important;
         }
 
-        /* Chat Output Styling */
-        [data-testid="stChatMessage"] {
-            border-radius: 12px !important;
-            padding: 1.2rem !important;
-            margin-bottom: 1rem !important;
-        }
-        [data-testid="stChatMessage"]:nth-child(even) {
-            background-color: #f0fdf4 !important;
-            border: 1px solid #bbf7d0 !important;
-        }
-        [data-testid="stChatMessage"]:nth-child(odd) {
+        /* Custom Form Input & Selectboxes */
+        div[data-baseweb="select"] {
+            border-radius: 10px !important;
+            border: 1.5px solid #059669 !important;
             background-color: #ffffff !important;
-            border: 1px solid #e2e8f0 !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02) !important;
         }
 
-        /* Footer Banner */
-        .custom-footer {
-            background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
-            border-radius: 12px;
-            padding: 1.2rem;
-            text-align: center;
-            color: #ffffff;
-            margin-top: 2.5rem;
-            font-size: 0.9rem;
+        /* Output Chat Messages */
+        [data-testid="stChatMessage"] {
+            border-radius: 14px !important;
+            padding: 1.2rem !important;
+            margin-bottom: 1.1rem !important;
         }
-        footer { visibility: hidden; }
+        /* User Message Style */
+        [data-testid="stChatMessage"]:nth-child(even) {
+            background-color: var(--user-msg-bg) !important;
+            border: 1px solid #99f6e4 !important;
+        }
+        /* Assistant Response Style */
+        [data-testid="stChatMessage"]:nth-child(odd) {
+            background-color: var(--assistant-msg-bg) !important;
+            border: 1px solid var(--border-emerald) !important;
+            box-shadow: 0 4px 15px rgba(6, 78, 59, 0.05) !important;
+        }
+
+        /* Response Metadata Badge */
+        .response-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.8rem;
+            color: #059669;
+            font-weight: 600;
+            margin-top: 0.8rem;
+            padding-top: 0.5rem;
+            border-top: 1px dashed #a7f3d0;
+        }
+
+        /* Custom Rich Footer Banner */
+        .custom-footer {
+            background: var(--hero-gradient);
+            border-radius: 14px;
+            padding: 1.3rem;
+            text-align: center;
+            color: #ecfdf5;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            box-shadow: 0 8px 20px rgba(4, 120, 87, 0.2);
+        }
+        .custom-footer p {
+            margin: 0.2rem 0;
+        }
+
+        footer {
+            visibility: hidden;
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -269,7 +317,7 @@ def inject_css():
 
 
 # ---------------------------------------------------------------------------
-# Cached Model Loaders
+# Cached model / client loaders
 # ---------------------------------------------------------------------------
 @st.cache_resource(show_spinner=False)
 def get_embedding_model():
@@ -298,7 +346,7 @@ def get_groq_client(api_key):
 
 
 # ---------------------------------------------------------------------------
-# PDF Processing & Retrieval Functions
+# PDF processing pipeline
 # ---------------------------------------------------------------------------
 def load_pdf_files():
     return sorted(glob.glob(os.path.join(KB_DIR, "*.pdf")))
@@ -322,6 +370,7 @@ def clean_text(text):
     text = text.replace("\x00", " ")
     text = re.sub(r"[ \t]+", " ", text)
     text = re.sub(r"\n{2,}", "\n", text)
+    text = re.sub(r" *\n *", "\n", text)
     return text.strip()
 
 
@@ -329,12 +378,14 @@ def chunk_text(text, source_name, chunk_size=CHUNK_SIZE_WORDS, overlap=CHUNK_OVE
     words = text.split()
     if not words:
         return []
+
     chunks = []
     step = max(chunk_size - overlap, 1)
     start = 0
     while start < len(words):
         end = min(start + chunk_size, len(words))
-        chunk_str = " ".join(words[start:end]).strip()
+        chunk_words = words[start:end]
+        chunk_str = " ".join(chunk_words).strip()
         if chunk_str:
             chunks.append({"text": chunk_str, "source": source_name})
         if end == len(words):
@@ -345,7 +396,12 @@ def chunk_text(text, source_name, chunk_size=CHUNK_SIZE_WORDS, overlap=CHUNK_OVE
 
 def build_embeddings(chunks, model):
     texts = [c["text"] for c in chunks]
-    embeddings = model.encode(texts, normalize_embeddings=True, show_progress_bar=False, batch_size=32)
+    embeddings = model.encode(
+        texts,
+        normalize_embeddings=True,
+        show_progress_bar=False,
+        batch_size=32,
+    )
     return np.array(embeddings).astype("float32")
 
 
@@ -383,6 +439,8 @@ def load_or_build_knowledge_base(force_rebuild=False):
         if index is not None and chunks:
             st.session_state.kb_index = index
             st.session_state.kb_chunks = chunks
+            st.session_state.kb_loaded_count = len({c["source"] for c in chunks})
+            st.session_state.kb_failed = []
             st.session_state.kb_status = "ready"
             return
 
@@ -390,6 +448,8 @@ def load_or_build_knowledge_base(force_rebuild=False):
     if not pdf_paths:
         st.session_state.kb_index = None
         st.session_state.kb_chunks = None
+        st.session_state.kb_loaded_count = 0
+        st.session_state.kb_failed = []
         st.session_state.kb_status = "no_pdfs"
         return
 
@@ -400,16 +460,24 @@ def load_or_build_knowledge_base(force_rebuild=False):
         return
 
     all_chunks = []
+    failed_files = []
     for path in pdf_paths:
         fname = os.path.basename(path)
         text, err = extract_pdf_text(path)
-        if err or not text:
+        if err or text is None:
+            failed_files.append(fname)
             continue
         cleaned = clean_text(text)
-        if cleaned:
-            all_chunks.extend(chunk_text(cleaned, fname))
+        if not cleaned:
+            failed_files.append(fname)
+            continue
+        all_chunks.extend(chunk_text(cleaned, fname))
 
     if not all_chunks:
+        st.session_state.kb_index = None
+        st.session_state.kb_chunks = None
+        st.session_state.kb_loaded_count = 0
+        st.session_state.kb_failed = failed_files
         st.session_state.kb_status = "no_pdfs"
         return
 
@@ -423,9 +491,14 @@ def load_or_build_knowledge_base(force_rebuild=False):
 
     st.session_state.kb_index = index
     st.session_state.kb_chunks = all_chunks
+    st.session_state.kb_loaded_count = len({c["source"] for c in all_chunks})
+    st.session_state.kb_failed = failed_files
     st.session_state.kb_status = "ready"
 
 
+# ---------------------------------------------------------------------------
+# Retrieval
+# ---------------------------------------------------------------------------
 def retrieve_context(query, index, chunks, model, top_k=TOP_K, threshold=RELEVANCE_THRESHOLD):
     if index is None or not chunks:
         return []
@@ -433,7 +506,9 @@ def retrieve_context(query, index, chunks, model, top_k=TOP_K, threshold=RELEVAN
     scores, idxs = index.search(q_emb, min(top_k, len(chunks)))
     results = []
     for score, idx in zip(scores[0], idxs[0]):
-        if idx == -1 or score < threshold:
+        if idx == -1:
+            continue
+        if score < threshold:
             continue
         c = chunks[idx]
         results.append({"text": c["text"], "source": c["source"], "score": float(score)})
@@ -441,7 +516,7 @@ def retrieve_context(query, index, chunks, model, top_k=TOP_K, threshold=RELEVAN
 
 
 # ---------------------------------------------------------------------------
-# Answer Generation & Voice
+# Answer generation (Groq)
 # ---------------------------------------------------------------------------
 def generate_answer(query, context_chunks, language, history):
     api_key = os.getenv("GROQ_API_KEY")
@@ -449,7 +524,9 @@ def generate_answer(query, context_chunks, language, history):
     if client is None:
         return None, "missing_key"
 
-    context_text = "\n\n".join(f"[Source: {c['source']}]\n{c['text']}" for c in context_chunks)
+    context_text = "\n\n".join(
+        f"[Source: {c['source']}]\n{c['text']}" for c in context_chunks
+    )
     system_prompt = SYSTEM_PROMPT_TEMPLATE.format(
         language_instruction=LANGUAGE_INSTRUCTIONS.get(language, LANGUAGE_INSTRUCTIONS["English"]),
         context=context_text,
@@ -468,11 +545,46 @@ def generate_answer(query, context_chunks, language, history):
             temperature=0.3,
             max_tokens=900,
         )
-        return response.choices[0].message.content.strip(), None
+        answer = response.choices[0].message.content.strip()
+        return answer, None
     except Exception as e:
         return None, str(e)
 
 
+# ---------------------------------------------------------------------------
+# Voice transcription
+# ---------------------------------------------------------------------------
+def transcribe_audio(audio_bytes, language):
+    model = get_whisper_model()
+    if model is None:
+        return None, "Speech recognition is currently unavailable."
+
+    tmp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+            tmp.write(audio_bytes)
+            tmp_path = tmp.name
+
+        hint = WHISPER_LANG_HINT.get(language)
+        segments, _info = model.transcribe(tmp_path, language=hint, beam_size=5)
+        text = " ".join(seg.text.strip() for seg in segments).strip()
+
+        if not text:
+            return None, "No speech was detected in the recording."
+        return text, None
+    except Exception:
+        return None, "The voice recording could not be transcribed. Please try again."
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            try:
+                os.remove(tmp_path)
+            except OSError:
+                pass
+
+
+# ---------------------------------------------------------------------------
+# Text-to-speech (gTTS)
+# ---------------------------------------------------------------------------
 def generate_tts(text, language):
     if not text:
         return None
@@ -489,38 +601,84 @@ def generate_tts(text, language):
 
 
 # ---------------------------------------------------------------------------
-# Core Question Handler
+# Sources rendering
+# ---------------------------------------------------------------------------
+def render_sources(context_chunks):
+    if not context_chunks:
+        return
+    with st.expander("📚 Knowledge Base Sources"):
+        for c in context_chunks:
+            st.markdown(f"**📄 Document:** `{c['source']}`")
+            st.caption(f"Relevance Score: {c['score']:.2f}")
+            with st.expander("Show extracted segment text", expanded=False):
+                st.write(c["text"])
+
+
+# ---------------------------------------------------------------------------
+# Session state initialization
+# ---------------------------------------------------------------------------
+def init_session_state():
+    defaults = {
+        "chat_history": [],
+        "language": "English",
+        "kb_index": None,
+        "kb_chunks": None,
+        "kb_loaded_count": 0,
+        "kb_failed": [],
+        "kb_status": "not_loaded",
+        "last_audio_hash": None,
+    }
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
+
+
+# ---------------------------------------------------------------------------
+# Smart Greetings Check
 # ---------------------------------------------------------------------------
 def is_greeting(query):
     cleaned = re.sub(r"[^\w\s]", "", query.lower().strip())
-    return cleaned in {"hi", "hello", "hey", "salam", "aoa", "assalam o alaikum"}
+    greetings = {"hi", "hello", "hey", "salam", "aoa", "assalam o alaikum", "greetings"}
+    return cleaned in greetings
 
 
-def handle_question(query):
+def get_greeting_response(language):
+    if language == "Urdu":
+        return "السلام علیکم! میں آپ کا Healthcare Assistant ہوں۔ میں آپ کی کیا مدد کر سکتا ہوں؟ آپ ہسپتال کی سہولیات، رجسٹریشن اور دیگر معلومات کے بارے میں پوچھ سکتے ہیں۔"
+    elif language == "Roman Urdu":
+        return "Aoa! Main aap ka Healthcare Assistant hoon. Main aap ki kya madad kar sakta hoon? Aap hospital ki visiting hours, registration ya kisi bhi policy ke baray mein pooch saktay hain."
+    else:
+        return "Hello! Welcome to Healthcare Assistant. How can I assist you today? You can ask me about hospital services, visiting hours, registration, and patient guidelines."
+
+
+# ---------------------------------------------------------------------------
+# Core question handling
+# ---------------------------------------------------------------------------
+def handle_question(query, label=None):
     query = (query or "").strip()
     if not query:
         return
 
     start_time = time.time()
-    st.session_state.chat_history.append({"role": "user", "content": query})
+    display_text = query if not label else f"{label}\n\n{query}"
+    st.session_state.chat_history.append({"role": "user", "content": display_text})
+
     language = st.session_state.language
 
+    # Quick Greeting Handling
     if is_greeting(query):
-        if language == "Urdu":
-            answer = "السلام علیکم! میں آپ کا Healthcare Assistant ہوں۔ آپ مجھ سے ہسپتال کی خدمات اور پالیسیوں کے بارے میں پوچھ سکتے ہیں۔"
-        elif language == "Roman Urdu":
-            answer = "Aoa! Main aap ka Healthcare Assistant hoon. Aap hospital policies aur services ke baare mein pooch sakte hain."
-        else:
-            answer = "Hello! Welcome to Healthcare Assistant. How can I help you today with hospital policies and services?"
+        answer = get_greeting_response(language)
         context_chunks = []
     else:
-        with st.spinner("Searching knowledge base..."):
+        with st.spinner("Analyzing knowledge base & generating response..."):
             if st.session_state.kb_status != "ready" or st.session_state.kb_index is None:
                 answer = KB_NOT_READY_MESSAGE
                 context_chunks = []
             else:
                 model = get_embedding_model()
-                context_chunks = retrieve_context(query, st.session_state.kb_index, st.session_state.kb_chunks, model)
+                context_chunks = retrieve_context(
+                    query, st.session_state.kb_index, st.session_state.kb_chunks, model
+                )
                 if not context_chunks:
                     answer = NOT_FOUND_MESSAGE
                 else:
@@ -546,17 +704,29 @@ def handle_question(query):
     )
 
 
-# ---------------------------------------------------------------------------
-# UI Components
-# ---------------------------------------------------------------------------
-def init_session_state():
-    if "chat_history" not in st.session_state: st.session_state.chat_history = []
-    if "language" not in st.session_state: st.session_state.language = "English"
-    if "kb_index" not in st.session_state: st.session_state.kb_index = None
-    if "kb_chunks" not in st.session_state: st.session_state.kb_chunks = None
-    if "kb_status" not in st.session_state: st.session_state.kb_status = "not_loaded"
+def handle_voice(audio_bytes):
+    language = st.session_state.language
+    with st.spinner("Transcribing audio question..."):
+        transcript, error = transcribe_audio(audio_bytes, language)
+
+    if error or not transcript:
+        st.session_state.chat_history.append(
+            {
+                "role": "assistant",
+                "content": error or "The voice recording could not be understood. Please try again.",
+                "audio": None,
+                "sources": [],
+                "time": 0.0,
+            }
+        )
+        return
+
+    handle_question(transcript, label="🎙️ Voice Question:")
 
 
+# ---------------------------------------------------------------------------
+# UI Rendering
+# ---------------------------------------------------------------------------
 def render_header():
     st.markdown(
         """
@@ -564,81 +734,155 @@ def render_header():
             <h1>Healthcare Assistant</h1>
             <p>Welcome to <b>Healthcare Assistant</b> — an advanced, retrieval-augmented healthcare information system. 
             Designed to deliver fast, verified, and grounded answers directly from hospital documentation, 
-            empowering users with accurate guidance on registration, services, policies, and care.</p>
-            <div class="creator-badge">Created by Areeba Imran</div>
+            empowering users with accurate guidance on registration, services, policies, and care.
+            <span class="creator-text">• Created by Areeba Imran</span></p>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
+    status = st.session_state.kb_status
+    if status == "no_pdfs":
+        st.warning("No knowledge base documents found. Please add PDF files to the knowledge_base folder.")
+    elif status in ("faiss_error", "embedding_error"):
+        st.error("System index build error. Please click 'Rebuild Search Index' in the sidebar.")
 
-def render_sidebar():
+    if not os.getenv("GROQ_API_KEY"):
+        st.warning(MISSING_KEY_MESSAGE)
+
+
+def render_quick_prompt_dropdown():
+    st.markdown("**💡 Explore Common Questions (Select from Dropdown)**")
+    selected_option = st.selectbox(
+        "Select a frequent question to ask immediately:",
+        QUICK_PROMPT_OPTIONS,
+        label_visibility="collapsed"
+    )
+    
+    if selected_option and selected_option != QUICK_PROMPT_OPTIONS[0]:
+        clean_query = selected_option.replace("🚨 ", "").replace("🕒 ", "").replace("🏥 ", "").replace("📋 ", "").replace("💳 ", "")
+        handle_question(clean_query)
+        st.rerun()
+
+
+def render_chat_history():
+    for turn in st.session_state.chat_history:
+        role = turn["role"]
+        with st.chat_message(role):
+            st.markdown(turn["content"])
+            if role == "assistant":
+                if turn.get("audio"):
+                    st.audio(turn["audio"], format="audio/mp3")
+                if turn.get("sources"):
+                    render_sources(turn["sources"])
+                
+                # Output Metadata Footer
+                if turn.get("time"):
+                    st.markdown(
+                        f"""
+                        <div class="response-meta">
+                            <span>⚡ Response Time: {turn['time']}s</span> • 
+                            <span>🔒 Verified Grounded RAG</span>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+
+def render_voice_input():
+    st.markdown("**🎙️ Voice Interaction**")
+    try:
+        from streamlit_mic_recorder import mic_recorder
+    except Exception:
+        st.caption("Voice recording unavailable in current environment.")
+        return
+
+    audio = mic_recorder(
+        start_prompt="Start Recording Voice",
+        stop_prompt="Stop & Process Voice",
+        just_once=True,
+        use_container_width=True,
+        format="wav",
+        key="healthcare_mic",
+    )
+
+    if audio and audio.get("bytes"):
+        audio_hash = hashlib.md5(audio["bytes"]).hexdigest()
+        if st.session_state.last_audio_hash != audio_hash:
+            st.session_state.last_audio_hash = audio_hash
+            handle_voice(audio["bytes"])
+            st.rerun()
+
+
+def render_info_panel():
     with st.sidebar:
-        st.title("🏥 Healthcare AI")
-        
-        st.markdown("### 🌐 Language")
+        st.markdown(
+            """
+            <div class="sidebar-brand">
+                <h2>Healthcare System</h2>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.markdown("**🌐 Language Settings**")
         st.session_state.language = st.selectbox(
-            "Select Language",
-            LANGUAGE_OPTIONS,
+            "Select Response Language", 
+            LANGUAGE_OPTIONS, 
             index=LANGUAGE_OPTIONS.index(st.session_state.language),
             label_visibility="collapsed"
         )
 
+        st.markdown("<br>", unsafe_allow_html=True)
+
         st.markdown(
             """
-            <div class="sidebar-card">
-                <h4>⚡ AI Models & Tech Stack</h4>
+            <div class="sidebar-info-card">
+                <h4>✨ Assistant Capabilities & AI Models</h4>
                 <ul>
-                    <li><b>Vector Index:</b> FAISS + MiniLM</li>
+                    <li><b>Vector Search:</b> FAISS + MiniLM-L6 Embeddings</li>
                     <li><b>LLM Engine:</b> Groq (GPT-OSS-120B)</li>
-                    <li><b>Audio Speech:</b> Whisper ASR + gTTS</li>
+                    <li><b>Voice Processing:</b> Whisper Speech-to-Text ASR</li>
+                    <li><b>Audio Synthesis:</b> gTTS (Google Text-To-Speech)</li>
                 </ul>
             </div>
-            
-            <div class="sidebar-card">
-                <h4>🔒 Safety Rules</h4>
+
+            <div class="sidebar-info-card">
+                <h4>🔒 Grounding & Safety</h4>
                 <ul>
-                    <li>Grounded PDF Responses Only</li>
-                    <li>Zero General Medical Claims</li>
-                    <li>No Prescriptions / Diagnosis</li>
+                    <li>Strictly answers from local PDF KB</li>
+                    <li>No external hallucinated responses</li>
+                    <li>No medical diagnosis or drug prescriptions</li>
                 </ul>
             </div>
             """,
             unsafe_allow_html=True
         )
 
-        if st.button("🔄 Rebuild Knowledge Base", use_container_width=True):
-            with st.spinner("Reindexing PDFs..."):
+        st.markdown("---")
+        
+        if st.button("🔄 Rebuild Search Index", use_container_width=True):
+            with st.spinner("Reindexing documents..."):
                 load_or_build_knowledge_base(force_rebuild=True)
+            st.success("Knowledge index updated.")
             st.rerun()
 
 
-def render_quick_prompts():
-    st.markdown("**💡 Quick Sample Questions**")
-    cols = st.columns(len(QUICK_PROMPTS))
-    for idx, item in enumerate(QUICK_PROMPTS):
-        with cols[idx]:
-            if st.button(item["label"], key=f"qp_{idx}", use_container_width=True):
-                handle_question(item["query"])
-                st.rerun()
-
-
-def render_chat_history():
-    for turn in st.session_state.chat_history:
-        with st.chat_message(turn["role"]):
-            st.markdown(turn["content"])
-            if turn["role"] == "assistant":
-                if turn.get("audio"):
-                    st.audio(turn["audio"], format="audio/mp3")
-                if turn.get("sources"):
-                    with st.expander("📚 Verified Context Sources"):
-                        for c in turn["sources"]:
-                            st.caption(f"Source Document: {c['source']} (Relevance Score: {c['score']:.2f})")
-                            st.write(c["text"])
+def render_footer():
+    st.markdown(
+        """
+        <div class="custom-footer">
+            <p><b>Healthcare Assistant • Grounded Intelligent System</b></p>
+            <p>Designed & Developed by <b>Areeba Imran</b></p>
+            <p>© 2026 All rights reserved.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 
 # ---------------------------------------------------------------------------
-# Main Execution Loop
+# Main application entry point
 # ---------------------------------------------------------------------------
 def main():
     inject_css()
@@ -647,37 +891,40 @@ def main():
     if st.session_state.kb_status == "not_loaded":
         load_or_build_knowledge_base(force_rebuild=False)
 
-    render_sidebar()
+    render_info_panel()
     render_header()
 
-    render_quick_prompts()
+    st.markdown("---")
+    render_quick_prompt_dropdown()
     st.markdown("---")
 
-    col1, col2 = st.columns([4, 1])
-    with col1:
+    col_heading, col_clear = st.columns([4, 1])
+    with col_heading:
         st.subheader("💬 Assistant Chat Workspace")
-    with col2:
+    with col_clear:
         if st.button("🗑️ Clear Chat", use_container_width=True):
             st.session_state.chat_history = []
+            st.session_state.last_audio_hash = None
             st.rerun()
 
-    # User Input Chat Component
-    user_input = st.chat_input("Ask Healthcare Assistant a question...")
-    if user_input:
-        handle_question(user_input)
-        st.rerun()
+    with st.container():
+        with st.form("text_question_form", clear_on_submit=True):
+            col_input, col_submit = st.columns([5, 1])
+            with col_input:
+                typed_question = st.text_input(
+                    "Ask Healthcare Assistant a question...",
+                    label_visibility="collapsed",
+                    placeholder="Type your medical query, hospital policy question, or registration inquiry...",
+                )
+            with col_submit:
+                submitted = st.form_submit_button("Submit", use_container_width=True)
+        if submitted and typed_question.strip():
+            handle_question(typed_question)
 
+    render_voice_input()
     render_chat_history()
 
-    st.markdown(
-        """
-        <div class="custom-footer">
-            Healthcare Assistant • Grounded Information System<br>
-            Designed & Developed by <b>Areeba Imran</b> | © 2026 All rights reserved.
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    render_footer()
 
 
 if __name__ == "__main__":
