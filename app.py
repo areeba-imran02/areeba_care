@@ -31,7 +31,7 @@ st.set_page_config(
     page_title="Healthcare Assistant",
     page_icon="🏥",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="auto",
 )
 
 # ---------------------------------------------------------------------------
@@ -314,36 +314,81 @@ def inject_css():
             font-weight: 700;
         }
 
+        /* Sidebar layout: consistent padding and rhythm */
+        section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
+            padding: 1.4rem 1.1rem 1.6rem 1.1rem;
+        }
+        section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+            gap: 0.8rem;
+        }
+
+        /* Brand */
         .sidebar-brand {
-            padding-bottom: 0.9rem;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 1.1rem;
+            margin-bottom: 0.4rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .sidebar-brand .brand-icon {
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.12);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; flex-shrink: 0;
         }
         .sidebar-brand h2 {
-            font-size: 1.35rem;
+            font-size: 1.12rem;
+            line-height: 1.2;
             margin: 0;
+            padding: 0;
         }
-        .sidebar-section-label {
-            font-size: 0.78rem;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            margin: 0 0 0.5rem 0;
+        .sidebar-brand p.brand-tag {
+            margin: 0.2rem 0 0 0;
+            font-size: 0.74rem;
+            opacity: 0.75;
         }
-        .sidebar-section-label.teal { color: #6fd6c8 !important; }
-        .sidebar-section-label.amber { color: #e7be82 !important; }
 
-        .sidebar-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.16);
-            border-radius: var(--radius-md);
-            padding: 1rem;
-            margin-bottom: 1rem;
+        /* Section label (small caps) */
+        section[data-testid="stSidebar"] p.sb-label {
+            margin: 0.35rem 0 -0.35rem 0;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: #8fd9cd !important;
         }
-        .sidebar-card ul {
-            margin: 0;
-            padding-left: 1.1rem;
-            font-size: 0.86rem;
-            line-height: 1.55;
+
+        /* Info card with icon rows */
+        .sb-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-md);
+            padding: 0.3rem 0.9rem;
+        }
+        .sb-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.7rem 0;
+        }
+        .sb-row + .sb-row { border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        .sb-icon {
+            width: 32px; height: 32px;
+            border-radius: 9px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.95rem; flex-shrink: 0;
+        }
+        .sb-row p { margin: 0; }
+        .sb-row p.sb-title { font-size: 0.7rem; opacity: 0.7; letter-spacing: 0.02em; }
+        .sb-row p.sb-value { font-size: 0.86rem; font-weight: 600; line-height: 1.4; margin-top: 0.1rem; }
+
+        .sb-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.12);
+            margin: 0.3rem 0 0.1rem 0;
         }
 
         /* ==================================================================
@@ -592,43 +637,7 @@ def inject_css():
             white-space: nowrap;
         }
 
-        /* Sidebar: brand block, status card, section spacing */
-        .sidebar-brand .brand-row { display: flex; align-items: center; gap: 0.7rem; }
-        .sidebar-brand .brand-icon {
-            width: 38px; height: 38px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.12);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; flex-shrink: 0;
-        }
-        .sidebar-brand p.brand-tag {
-            margin: 0.1rem 0 0 0;
-            font-size: 0.74rem;
-            opacity: 0.8;
-        }
-        .sidebar-section-label { margin: 0.5rem 0 -0.35rem 0; }
-
-        .status-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.6rem;
-            padding: 0.4rem 0;
-            font-size: 0.84rem;
-        }
-        .status-row + .status-row { border-top: 1px solid rgba(255, 255, 255, 0.12); }
-        .status-pill {
-            font-size: 0.72rem;
-            font-weight: 700;
-            padding: 0.14rem 0.6rem;
-            border-radius: 999px;
-            border: 1px solid transparent;
-            white-space: nowrap;
-        }
-        .status-pill.ok   { color: #8ff0e2 !important; background: rgba(111, 214, 200, 0.14); border-color: rgba(111, 214, 200, 0.4); }
-        .status-pill.warn { color: #f3cf98 !important; background: rgba(231, 190, 130, 0.14); border-color: rgba(231, 190, 130, 0.4); }
-        .status-pill.bad  { color: #ffb4a8 !important; background: rgba(255, 120, 100, 0.14); border-color: rgba(255, 140, 120, 0.4); }
-
+        /* Sidebar buttons: hover + shared height */
         section[data-testid="stSidebar"] .stButton > button:hover {
             background: rgba(255, 255, 255, 0.16) !important;
             border-color: rgba(255, 255, 255, 0.5) !important;
@@ -676,7 +685,7 @@ def inject_css():
             text-align: start;
             line-height: 1.65;
         }
-        .stTextInput input { unicode-bidi: plaintext; }
+        .stTextInput input { unicode-bidi: plaintext; text-overflow: ellipsis; }
 
         /* Chat empty state (shown before the first question) */
         .empty-state {
@@ -762,13 +771,81 @@ def inject_css():
         /* Footer: a little more air above */
         .custom-footer { margin-top: 2rem; }
 
-        /* Smaller screens */
-        @media (max-width: 900px) {
-            .hero-banner { padding: 1.3rem 1.2rem; }
-            .hero-banner h1 { font-size: 1.6rem; }
-            .hero-chip { white-space: normal; }
+        /* ==================================================================
+           RESPONSIVE
+           Laptop / desktop = default styles above.
+           Tablet  (<= 992px): chat + FAQ stack full-width, slimmer sidebar.
+           Mobile  (<= 640px): compact spacing, input + Send stay on one row.
+        ================================================================== */
+        .stApp { overflow-x: hidden; }
+        .hero-banner h1 { overflow-wrap: anywhere; }
+
+        @media (max-width: 992px) {
+            .block-container {
+                padding-left: 1.5rem !important;
+                padding-right: 1.5rem !important;
+            }
+            section[data-testid="stSidebar"][aria-expanded="true"] {
+                width: 17rem !important;
+                min-width: 17rem !important;
+                max-width: 17rem !important;
+            }
+            .hero-banner { padding: 1.4rem 1.5rem; }
+            .hero-banner h1 { font-size: 1.75rem; }
+
+            /* Stack the main two-column row (chat above FAQ) */
+            div[data-testid="stHorizontalBlock"]:has(.faq-anchor) { flex-wrap: wrap !important; }
+            div[data-testid="stHorizontalBlock"]:has(.faq-anchor) > div[data-testid="stColumn"],
+            div[data-testid="stHorizontalBlock"]:has(.faq-anchor) > div[data-testid="column"] {
+                flex: 1 1 100% !important;
+                width: 100% !important;
+                min-width: 100% !important;
+            }
             div[data-testid="stColumn"]:has(.faq-anchor),
             div[data-testid="column"]:has(.faq-anchor) { position: static; }
+        }
+
+        @media (max-width: 640px) {
+            .block-container { padding: 1rem 0.85rem 1.6rem 0.85rem !important; }
+
+            .hero-banner { padding: 1.15rem 1rem; border-radius: 14px; margin-bottom: 1rem; }
+            .hero-banner h1 { font-size: 1.4rem; }
+            .hero-top-row { gap: 0.5rem; margin-bottom: 0.5rem; }
+            .creator-badge { font-size: 0.72rem; padding: 0.3rem 0.7rem; }
+            .hero-banner p.hero-sub { font-size: 0.88rem; line-height: 1.5; }
+            .hero-chips { gap: 0.4rem; margin-top: 0.85rem; }
+            .hero-chip { font-size: 0.7rem; padding: 0.25rem 0.65rem; white-space: normal; }
+
+            [data-testid="stVerticalBlockBorderWrapper"] { border-radius: 14px !important; }
+            .panel-title-bar { padding: 0.7rem 0.85rem; gap: 10px; margin-bottom: 0.8rem; }
+            .panel-title-bar .panel-icon { width: 34px; height: 34px; font-size: 1rem; }
+            .panel-title-bar .panel-title { font-size: 0.98rem; }
+            [data-testid="stChatMessage"] { padding: 0.75rem 0.8rem !important; }
+            .response-meta { flex-wrap: wrap; gap: 6px; }
+            .empty-state { padding: 1.5rem 1rem; }
+            .empty-state p.empty-text { font-size: 0.84rem; }
+            .tips-card { padding: 0.8rem; }
+            .custom-footer { padding: 0.9rem; margin-top: 1.4rem; }
+            .custom-footer h3 { font-size: 0.98rem; }
+
+            /* Keep the text box and Send button on one row */
+            [data-testid="stForm"] [data-testid="stHorizontalBlock"] {
+                flex-wrap: nowrap !important;
+                gap: 0.5rem !important;
+            }
+            [data-testid="stForm"] [data-testid="stColumn"]:first-child,
+            [data-testid="stForm"] [data-testid="column"]:first-child {
+                flex: 1 1 auto !important;
+                min-width: 0 !important;
+                width: auto !important;
+            }
+            [data-testid="stForm"] [data-testid="stColumn"]:last-child,
+            [data-testid="stForm"] [data-testid="column"]:last-child {
+                flex: 0 0 auto !important;
+                min-width: 5.4rem !important;
+                width: auto !important;
+            }
+            [data-testid="stFormSubmitButton"] button { padding: 0 0.6rem !important; }
         }
 
         footer { visibility: hidden; }
@@ -1630,19 +1707,17 @@ def render_info_panel():
         st.markdown(
             """
             <div class="sidebar-brand">
-                <div class="brand-row">
-                    <div class="brand-icon">🏥</div>
-                    <div>
-                        <h2>Healthcare System</h2>
-                        <p class="brand-tag">Hospital Information Assistant</p>
-                    </div>
+                <div class="brand-icon">🏥</div>
+                <div>
+                    <h2>Healthcare System</h2>
+                    <p class="brand-tag">Hospital Information Assistant</p>
                 </div>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-        st.markdown('<p class="sidebar-section-label teal">🌐 LANGUAGE SETTINGS</p>', unsafe_allow_html=True)
+        st.markdown('<p class="sb-label">Response language</p>', unsafe_allow_html=True)
         selected_lang = st.selectbox(
             "Select Response Language",
             LANGUAGE_OPTIONS,
@@ -1653,47 +1728,30 @@ def render_info_panel():
             st.session_state.language = selected_lang
             st.rerun()
 
-        st.markdown('<p class="sidebar-section-label amber">🏥 HOSPITAL INFO</p>', unsafe_allow_html=True)
+        st.markdown('<p class="sb-label">Hospital info</p>', unsafe_allow_html=True)
         st.markdown(
             """
-            <div class="sidebar-card">
-                <ul>
-                    <li>OPD &amp; Emergency: 24/7 Care</li>
-                    <li>Specialties: Cardiology, Neurology, Pediatrics</li>
-                </ul>
+            <div class="sb-card">
+                <div class="sb-row">
+                    <div class="sb-icon">🚑</div>
+                    <div>
+                        <p class="sb-title">OPD &amp; Emergency</p>
+                        <p class="sb-value">24/7 Care</p>
+                    </div>
+                </div>
+                <div class="sb-row">
+                    <div class="sb-icon">🩺</div>
+                    <div>
+                        <p class="sb-title">Specialties</p>
+                        <p class="sb-value">Cardiology, Neurology, Pediatrics</p>
+                    </div>
+                </div>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-        # System status (read-only, derived from existing session state)
-        kb_status = st.session_state.get("kb_status")
-        kb_docs = st.session_state.get("kb_loaded_count", 0)
-        if kb_status == "ready":
-            kb_pill = f'<span class="status-pill ok">{kb_docs} doc{"s" if kb_docs != 1 else ""} ready</span>'
-        elif kb_status == "no_pdfs":
-            kb_pill = '<span class="status-pill warn">No PDFs</span>'
-        elif kb_status in ("faiss_error", "embedding_error"):
-            kb_pill = '<span class="status-pill bad">Error</span>'
-        else:
-            kb_pill = '<span class="status-pill warn">Loading</span>'
-        ai_pill = (
-            '<span class="status-pill ok">Connected</span>'
-            if os.getenv("GROQ_API_KEY")
-            else '<span class="status-pill bad">No API key</span>'
-        )
-        st.markdown('<p class="sidebar-section-label teal">📊 SYSTEM STATUS</p>', unsafe_allow_html=True)
-        st.markdown(
-            f"""
-            <div class="sidebar-card">
-                <div class="status-row"><span>Knowledge base</span>{kb_pill}</div>
-                <div class="status-row"><span>AI model</span>{ai_pill}</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-        st.markdown('<p class="sidebar-section-label amber">⚙️ ACTIONS</p>', unsafe_allow_html=True)
+        st.markdown('<div class="sb-divider"></div>', unsafe_allow_html=True)
 
         # Index Rebuild Trigger Button
         if st.button("🔄 Rebuild Index", use_container_width=True):
