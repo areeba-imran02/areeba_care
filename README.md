@@ -16,7 +16,7 @@ AreebaCare is a fictional hospital used purely for demonstration purposes. The a
 
 - Fully automatic local RAG pipeline — no manual FAISS setup required
 - Text questions and voice questions, both producing text **and** audio answers automatically
-- Multilingual support: English, Urdu, Roman Urdu, Hindi
+- Multilingual support: English, Urdu, Roman Urdu
 - Strict grounding — never invents prices, timings, departments, doctors, policies, or medical advice
 - "Knowledge Sources" panel showing which PDF and similarity score backed each answer
 - "Rebuild Knowledge Base" admin action for refreshing the index after PDFs change
@@ -186,7 +186,7 @@ Voice questions use `streamlit-mic-recorder` to capture audio directly in the br
 
 ## 13. Text-to-Speech
 
-Every successful answer is converted to speech using `gTTS` in the selected language (English, Urdu, Roman Urdu, Hindi). If speech synthesis fails for any reason, the text answer remains fully visible — audio failures never block the text response.
+Every successful answer is converted to speech using `gTTS` in the selected language (English, Urdu, Roman Urdu). If speech synthesis fails for any reason, the text answer remains fully visible — audio failures never block the text response.
 
 ## 14. Safety & Limitations
 
