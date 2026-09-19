@@ -87,7 +87,7 @@ NOT_FOUND_MESSAGE = (
 
 KB_NOT_READY_MESSAGE = (
     "The knowledge base is not ready yet. Please add PDF "
-    "documents to the knowledge_base folder and use \"Rebuild Knowledge Base\"."
+    "documents to the knowledge_base folder and click \"Rebuild Knowledge Base\"."
 )
 
 MISSING_KEY_MESSAGE = (
@@ -120,7 +120,7 @@ CONTEXT FROM KNOWLEDGE BASE:
 """
 
 # ---------------------------------------------------------------------------
-# Custom Vibrant Theme
+# Custom Vibrant CSS Theme
 # ---------------------------------------------------------------------------
 def inject_css():
     st.markdown(
@@ -141,27 +141,27 @@ def inject_css():
             padding: 2.2rem;
             margin-bottom: 1.5rem;
             color: #ffffff;
-            box-shadow: 0 10px 25px rgba(4, 120, 87, 0.25);
+            box-shadow: 0 10px 25px rgba(4, 120, 87, 0.2);
             position: relative;
         }
         .hero-banner h1 {
             color: #ffffff !important;
             margin: 0 0 0.5rem 0;
-            font-size: 2.3rem;
+            font-size: 2.2rem;
             font-weight: 700;
         }
         .hero-banner p {
             color: #e6f4f1 !important;
             margin: 0;
-            font-size: 1.02rem;
+            font-size: 1rem;
             line-height: 1.6;
             max-width: 850px;
         }
         .hero-banner .creator-badge {
             margin-top: 1.2rem;
             display: inline-block;
-            background: rgba(255, 255, 255, 0.18);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.35);
             color: #ffffff !important;
             padding: 0.35rem 0.9rem;
             border-radius: 20px;
@@ -169,18 +169,23 @@ def inject_css():
             font-weight: 600;
         }
 
-        /* Sidebar Customization */
+        /* Sidebar Styling & High Contrast Fixes */
         section[data-testid="stSidebar"] {
-            background-color: #1e293b !important;
-            border-right: 1px solid #334155;
+            background-color: #0f172a !important;
+            border-right: 1px solid #1e293b;
         }
         section[data-testid="stSidebar"] * {
-            color: #f8fafc !important;
+            color: #f1f5f9 !important;
         }
-
-        /* Fix visibility for selectbox inside sidebar */
+        
+        /* Selectbox visibility fix */
+        section[data-testid="stSidebar"] div[data-baseweb="select"] {
+            background-color: #ffffff !important;
+            border-radius: 8px;
+        }
         section[data-testid="stSidebar"] div[data-baseweb="select"] * {
             color: #0f172a !important;
+            font-weight: 600;
         }
 
         .sidebar-card {
@@ -193,40 +198,46 @@ def inject_css():
         }
         .sidebar-card h4 {
             color: #38bdf8 !important;
-            font-size: 0.92rem;
+            font-size: 0.9rem;
             margin: 0 0 0.6rem 0;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .sidebar-card ul {
             margin: 0;
             padding-left: 1.1rem;
             font-size: 0.85rem;
+            line-height: 1.5;
         }
 
-        /* Button Styling */
+        /* Button Customizations */
         .stButton > button {
             background: linear-gradient(135deg, #0d9488 0%, #059669 100%) !important;
             color: #ffffff !important;
-            border-radius: 10px !important;
+            border-radius: 8px !important;
             border: none !important;
             font-weight: 600 !important;
-            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25) !important;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2) !important;
+            transition: all 0.2s ease;
         }
         .stButton > button:hover {
-            background: linear-gradient(135deg, #0f766e 0%, #047857 100%) !important;
             transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(13, 148, 136, 0.3) !important;
         }
 
-        /* Sidebar Button */
+        /* Sidebar Action Button */
         section[data-testid="stSidebar"] .stButton > button {
-            background: rgba(255, 255, 255, 0.12) !important;
+            background: rgba(255, 255, 255, 0.1) !important;
             border: 1px solid rgba(255, 255, 255, 0.25) !important;
             color: #ffffff !important;
         }
+        section[data-testid="stSidebar"] .stButton > button:hover {
+            background: rgba(255, 255, 255, 0.2) !important;
+        }
 
-        /* Chat Output Messages */
+        /* Chat Output Styling */
         [data-testid="stChatMessage"] {
-            border-radius: 14px !important;
+            border-radius: 12px !important;
             padding: 1.2rem !important;
             margin-bottom: 1rem !important;
         }
@@ -236,8 +247,8 @@ def inject_css():
         }
         [data-testid="stChatMessage"]:nth-child(odd) {
             background-color: #ffffff !important;
-            border: 1px solid #cbd5e1 !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02) !important;
         }
 
         /* Footer Banner */
@@ -247,7 +258,7 @@ def inject_css():
             padding: 1.2rem;
             text-align: center;
             color: #ffffff;
-            margin-top: 2rem;
+            margin-top: 2.5rem;
             font-size: 0.9rem;
         }
         footer { visibility: hidden; }
@@ -287,7 +298,7 @@ def get_groq_client(api_key):
 
 
 # ---------------------------------------------------------------------------
-# PDF Processing & Retrieval
+# PDF Processing & Retrieval Functions
 # ---------------------------------------------------------------------------
 def load_pdf_files():
     return sorted(glob.glob(os.path.join(KB_DIR, "*.pdf")))
@@ -477,29 +488,6 @@ def generate_tts(text, language):
         return None
 
 
-def transcribe_audio(audio_bytes, language):
-    model = get_whisper_model()
-    if model is None:
-        return None, "Voice transcription model is not available."
-
-    tmp_path = None
-    try:
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-            tmp.write(audio_bytes)
-            tmp_path = tmp.name
-
-        hint = WHISPER_LANG_HINT.get(language)
-        segments, _ = model.transcribe(tmp_path, language=hint, beam_size=5)
-        text = " ".join(seg.text.strip() for seg in segments).strip()
-        return (text, None) if text else (None, "No voice detected.")
-    except Exception:
-        return None, "Could not process audio."
-    finally:
-        if tmp_path and os.path.exists(tmp_path):
-            try: os.remove(tmp_path)
-            except OSError: pass
-
-
 # ---------------------------------------------------------------------------
 # Core Question Handler
 # ---------------------------------------------------------------------------
@@ -567,7 +555,6 @@ def init_session_state():
     if "kb_index" not in st.session_state: st.session_state.kb_index = None
     if "kb_chunks" not in st.session_state: st.session_state.kb_chunks = None
     if "kb_status" not in st.session_state: st.session_state.kb_status = "not_loaded"
-    if "last_audio_hash" not in st.session_state: st.session_state.last_audio_hash = None
 
 
 def render_header():
@@ -589,9 +576,9 @@ def render_sidebar():
     with st.sidebar:
         st.title("🏥 Healthcare AI")
         
-        st.markdown("### 🌐 Select Language")
+        st.markdown("### 🌐 Language")
         st.session_state.language = st.selectbox(
-            "Language Options",
+            "Select Language",
             LANGUAGE_OPTIONS,
             index=LANGUAGE_OPTIONS.index(st.session_state.language),
             label_visibility="collapsed"
@@ -600,21 +587,20 @@ def render_sidebar():
         st.markdown(
             """
             <div class="sidebar-card">
-                <h4>⚡ AI Capabilities & Models</h4>
+                <h4>⚡ AI Models & Tech Stack</h4>
                 <ul>
-                    <li><b>Vector Index:</b> FAISS + Sentence-Transformers</li>
-                    <li><b>Language Model:</b> Groq (GPT-OSS-120B)</li>
-                    <li><b>Voice Processing:</b> OpenAI Whisper ASR</li>
-                    <li><b>Text-To-Speech:</b> gTTS Synthesis</li>
+                    <li><b>Vector Index:</b> FAISS + MiniLM</li>
+                    <li><b>LLM Engine:</b> Groq (GPT-OSS-120B)</li>
+                    <li><b>Audio Speech:</b> Whisper ASR + gTTS</li>
                 </ul>
             </div>
             
             <div class="sidebar-card">
-                <h4>🔒 Grounded Safety</h4>
+                <h4>🔒 Safety Rules</h4>
                 <ul>
-                    <li>Strictly factual KB responses</li>
-                    <li>No hallucinated medical claims</li>
-                    <li>No medical diagnosis/prescriptions</li>
+                    <li>Grounded PDF Responses Only</li>
+                    <li>Zero General Medical Claims</li>
+                    <li>No Prescriptions / Diagnosis</li>
                 </ul>
             </div>
             """,
@@ -622,7 +608,7 @@ def render_sidebar():
         )
 
         if st.button("🔄 Rebuild Knowledge Base", use_container_width=True):
-            with st.spinner("Rebuilding Index..."):
+            with st.spinner("Reindexing PDFs..."):
                 load_or_build_knowledge_base(force_rebuild=True)
             st.rerun()
 
@@ -645,14 +631,14 @@ def render_chat_history():
                 if turn.get("audio"):
                     st.audio(turn["audio"], format="audio/mp3")
                 if turn.get("sources"):
-                    with st.expander("📚 Verified Sources"):
+                    with st.expander("📚 Verified Context Sources"):
                         for c in turn["sources"]:
-                            st.caption(f"Source: {c['source']} (Score: {c['score']:.2f})")
+                            st.caption(f"Source Document: {c['source']} (Relevance Score: {c['score']:.2f})")
                             st.write(c["text"])
 
 
 # ---------------------------------------------------------------------------
-# Main App Structure
+# Main Execution Loop
 # ---------------------------------------------------------------------------
 def main():
     inject_css()
@@ -675,7 +661,7 @@ def main():
             st.session_state.chat_history = []
             st.rerun()
 
-    # User Input Field
+    # User Input Chat Component
     user_input = st.chat_input("Ask Healthcare Assistant a question...")
     if user_input:
         handle_question(user_input)
