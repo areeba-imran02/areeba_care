@@ -55,10 +55,40 @@ WHISPER_MODEL_SIZE = "small"
 GROQ_MODEL_NAME = "openai/gpt-oss-120b"
 GROQ_FALLBACK_MODEL_NAME = "openai/gpt-oss-20b"
 
+# Groq-hosted Whisper: far more accurate for Urdu / mixed Urdu-English speech
+# than the local "small" model, which is kept only as an offline fallback.
+GROQ_WHISPER_MODEL = "whisper-large-v3"
+
+# Whisper often labels Urdu speech as one of these (Hindi, Arabic, Persian...).
+# If it does, we re-run transcription with language forced to Urdu.
+URDU_LIKE_LANGS = {
+    "ur", "urdu", "hi", "hindi", "pa", "punjabi", "ar", "arabic",
+    "fa", "persian", "ps", "pashto", "sd", "sindhi",
+}
+
+# Vocabulary hint so Whisper recognises hospital terms spoken in English
+# in the middle of an Urdu sentence.
+WHISPER_URDU_PROMPT = (
+    "یہ ہسپتال کے بارے میں سوال ہے۔ OPD, ICU, emergency, appointment, "
+    "visiting hours, admission, discharge, insurance, pharmacy, laboratory."
+)
+
+# Common Roman Urdu words (deliberately excluding words that are also
+# ordinary English, like "main", "me", "to", "so") used to detect Roman Urdu.
+ROMAN_URDU_MARKERS = {
+    "kya", "hai", "hain", "hy", "mein", "mai", "ka", "ki", "ke", "kaise",
+    "kaisay", "kese", "kab", "kahan", "kahaan", "kidhar", "kitna", "kitne",
+    "kitni", "kaun", "kon", "kis", "kyun", "kyu", "chahiye", "chahiyay",
+    "mujhe", "mujhay", "mera", "meri", "mere", "aap", "aapka", "apka",
+    "batao", "batayein", "bataiye", "nahi", "nahin", "hoga", "hogi",
+    "sakta", "sakti", "sakte", "saktay", "karna", "karein", "karen",
+    "milta", "milti", "milte", "wala", "wali", "wale", "liye",
+}
+
 CHUNK_SIZE_WORDS = 600
 CHUNK_OVERLAP_WORDS = 100
-TOP_K = 3
-RELEVANCE_THRESHOLD = 0.30
+TOP_K = 5
+RELEVANCE_THRESHOLD = 0.20
 MAX_ANSWER_TOKENS = 500
 HISTORY_TURNS_SENT = 4
 
@@ -71,12 +101,6 @@ LANGUAGE_INSTRUCTIONS = {
 }
 
 GTTS_LANG_MAP = {
-    "English": "en",
-    "Urdu": "ur",
-    "Roman Urdu": "ur",
-}
-
-WHISPER_LANG_HINT = {
     "English": "en",
     "Urdu": "ur",
     "Roman Urdu": "ur",
@@ -130,6 +154,7 @@ STRICT RULES YOU MUST ALWAYS FOLLOW:
 8. Keep answers clear, concise, and genuinely useful.
 9. {language_instruction}
 10. Remember that this is an educational hospital knowledge base used for demonstration purposes only.
+11. The user's question may be in English, Urdu (Urdu script), Roman Urdu, or a mix of these, and may come from speech recognition with small errors. Interpret the intended meaning sensibly, then answer from the context.
 
 CONTEXT FROM KNOWLEDGE BASE:
 {context}
@@ -800,11 +825,60 @@ def generate_answer(query, context_chunks, language, history):
 
 # ---------------------------------------------------------------------------
 # Voice transcription
+#
+# The user can speak in English, Urdu, Roman-style Urdu, or any natural mix.
+# Strategy:
+#   1. Groq Whisper (large-v3) auto-detects the spoken language.
+#   2. If Whisper labels the audio as Hindi/Arabic/Persian/etc. (a common
+#      mistake for Urdu), transcription is re-run with language forced to
+#      Urdu plus a hospital-vocabulary hint.
+#   3. If Groq is unavailable, the local faster-whisper model is used with
+#      the same detect-then-retry logic.
+# The response language is controlled separately by the sidebar setting.
 # ---------------------------------------------------------------------------
-def transcribe_audio(audio_bytes, language):
+def _is_urdu_like(lang):
+    return (lang or "").strip().lower() in URDU_LIKE_LANGS
+
+
+def _transcribe_with_groq(audio_bytes):
+    """Returns transcript text ("" if silent), or None if Groq is unavailable."""
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        return None
+    client = get_groq_client(api_key)
+    if client is None:
+        return None
+
+    def _run(language=None, prompt=None):
+        kwargs = {
+            "file": ("recording.wav", audio_bytes),
+            "model": GROQ_WHISPER_MODEL,
+            "response_format": "verbose_json",
+            "temperature": 0.0,
+        }
+        if language:
+            kwargs["language"] = language
+        if prompt:
+            kwargs["prompt"] = prompt
+        resp = client.audio.transcriptions.create(**kwargs)
+        return (getattr(resp, "text", "") or "").strip(), getattr(resp, "language", None)
+
+    # Pass 1: no hint, so pure English speech is not biased towards Urdu.
+    text, detected = _run()
+
+    # Pass 2: Urdu heard but mislabelled (e.g. as Hindi/Arabic) -> force Urdu.
+    if detected and _is_urdu_like(detected) and detected.strip().lower() not in ("ur", "urdu"):
+        retry_text, _ = _run(language="ur", prompt=WHISPER_URDU_PROMPT)
+        if retry_text:
+            text = retry_text
+    return text
+
+
+def _transcribe_locally(audio_bytes):
+    """Offline fallback. Returns transcript text, or None if model missing."""
     model = get_whisper_model()
     if model is None:
-        return None, "Speech recognition is currently unavailable."
+        return None
 
     tmp_path = None
     try:
@@ -812,21 +886,128 @@ def transcribe_audio(audio_bytes, language):
             tmp.write(audio_bytes)
             tmp_path = tmp.name
 
-        hint = WHISPER_LANG_HINT.get(language)
-        segments, _info = model.transcribe(tmp_path, language=hint, beam_size=5)
-        text = " ".join(seg.text.strip() for seg in segments).strip()
-
-        if not text:
-            return None, "No speech was detected in the recording."
-        return text, None
-    except Exception:
-        return None, "The voice recording could not be transcribed. Please try again."
+        segments, info = model.transcribe(
+            tmp_path, language=None, beam_size=5, vad_filter=True
+        )
+        if _is_urdu_like(info.language) and info.language != "ur":
+            segments, info = model.transcribe(
+                tmp_path,
+                language="ur",
+                initial_prompt=WHISPER_URDU_PROMPT,
+                beam_size=5,
+                vad_filter=True,
+            )
+        return " ".join(seg.text.strip() for seg in segments).strip()
     finally:
         if tmp_path and os.path.exists(tmp_path):
             try:
                 os.remove(tmp_path)
             except OSError:
                 pass
+
+
+def transcribe_audio(audio_bytes, language=None):
+    # `language` (the sidebar RESPONSE language) is intentionally unused:
+    # we always listen for whatever language was actually spoken.
+    text = None
+    try:
+        text = _transcribe_with_groq(audio_bytes)
+    except Exception as e:
+        print(f"[Groq Whisper error] {e!r}")
+        text = None
+
+    if text is None:  # Groq unavailable or failed -> local fallback
+        try:
+            text = _transcribe_locally(audio_bytes)
+        except Exception as e:
+            print(f"[Local Whisper error] {e!r}")
+            return None, "The voice recording could not be transcribed. Please try again."
+        if text is None:
+            return None, "Speech recognition is currently unavailable."
+
+    if not text:
+        return None, "No speech was detected in the recording."
+    return text, None
+
+
+# ---------------------------------------------------------------------------
+# Multilingual query understanding
+#
+# The knowledge base PDFs and the embedding model (all-MiniLM-L6-v2) are
+# English-only, so an Urdu / Roman Urdu / mixed question would never match
+# any chunk. Before retrieval, such questions are rewritten into a short
+# English search query. The user's original wording is still what is shown
+# in the chat and sent to the answering model.
+# ---------------------------------------------------------------------------
+_NON_LATIN_SCRIPT = re.compile(r"[\u0600-\u06FF\u0750-\u077F\u0900-\u097F]")
+
+
+def needs_english_rewrite(query):
+    if _NON_LATIN_SCRIPT.search(query):
+        return True
+    words = set(re.findall(r"[a-z]+", query.lower()))
+    return bool(words & ROMAN_URDU_MARKERS)
+
+
+def to_english_search_query(query):
+    if not needs_english_rewrite(query):
+        return query
+
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        return query
+    try:
+        client = get_groq_client(api_key)
+    except Exception:
+        return query
+    if client is None:
+        return query
+
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You convert a question for a hospital information assistant into ONE "
+                "short English search query. The input may be Urdu script, Roman Urdu, "
+                "Hindi, English, or a mix, and may contain speech-recognition mistakes. "
+                "Keep hospital terms and abbreviations (OPD, ICU, MRI, etc.) unchanged. "
+                "Output ONLY the English query: no quotes, no explanation."
+            ),
+        },
+        {"role": "user", "content": query},
+    ]
+
+    # Try the smaller model first to save the main model's daily quota.
+    for model_name in (GROQ_FALLBACK_MODEL_NAME, GROQ_MODEL_NAME):
+        if not model_name:
+            continue
+        try:
+            try:
+                resp = client.chat.completions.create(
+                    model=model_name,
+                    messages=messages,
+                    temperature=0,
+                    max_tokens=400,
+                    reasoning_effort="low",
+                )
+            except Exception as e:
+                if getattr(e, "status_code", None) == 400:
+                    # Model doesn't accept reasoning_effort; retry plainly.
+                    resp = client.chat.completions.create(
+                        model=model_name,
+                        messages=messages,
+                        temperature=0,
+                        max_tokens=400,
+                    )
+                else:
+                    raise
+            text = (resp.choices[0].message.content or "").strip().strip("\"'`")
+            if text:
+                return text
+        except Exception as e:
+            print(f"[Query rewrite error with {model_name}] {e!r}")
+            continue
+    return query
 
 
 # ---------------------------------------------------------------------------
@@ -885,7 +1066,12 @@ def init_session_state():
 # ---------------------------------------------------------------------------
 def is_greeting(query):
     cleaned = re.sub(r"[^\w\s]", "", query.lower().strip())
-    greetings = {"hi", "hello", "hey", "salam", "aoa", "assalam o alaikum", "greetings"}
+    greetings = {
+        "hi", "hello", "hey", "salam", "salaam", "aoa", "greetings",
+        "assalam o alaikum", "assalamualaikum", "assalam alaikum",
+        "assalamu alaikum", "asalam o alaikum",
+        "السلام علیکم", "سلام", "ہیلو", "ہائے",
+    }
     return cleaned in greetings
 
 
@@ -943,8 +1129,16 @@ def handle_question(query, label=None):
                 context_chunks = []
             else:
                 model = get_embedding_model()
+                # Urdu / Roman Urdu / mixed questions are converted to an
+                # English search query, because the PDFs and embedding
+                # model are English-only.
+                search_query = to_english_search_query(query)
+                if search_query != query:
+                    st.session_state.chat_history[-1]["note"] = (
+                        f"🔎 Understood as: {search_query}"
+                    )
                 context_chunks = retrieve_context(
-                    query, st.session_state.kb_index, st.session_state.kb_chunks, model
+                    search_query, st.session_state.kb_index, st.session_state.kb_chunks, model
                 )
                 if not context_chunks:
                     answer = NOT_FOUND_MESSAGE
@@ -1084,6 +1278,8 @@ def render_chat_messages():
         role = turn["role"]
         with st.chat_message(role):
             st.markdown(turn["content"])
+            if role == "user" and turn.get("note"):
+                st.caption(turn["note"])
             if role == "assistant":
                 if turn.get("audio"):
                     st.audio(turn["audio"], format="audio/mp3")
