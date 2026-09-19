@@ -288,8 +288,18 @@ def inject_css():
             color: #0f172a !important;
         }
 
-        /* --- SINGLE MAIN CARD CONTAINER --- */
+        /* --- MAIN CARD CONTAINER --- */
         .main-chatbot-card {
+            background-color: #ffffff;
+            border: 2px solid #fecdd3;
+            border-radius: 18px;
+            padding: 1.2rem;
+            box-shadow: 0 10px 25px rgba(159, 18, 57, 0.08);
+            margin-bottom: 1.5rem;
+        }
+
+        /* --- SIDE CARD CONTAINER (FAQ/Quick Prompts) --- */
+        .side-card {
             background-color: #ffffff;
             border: 2px solid #fecdd3;
             border-radius: 18px;
@@ -805,12 +815,15 @@ def render_header():
 
 
 def render_quick_prompt_dropdown():
+    # Wrap side FAQ dropdown inside .side-card container for border styling
+    st.markdown('<div class="side-card">', unsafe_allow_html=True)
     st.markdown("**🏥 Frequently Asked Questions**")
     selected_option = st.selectbox(
         "Select a frequent question to ask immediately:",
         QUICK_PROMPT_OPTIONS,
         label_visibility="collapsed"
     )
+    st.markdown('</div>', unsafe_allow_html=True)
     
     if selected_option and selected_option != QUICK_PROMPT_OPTIONS[0]:
         clean_query = (
@@ -854,10 +867,8 @@ def render_chat_messages():
 
 
 def render_chatbot_card():
-    # Outer card wrapper start (Blank top box has been completely removed)
     st.markdown('<div class="main-chatbot-card">', unsafe_allow_html=True)
 
-    # Red Header Inside Card
     st.markdown(
         """
         <div class="chatbot-header">
@@ -873,12 +884,10 @@ def render_chatbot_card():
         unsafe_allow_html=True
     )
 
-    # Chat history
     render_chat_messages()
 
     st.markdown("<hr style='margin:1rem 0; border-color:#fecdd3;'>", unsafe_allow_html=True)
 
-    # Input Form
     with st.form("chatbot_card_form", clear_on_submit=True):
         col_inp, col_btn = st.columns([5, 1])
         with col_inp:
@@ -894,7 +903,6 @@ def render_chatbot_card():
             handle_question(typed_question)
             st.rerun()
 
-    # Voice Input Component
     try:
         from streamlit_mic_recorder import mic_recorder
         st.caption("🎙️ Or click below to ask via voice:")
@@ -915,7 +923,6 @@ def render_chatbot_card():
     except Exception:
         st.caption("Voice recording component unavailable.")
 
-    # Outer card wrapper end
     st.markdown('</div>', unsafe_allow_html=True)
 
 
