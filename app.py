@@ -130,7 +130,7 @@ CONTEXT FROM AREEBACARE KNOWLEDGE BASE:
 """
 
 # ---------------------------------------------------------------------------
-# Modern, Elegant UI Styling (No plain white look)
+# Custom Vibrant & Refined Styling
 # ---------------------------------------------------------------------------
 def inject_css():
     st.markdown(
@@ -140,13 +140,12 @@ def inject_css():
 
         :root {
             --primary-dark: #0f172a;
-            --accent-blue: #2563eb;
-            --accent-blue-hover: #1d4ed8;
-            --bg-color: #f1f5f9;
+            --accent-blue: #1d4ed8;
+            --accent-hover: #1e40af;
+            --bg-color: #f0f7ff; /* Soft ice-blue backdrop */
             --card-bg: #ffffff;
             --text-dark: #0f172a;
-            --text-muted: #64748b;
-            --border-subtle: #cbd5e1;
+            --border-color: #bfdbfe;
         }
 
         html, body, .stApp {
@@ -156,44 +155,42 @@ def inject_css():
 
         /* Hero Banner */
         .areebacare-hero {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #1e40af 100%);
+            background: linear-gradient(135deg, #0284c7 0%, #1e40af 60%, #0f172a 100%);
             border-radius: 18px;
-            padding: 2.2rem 2.8rem;
+            padding: 2.2rem 2.5rem;
             margin-bottom: 1.8rem;
             color: #ffffff;
-            box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.25);
-            position: relative;
+            box-shadow: 0 10px 25px -5px rgba(30, 64, 175, 0.25);
         }
         .areebacare-hero h1 {
             color: #ffffff !important;
             margin: 0 0 0.3rem 0;
             font-size: 2.3rem;
             font-weight: 700;
-            letter-spacing: -0.02em;
         }
         .areebacare-hero .creator-badge {
             display: inline-block;
-            background: rgba(255, 255, 255, 0.12);
-            color: #38bdf8;
-            padding: 0.25rem 0.75rem;
+            background: rgba(255, 255, 255, 0.18);
+            color: #e0f2fe;
+            padding: 0.25rem 0.85rem;
             border-radius: 20px;
             font-size: 0.85rem;
             font-weight: 600;
             margin-bottom: 0.8rem;
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.25);
         }
         .areebacare-hero p {
-            color: #cbd5e1 !important;
+            color: #e0f2fe !important;
             margin: 0;
             font-size: 1.02rem;
             line-height: 1.6;
-            max-width: 800px;
+            max-width: 820px;
         }
 
         /* Sidebar Styling */
         section[data-testid="stSidebar"] {
-            background-color: var(--primary-dark) !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            background-color: #0b1329 !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
         }
         section[data-testid="stSidebar"] * {
             color: #f8fafc !important;
@@ -202,34 +199,34 @@ def inject_css():
         .sidebar-brand {
             padding: 1rem 0;
             margin-bottom: 1.2rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
         .sidebar-brand h2 {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 700;
             margin: 0;
             color: #ffffff !important;
         }
         .sidebar-brand p {
-            font-size: 0.82rem;
-            color: #94a3b8 !important;
+            font-size: 0.85rem;
+            color: #38bdf8 !important;
             margin: 0.2rem 0 0 0;
+            font-weight: 500;
         }
 
         .sidebar-info-card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            padding: 1.25rem;
-            margin-bottom: 1.25rem;
+            padding: 1.2rem;
+            margin-bottom: 1.2rem;
         }
         .sidebar-info-card h4 {
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             font-weight: 600;
             margin: 0 0 0.5rem 0;
             color: #38bdf8 !important;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
         .sidebar-info-card p, .sidebar-info-card ul {
             font-size: 0.88rem;
@@ -241,59 +238,67 @@ def inject_css():
             padding-left: 1.2rem;
         }
 
-        /* Custom Cards in Main Area */
-        [data-testid="stVerticalBlockBorderWrapper"] {
-            background-color: var(--card-bg) !important;
-            border: 1px solid var(--border-subtle) !important;
-            border-radius: 14px !important;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03) !important;
+        /* Styled Language Select Box */
+        div[data-baseweb="select"] {
+            border-radius: 12px !important;
+            border: 2px solid #93c5fd !important;
+            background-color: #ffffff !important;
+            box-shadow: 0 4px 10px rgba(29, 78, 216, 0.08) !important;
+        }
+        div[data-baseweb="select"] * {
+            color: #0f172a !important;
+            font-weight: 600 !important;
         }
 
-        /* Buttons & Controls */
+        /* Main Buttons Custom Style */
         .stButton > button {
-            background-color: var(--accent-blue) !important;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
             color: #ffffff !important;
             border-radius: 10px !important;
             border: none !important;
             font-weight: 600 !important;
-            padding: 0.55rem 1.2rem !important;
-            transition: all 0.2s ease !important;
+            padding: 0.6rem 1.3rem !important;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+            transition: all 0.2s ease-in-out !important;
         }
         .stButton > button:hover {
-            background-color: var(--accent-blue-hover) !important;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3) !important;
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35) !important;
         }
 
+        /* Sidebar Buttons */
         section[data-testid="stSidebar"] .stButton > button {
-            background-color: rgba(255, 255, 255, 0.08) !important;
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
             color: #ffffff !important;
             width: 100%;
+            box-shadow: none !important;
         }
         section[data-testid="stSidebar"] .stButton > button:hover {
-            background-color: rgba(255, 255, 255, 0.16) !important;
+            background: rgba(255, 255, 255, 0.18) !important;
         }
 
-        /* Chat UI Messages */
+        /* Chat Cards Styling */
         [data-testid="stChatMessage"] {
             background-color: var(--card-bg) !important;
-            border: 1px solid var(--border-subtle) !important;
+            border: 1px solid var(--border-color) !important;
             border-radius: 14px !important;
-            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
-            padding: 1.2rem !important;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
+            padding: 1.25rem !important;
             margin-bottom: 1rem !important;
         }
 
         /* Input Controls */
         [data-testid="stTextInput"] input {
             border-radius: 10px !important;
-            border: 1px solid var(--border-subtle) !important;
-            padding: 0.65rem 1rem !important;
+            border: 2px solid #bfdbfe !important;
+            padding: 0.7rem 1rem !important;
             background-color: #ffffff !important;
         }
         [data-testid="stTextInput"] input:focus {
-            border-color: var(--accent-blue) !important;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+            border-color: #2563eb !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important;
         }
 
         footer {
@@ -338,12 +343,10 @@ def get_groq_client(api_key):
 # PDF processing pipeline
 # ---------------------------------------------------------------------------
 def load_pdf_files():
-    """Return a sorted list of PDF file paths found in the knowledge base folder."""
     return sorted(glob.glob(os.path.join(KB_DIR, "*.pdf")))
 
 
 def extract_pdf_text(path):
-    """Extract raw text from a PDF using PyMuPDF. Returns (text, error)."""
     try:
         import fitz  # PyMuPDF
         text_parts = []
@@ -356,7 +359,6 @@ def extract_pdf_text(path):
 
 
 def clean_text(text):
-    """Normalize whitespace and strip unwanted control characters."""
     if not text:
         return ""
     text = text.replace("\x00", " ")
@@ -367,7 +369,6 @@ def clean_text(text):
 
 
 def chunk_text(text, source_name, chunk_size=CHUNK_SIZE_WORDS, overlap=CHUNK_OVERLAP_WORDS):
-    """Split cleaned text into overlapping word-based chunks tagged with their source file."""
     words = text.split()
     if not words:
         return []
@@ -427,7 +428,6 @@ def load_faiss_index_from_disk():
 
 
 def load_or_build_knowledge_base(force_rebuild=False):
-    """Populate st.session_state with a ready FAISS index and chunk list."""
     if not force_rebuild:
         index, chunks = load_faiss_index_from_disk()
         if index is not None and chunks:
@@ -546,7 +546,7 @@ def generate_answer(query, context_chunks, language, history):
 
 
 # ---------------------------------------------------------------------------
-# Voice transcription (faster-whisper)
+# Voice transcription
 # ---------------------------------------------------------------------------
 def transcribe_audio(audio_bytes, language):
     model = get_whisper_model()
@@ -639,11 +639,11 @@ def is_greeting(query):
 
 def get_greeting_response(language):
     if language == "Urdu":
-        return "السلام علیکم! میں AreebaCare ہیلتھ کیئر اسسٹنٹ ہوں۔ میں آپ کی کیا مدد کر سکتا ہوں؟ آپ ہسپتال کی سہولیات، رجسٹریشن اور دیگر معلومات کے بارے میں پوچھ سکتے ہیں۔"
+        return "السلام علیکم! میں AreebaCare کا ہیلتھ کیئر اسسٹنٹ ہوں۔ میں آپ کی کیا مدد کر سکتا ہوں؟ آپ ہسپتال کی سہولیات، رجسٹریشن اور دیگر معلومات کے بارے میں پوچھ سکتے ہیں۔"
     elif language == "Roman Urdu":
         return "Aoa! Main AreebaCare Healthcare Assistant hoon. Main aap ki kya madad kar sakta hoon? Aap hospital ki visiting hours, registration ya kisi bhi policy ke baray mein pooch saktay hain."
     else:
-        return "Hello! Welcome to AreebaCare Healthcare Assistant. How can I assist you today? You can ask me about hospital services, visiting hours, registration, and patient guidelines."
+        return "Hello! Welcome to AreebaCare. How can I assist you today? You can ask me about hospital services, visiting hours, registration, and patient guidelines."
 
 
 # ---------------------------------------------------------------------------
@@ -743,10 +743,12 @@ def render_header():
 
 
 def render_language_selector():
-    col_lang, _ = st.columns([1, 3])
+    col_lang, _ = st.columns([1.2, 2.8])
     with col_lang:
         st.session_state.language = st.selectbox(
-            "Select Response Language", LANGUAGE_OPTIONS, index=LANGUAGE_OPTIONS.index(st.session_state.language)
+            "🌐 Choose Response Language", 
+            LANGUAGE_OPTIONS, 
+            index=LANGUAGE_OPTIONS.index(st.session_state.language)
         )
 
 
@@ -800,8 +802,8 @@ def render_info_panel():
         st.markdown(
             """
             <div class="sidebar-brand">
-                <h2>AreebaCare AI</h2>
-                <p>Designed & Developed by Areeba Imran</p>
+                <h2>Areeba Care</h2>
+                <p>Created by Areeba Imran</p>
             </div>
             """,
             unsafe_allow_html=True
@@ -838,7 +840,7 @@ def render_info_panel():
 def render_footer():
     st.divider()
     st.caption("AreebaCare Healthcare Assistant • Educational Demonstration")
-    st.caption("Designed & Developed by Areeba Imran")
+    st.caption("Created by Areeba Imran")
     st.caption("© 2026 Areeba Imran. All rights reserved.")
 
 
