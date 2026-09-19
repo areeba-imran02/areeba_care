@@ -1,0 +1,9 @@
+streamlit>=1.32
+pymupdf
+sentence-transformers
+faiss-cpu
+groq
+streamlit-mic-recorder
+faster-whisper
+gTTS
+numpy
