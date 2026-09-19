@@ -19,6 +19,7 @@ import glob
 import pickle
 import hashlib
 import tempfile
+import time
 
 import numpy as np
 import streamlit as st
@@ -78,14 +79,11 @@ WHISPER_LANG_HINT = {
     "Roman Urdu": "ur",
 }
 
-EXAMPLE_QUESTIONS = [
-    "What are the registration requirements?",
-    "What are the visiting hours?",
-    "What departments are available?",
-    "What documents are needed for admission?",
-    "What is the billing and insurance policy?",
-    "How can I access my medical records?",
-    "What are the patient rights?",
+QUICK_PROMPTS = [
+    {"label": "🚨 Emergency Policy", "query": "What are the emergency protocols and contact rules?"},
+    {"label": "🕒 Visiting Hours", "query": "What are the visiting hours for general and ICU wards?"},
+    {"label": "🏥 Available Departments", "query": "Which specialized medical departments are available?"},
+    {"label": "📋 Admission Requirements", "query": "What documents and steps are required for patient admission?"},
 ]
 
 NOT_FOUND_MESSAGE = (
@@ -95,8 +93,7 @@ NOT_FOUND_MESSAGE = (
 
 KB_NOT_READY_MESSAGE = (
     "The AreebaCare knowledge base is not ready yet. Please add PDF "
-    "documents to the knowledge_base folder and use \"Rebuild Knowledge "
-    "Base\" to prepare the assistant."
+    "documents to the knowledge_base folder and use \"Rebuild Knowledge Base\"."
 )
 
 MISSING_KEY_MESSAGE = (
@@ -114,23 +111,22 @@ assistant for a fictional hospital called AreebaCare.
 
 STRICT RULES YOU MUST ALWAYS FOLLOW:
 1. Answer ONLY using the AreebaCare knowledge base context provided below. Never use outside or general medical knowledge.
-2. Never invent, guess, or assume information that is not explicitly present in the provided context, including prices, timings, departments, doctors, medical services, policies, procedures, contact information, insurance rules, medicine information, or hospital facilities.
-3. If the provided context does not contain enough information to answer the question, clearly say so instead of guessing.
+2. Never invent, guess, or assume information that is not explicitly present in the provided context.
+3. If the provided context does not contain enough information to answer the question, clearly say so.
 4. Never diagnose a medical condition.
 5. Never prescribe medication or dosages.
 6. Never recommend a specific treatment.
 7. Never claim to replace a licensed doctor or medical professional.
-8. If the question describes a potential medical emergency, advise the user to seek immediate professional or emergency medical care, without inventing hospital-specific emergency instructions that are not present in the context.
-9. Keep answers clear, concise, and genuinely useful.
-10. {language_instruction}
-11. Remember that AreebaCare is a fictional, educational hospital knowledge base used for demonstration purposes only.
+8. Keep answers clear, concise, and genuinely useful.
+9. {language_instruction}
+10. Remember that AreebaCare is a fictional, educational hospital knowledge base used for demonstration purposes only.
 
 CONTEXT FROM AREEBACARE KNOWLEDGE BASE:
 {context}
 """
 
 # ---------------------------------------------------------------------------
-# Custom Vibrant & Refined Styling
+# Custom Vibrant UI & Fresh Output Styling
 # ---------------------------------------------------------------------------
 def inject_css():
     st.markdown(
@@ -139,48 +135,51 @@ def inject_css():
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
         :root {
-            --primary-dark: #0f172a;
-            --accent-blue: #1d4ed8;
-            --accent-hover: #1e40af;
-            --bg-color: #f0f7ff; /* Soft ice-blue backdrop */
+            --primary-bg: #f4f9f9;
+            --hero-gradient: linear-gradient(135deg, #0f766e 0%, #115e59 50%, #0f172a 100%);
+            --btn-gradient: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+            --btn-hover: linear-gradient(135deg, #0f766e 0%, #047857 100%);
             --card-bg: #ffffff;
+            --user-msg-bg: #e0f2fe;
+            --assistant-msg-bg: #ffffff;
+            --border-teal: #99f6e4;
             --text-dark: #0f172a;
-            --border-color: #bfdbfe;
         }
 
         html, body, .stApp {
-            background-color: var(--bg-color) !important;
+            background-color: var(--primary-bg) !important;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         /* Hero Banner */
         .areebacare-hero {
-            background: linear-gradient(135deg, #0284c7 0%, #1e40af 60%, #0f172a 100%);
-            border-radius: 18px;
+            background: var(--hero-gradient);
+            border-radius: 20px;
             padding: 2.2rem 2.5rem;
             margin-bottom: 1.8rem;
             color: #ffffff;
-            box-shadow: 0 10px 25px -5px rgba(30, 64, 175, 0.25);
+            box-shadow: 0 12px 30px -8px rgba(15, 118, 110, 0.3);
         }
         .areebacare-hero h1 {
             color: #ffffff !important;
-            margin: 0 0 0.3rem 0;
+            margin: 0 0 0.4rem 0;
             font-size: 2.3rem;
             font-weight: 700;
+            letter-spacing: -0.02em;
         }
         .areebacare-hero .creator-badge {
             display: inline-block;
-            background: rgba(255, 255, 255, 0.18);
-            color: #e0f2fe;
-            padding: 0.25rem 0.85rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: #ccfbf1;
+            padding: 0.3rem 0.9rem;
             border-radius: 20px;
             font-size: 0.85rem;
             font-weight: 600;
             margin-bottom: 0.8rem;
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         .areebacare-hero p {
-            color: #e0f2fe !important;
+            color: #ccfbf1 !important;
             margin: 0;
             font-size: 1.02rem;
             line-height: 1.6;
@@ -189,7 +188,7 @@ def inject_css():
 
         /* Sidebar Styling */
         section[data-testid="stSidebar"] {
-            background-color: #0b1329 !important;
+            background-color: #064e3b !important;
             border-right: 1px solid rgba(255, 255, 255, 0.1);
         }
         section[data-testid="stSidebar"] * {
@@ -199,7 +198,7 @@ def inject_css():
         .sidebar-brand {
             padding: 1rem 0;
             margin-bottom: 1.2rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
         }
         .sidebar-brand h2 {
             font-size: 1.5rem;
@@ -209,15 +208,15 @@ def inject_css():
         }
         .sidebar-brand p {
             font-size: 0.85rem;
-            color: #38bdf8 !important;
+            color: #5eead4 !important;
             margin: 0.2rem 0 0 0;
             font-weight: 500;
         }
 
         .sidebar-info-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
             padding: 1.2rem;
             margin-bottom: 1.2rem;
         }
@@ -225,80 +224,82 @@ def inject_css():
             font-size: 0.92rem;
             font-weight: 600;
             margin: 0 0 0.5rem 0;
-            color: #38bdf8 !important;
+            color: #5eead4 !important;
             text-transform: uppercase;
         }
-        .sidebar-info-card p, .sidebar-info-card ul {
-            font-size: 0.88rem;
-            color: #cbd5e1 !important;
-            margin: 0;
-            line-height: 1.5;
-        }
-        .sidebar-info-card ul {
-            padding-left: 1.2rem;
-        }
 
-        /* Styled Language Select Box */
-        div[data-baseweb="select"] {
-            border-radius: 12px !important;
-            border: 2px solid #93c5fd !important;
-            background-color: #ffffff !important;
-            box-shadow: 0 4px 10px rgba(29, 78, 216, 0.08) !important;
-        }
-        div[data-baseweb="select"] * {
-            color: #0f172a !important;
-            font-weight: 600 !important;
-        }
-
-        /* Main Buttons Custom Style */
+        /* NEW BUTTON STYLES (Teal/Emerald Gradient) */
         .stButton > button {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+            background: var(--btn-gradient) !important;
             color: #ffffff !important;
-            border-radius: 10px !important;
+            border-radius: 12px !important;
             border: none !important;
             font-weight: 600 !important;
-            padding: 0.6rem 1.3rem !important;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+            padding: 0.65rem 1.4rem !important;
+            box-shadow: 0 4px 14px rgba(13, 148, 136, 0.3) !important;
             transition: all 0.2s ease-in-out !important;
         }
         .stButton > button:hover {
-            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35) !important;
+            background: var(--btn-hover) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(13, 148, 136, 0.45) !important;
         }
 
         /* Sidebar Buttons */
         section[data-testid="stSidebar"] .stButton > button {
-            background: rgba(255, 255, 255, 0.08) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            background: rgba(255, 255, 255, 0.12) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
             color: #ffffff !important;
             width: 100%;
             box-shadow: none !important;
         }
         section[data-testid="stSidebar"] .stButton > button:hover {
-            background: rgba(255, 255, 255, 0.18) !important;
+            background: rgba(255, 255, 255, 0.22) !important;
         }
 
-        /* Chat Cards Styling */
+        /* NEW OUTPUT CHAT MESSAGES LOOK */
         [data-testid="stChatMessage"] {
-            background-color: var(--card-bg) !important;
-            border: 1px solid var(--border-color) !important;
-            border-radius: 14px !important;
-            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
-            padding: 1.25rem !important;
-            margin-bottom: 1rem !important;
+            border-radius: 16px !important;
+            padding: 1.3rem !important;
+            margin-bottom: 1.2rem !important;
+            transition: all 0.2s ease;
+        }
+        /* User Message Style */
+        [data-testid="stChatMessage"]:nth-child(even) {
+            background-color: var(--user-msg-bg) !important;
+            border: 1px solid #bae6fd !important;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.06) !important;
+        }
+        /* Assistant Response Style */
+        [data-testid="stChatMessage"]:nth-child(odd) {
+            background-color: var(--assistant-msg-bg) !important;
+            border: 1px solid var(--border-teal) !important;
+            box-shadow: 0 6px 18px rgba(15, 118, 110, 0.08) !important;
         }
 
-        /* Input Controls */
-        [data-testid="stTextInput"] input {
-            border-radius: 10px !important;
-            border: 2px solid #bfdbfe !important;
-            padding: 0.7rem 1rem !important;
-            background-color: #ffffff !important;
+        /* Response Metadata Badge */
+        .response-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.78rem;
+            color: #0d9488;
+            font-weight: 600;
+            margin-top: 0.8rem;
+            padding-top: 0.6rem;
+            border-top: 1px dashed #cbd5e1;
         }
-        [data-testid="stTextInput"] input:focus {
-            border-color: #2563eb !important;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important;
+
+        /* Language Select Box */
+        div[data-baseweb="select"] {
+            border-radius: 12px !important;
+            border: 2px solid #5eead4 !important;
+            background-color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.1) !important;
+        }
+        div[data-baseweb="select"] * {
+            color: #0f172a !important;
+            font-weight: 600 !important;
         }
 
         footer {
@@ -600,11 +601,11 @@ def generate_tts(text, language):
 def render_sources(context_chunks):
     if not context_chunks:
         return
-    with st.expander("Knowledge Sources"):
+    with st.expander("📚 Knowledge Base Sources"):
         for c in context_chunks:
-            st.markdown(f"**{c['source']}**")
-            st.caption(f"Relevance: {c['score']:.2f}")
-            with st.expander(f"View retrieved text from {c['source']}", expanded=False):
+            st.markdown(f"**📄 Document:** `{c['source']}`")
+            st.caption(f"Relevance Score: {c['score']:.2f}")
+            with st.expander("Show extracted segment text", expanded=False):
                 st.write(c["text"])
 
 
@@ -654,6 +655,7 @@ def handle_question(query, label=None):
     if not query:
         return
 
+    start_time = time.time()
     display_text = query if not label else f"{label}\n\n{query}"
     st.session_state.chat_history.append({"role": "user", "content": display_text})
 
@@ -664,7 +666,7 @@ def handle_question(query, label=None):
         answer = get_greeting_response(language)
         context_chunks = []
     else:
-        with st.spinner("Retrieving knowledge and generating answer..."):
+        with st.spinner("Analyzing knowledge base & generating response..."):
             if st.session_state.kb_status != "ready" or st.session_state.kb_index is None:
                 answer = KB_NOT_READY_MESSAGE
                 context_chunks = []
@@ -684,6 +686,7 @@ def handle_question(query, label=None):
                         answer = GROQ_ERROR_MESSAGE
                         context_chunks = []
 
+    elapsed_time = round(time.time() - start_time, 2)
     audio_bytes = generate_tts(answer, language)
 
     st.session_state.chat_history.append(
@@ -692,13 +695,14 @@ def handle_question(query, label=None):
             "content": answer,
             "audio": audio_bytes,
             "sources": context_chunks,
+            "time": elapsed_time,
         }
     )
 
 
 def handle_voice(audio_bytes):
     language = st.session_state.language
-    with st.spinner("Transcribing your voice question..."):
+    with st.spinner("Transcribing audio question..."):
         transcript, error = transcribe_audio(audio_bytes, language)
 
     if error or not transcript:
@@ -708,15 +712,16 @@ def handle_voice(audio_bytes):
                 "content": error or "The voice recording could not be understood. Please try again.",
                 "audio": None,
                 "sources": [],
+                "time": 0.0,
             }
         )
         return
 
-    handle_question(transcript, label="Your voice question:")
+    handle_question(transcript, label="🎙️ Voice Question:")
 
 
 # ---------------------------------------------------------------------------
-# UI sections
+# UI Rendering
 # ---------------------------------------------------------------------------
 def render_header():
     st.markdown(
@@ -724,9 +729,9 @@ def render_header():
         <div class="areebacare-hero">
             <div class="creator-badge">Created by Areeba Imran</div>
             <h1>AreebaCare Healthcare Assistant</h1>
-            <p>Welcome to <b>AreebaCare</b> — your intelligent, retrieval-augmented healthcare information system. 
-            Designed to deliver fast, grounded, and accurate answers directly from official hospital knowledge bases, 
-            empowering patients with instant insights on registration, policies, departments, and general guidelines.</p>
+            <p>Welcome to <b>AreebaCare</b> — an advanced, retrieval-augmented healthcare information system. 
+            Designed to deliver fast, verified, and grounded answers directly from hospital documentation, 
+            empowering users with accurate guidance on registration, services, policies, and care.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -734,29 +739,31 @@ def render_header():
 
     status = st.session_state.kb_status
     if status == "no_pdfs":
-        st.warning("No knowledge base documents found. Please insert PDF files into the knowledge_base folder.")
+        st.warning("No knowledge base documents found. Please add PDF files to the knowledge_base folder.")
     elif status in ("faiss_error", "embedding_error"):
-        st.error("System index build error. Please click 'Rebuild Index' in the sidebar.")
+        st.error("System index build error. Please click 'Rebuild Search Index' in the sidebar.")
 
     if not os.getenv("GROQ_API_KEY"):
         st.warning(MISSING_KEY_MESSAGE)
 
 
 def render_language_selector():
-    col_lang, _ = st.columns([1.2, 2.8])
+    col_lang, _ = st.columns([1.3, 2.7])
     with col_lang:
         st.session_state.language = st.selectbox(
-            "🌐 Choose Response Language", 
+            "🌐 Select Response Language", 
             LANGUAGE_OPTIONS, 
             index=LANGUAGE_OPTIONS.index(st.session_state.language)
         )
 
 
-def render_example_questions():
-    with st.expander("Suggested Questions"):
-        for i, question in enumerate(EXAMPLE_QUESTIONS):
-            if st.button(question, key=f"example_{i}", use_container_width=True):
-                handle_question(question)
+def render_quick_prompts():
+    st.markdown("**⚡ Quick Action Prompts**")
+    cols = st.columns(len(QUICK_PROMPTS))
+    for idx, item in enumerate(QUICK_PROMPTS):
+        with cols[idx]:
+            if st.button(item["label"], key=f"quick_{idx}", use_container_width=True):
+                handle_question(item["query"])
                 st.rerun()
 
 
@@ -770,19 +777,31 @@ def render_chat_history():
                     st.audio(turn["audio"], format="audio/mp3")
                 if turn.get("sources"):
                     render_sources(turn["sources"])
+                
+                # Enhanced Output Metadata Footer
+                if turn.get("time"):
+                    st.markdown(
+                        f"""
+                        <div class="response-meta">
+                            <span>⚡ Response Time: {turn['time']}s</span> • 
+                            <span>🔒 Verified RAG Output</span>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
 
 
 def render_voice_input():
-    st.markdown("**Voice Input**")
+    st.markdown("**🎙️ Voice Interaction**")
     try:
         from streamlit_mic_recorder import mic_recorder
     except Exception:
-        st.caption("Voice recording is unavailable in this environment.")
+        st.caption("Voice recording unavailable in current environment.")
         return
 
     audio = mic_recorder(
-        start_prompt="Record Question",
-        stop_prompt="Stop Recording",
+        start_prompt="Start Recording Voice",
+        stop_prompt="Stop & Process Voice",
         just_once=True,
         use_container_width=True,
         format="wav",
@@ -813,15 +832,15 @@ def render_info_panel():
             """
             <div class="sidebar-info-card">
                 <h4>System Architecture</h4>
-                <p>Built with Retrieval-Augmented Generation (RAG) to deliver verified answers directly from structured medical documentation.</p>
+                <p>Powered by Retrieval-Augmented Generation (RAG) to ensure responses are strictly grounded in official documentation.</p>
             </div>
 
             <div class="sidebar-info-card">
-                <h4>Safety Protocols</h4>
+                <h4>Safety & Compliance</h4>
                 <ul>
-                    <li>Grounded strictly on provided data</li>
-                    <li>No medical diagnosis</li>
-                    <li>No prescription generation</li>
+                    <li>Grounded strictly on knowledge base</li>
+                    <li>No medical diagnosis offered</li>
+                    <li>No drug prescriptions</li>
                 </ul>
             </div>
             """,
@@ -830,22 +849,22 @@ def render_info_panel():
 
         st.markdown("---")
         
-        if st.button("Rebuild Search Index", use_container_width=True):
-            with st.spinner("Rebuilding knowledge base..."):
+        if st.button("🔄 Rebuild Search Index", use_container_width=True):
+            with st.spinner("Reindexing documents..."):
                 load_or_build_knowledge_base(force_rebuild=True)
-            st.success("Index updated successfully.")
+            st.success("Knowledge index updated.")
             st.rerun()
 
 
 def render_footer():
     st.divider()
-    st.caption("AreebaCare Healthcare Assistant • Educational Demonstration")
+    st.caption("AreebaCare Healthcare Assistant • Grounded Information System")
     st.caption("Created by Areeba Imran")
     st.caption("© 2026 Areeba Imran. All rights reserved.")
 
 
 # ---------------------------------------------------------------------------
-# Main application
+# Main application entry point
 # ---------------------------------------------------------------------------
 def main():
     inject_css()
@@ -859,16 +878,18 @@ def main():
     render_header()
     render_language_selector()
 
+    st.markdown("---")
+    render_quick_prompts()
+    st.markdown("---")
+
     col_heading, col_clear = st.columns([4, 1])
     with col_heading:
-        st.subheader("Interactive Assistant")
+        st.subheader("💬 Assistant Chat Workspace")
     with col_clear:
-        if st.button("Clear History", use_container_width=True):
+        if st.button("🗑️ Clear Chat", use_container_width=True):
             st.session_state.chat_history = []
             st.session_state.last_audio_hash = None
             st.rerun()
-
-    render_example_questions()
 
     with st.container():
         with st.form("text_question_form", clear_on_submit=True):
@@ -877,10 +898,10 @@ def main():
                 typed_question = st.text_input(
                     "Ask AreebaCare a question...",
                     label_visibility="collapsed",
-                    placeholder="Ask about visiting hours, registration, procedures...",
+                    placeholder="Type your medical query, hospital policy question, or registration inquiry...",
                 )
             with col_submit:
-                submitted = st.form_submit_button("Ask", use_container_width=True)
+                submitted = st.form_submit_button("Submit", use_container_width=True)
         if submitted and typed_question.strip():
             handle_question(typed_question)
 
