@@ -328,7 +328,7 @@ def inject_css():
             align-items: center;
             gap: 0.75rem;
             padding-bottom: 1.1rem;
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.9rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
         .sidebar-brand .brand-icon {
@@ -352,7 +352,8 @@ def inject_css():
 
         /* Section label (small caps) */
         section[data-testid="stSidebar"] p.sb-label {
-            margin: 0.35rem 0 -0.35rem 0;
+            margin: 0.4rem 0 0 0;
+            line-height: 1.4;
             font-size: 0.7rem;
             font-weight: 700;
             letter-spacing: 0.09em;
@@ -366,6 +367,7 @@ def inject_css():
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: var(--radius-md);
             padding: 0.3rem 0.9rem;
+            margin-bottom: 0.6rem;
         }
         .sb-row {
             display: flex;
@@ -388,7 +390,7 @@ def inject_css():
         .sb-divider {
             height: 1px;
             background: rgba(255, 255, 255, 0.12);
-            margin: 0.3rem 0 0.1rem 0;
+            margin: 0.2rem 0 0.8rem 0;
         }
 
         /* ==================================================================
@@ -784,11 +786,6 @@ def inject_css():
             .block-container {
                 padding-left: 1.5rem !important;
                 padding-right: 1.5rem !important;
-            }
-            section[data-testid="stSidebar"][aria-expanded="true"] {
-                width: 17rem !important;
-                min-width: 17rem !important;
-                max-width: 17rem !important;
             }
             .hero-banner { padding: 1.4rem 1.5rem; }
             .hero-banner h1 { font-size: 1.75rem; }
