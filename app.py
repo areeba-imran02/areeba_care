@@ -292,15 +292,14 @@ def inject_css():
             color: #0f172a !important;
         }
 
-        /* --- LIGHT RED DISTINCT CHATBOT CONTAINER --- */
-        .chatbot-container {
-            background: #fff1f2;
+        /* --- OUTER FULL CARD WRAPPER --- */
+        .main-chatbot-card {
+            background-color: #fff1f2;
             border: 2px solid #fecdd3;
             border-radius: 20px;
-            box-shadow: 0 12px 30px rgba(225, 29, 72, 0.08);
             padding: 1.5rem;
-            margin: 0 auto 2rem auto;
-            max-width: 900px;
+            box-shadow: 0 12px 30px rgba(225, 29, 72, 0.08);
+            margin-bottom: 2rem;
         }
 
         .chatbot-header {
@@ -356,23 +355,23 @@ def inject_css():
             border-top: 1px dashed #fecdd3;
         }
 
-        /* Footer Styling */
         /* Compact & Centered Footer Styling */
-.custom-footer {
-    background: var(--hero-gradient);
-    border-radius: 12px;
-    padding: 0.6rem 1.8rem;
-    text-align: center;
-    color: #ccfbf1;
-    margin: 1.5rem auto 1rem auto;
-    font-size: 0.82rem;
-    box-shadow: 0 4px 12px rgba(17, 42, 46, 0.15);
-    border: 1px solid rgba(153, 246, 228, 0.2);
-    width: fit-content;
-}
-.custom-footer p {
-    margin: 0.15rem 0;
-}
+        .custom-footer {
+            background: var(--hero-gradient);
+            border-radius: 12px;
+            padding: 0.6rem 1.8rem;
+            text-align: center;
+            color: #ccfbf1;
+            margin: 1.5rem auto 1rem auto;
+            font-size: 0.82rem;
+            box-shadow: 0 4px 12px rgba(17, 42, 46, 0.15);
+            border: 1px solid rgba(153, 246, 228, 0.2);
+            width: fit-content;
+        }
+        .custom-footer p {
+            margin: 0.15rem 0;
+        }
+
         footer {
             visibility: hidden;
         }
@@ -867,7 +866,10 @@ def render_chat_messages():
 
 
 def render_chatbot_card():
-    # Light Red / Rose Styled Chatbot Card Container
+    # Entire unified card wrapper start
+    st.markdown('<div class="main-chatbot-card">', unsafe_allow_html=True)
+
+    # Header inside Card
     st.markdown(
         """
         <div class="chatbot-header">
@@ -883,12 +885,12 @@ def render_chatbot_card():
         unsafe_allow_html=True
     )
 
-    # Chat history viewport inside card
+    # Chat history area
     render_chat_messages()
 
     st.markdown("<hr style='margin:1rem 0; border-color:#fecdd3;'>", unsafe_allow_html=True)
 
-    # Unified Text Input Form inside the bot card
+    # Text Input Form inside Card
     with st.form("chatbot_card_form", clear_on_submit=True):
         col_inp, col_btn = st.columns([5, 1])
         with col_inp:
@@ -904,7 +906,7 @@ def render_chatbot_card():
             handle_question(typed_question)
             st.rerun()
 
-    # Integrated Mic Recorder underneath text input inside card
+    # Integrated Mic Recorder inside Card
     try:
         from streamlit_mic_recorder import mic_recorder
         st.caption("🎙️ Or click below to ask via voice:")
@@ -924,6 +926,9 @@ def render_chatbot_card():
                 st.rerun()
     except Exception:
         st.caption("Voice recording component unavailable.")
+
+    # Entire unified card wrapper end
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------------------------
@@ -985,9 +990,9 @@ def render_footer():
     st.markdown(
         """
         <div class="custom-footer">
-            <h3 style="margin: 0; font-size: 1.1rem; color: #ffffff;">Healthcare Assistant • Grounded System</h3>
-            <p style="margin: 0.3rem 0; font-weight: 500;">Designed & Developed by Areeba Imran</p>
-            <p style="font-size: 0.78rem; opacity: 0.85; margin-top: 0.4rem;">© 2026 All rights reserved.</p>
+            <h3 style="margin: 0; font-size: 0.95rem; color: #ffffff;">Healthcare Assistant • Grounded System</h3>
+            <p style="margin: 0.2rem 0; font-weight: 500;">Designed & Developed by Areeba Imran</p>
+            <p style="font-size: 0.75rem; opacity: 0.85; margin-top: 0.2rem;">© 2026 All rights reserved.</p>
         </div>
         """,
         unsafe_allow_html=True,
