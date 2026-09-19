@@ -100,7 +100,7 @@ NOT_FOUND_MESSAGE = (
 
 KB_NOT_READY_MESSAGE = (
     "The knowledge base is not ready yet. Please add PDF "
-    "documents to the knowledge_base folder and use \"Rebuild Index\"."
+    "documents to the knowledge_base folder and use \"Rebuild Knowledge Base\"."
 )
 
 MISSING_KEY_MESSAGE = (
@@ -133,7 +133,7 @@ CONTEXT FROM KNOWLEDGE BASE:
 """
 
 # ---------------------------------------------------------------------------
-# Custom CSS Styling
+# Custom Vibrant Slate & Seafoam UI (Modern Dedicated Chat Widget Container)
 # ---------------------------------------------------------------------------
 def inject_css():
     st.markdown(
@@ -142,10 +142,13 @@ def inject_css():
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
         :root {
-            --primary-bg: #f8fafc;
+            --primary-bg: #f3f7f6;
             --hero-gradient: linear-gradient(135deg, #112a2e 0%, #1a3d42 50%, #224d53 100%);
             --btn-gradient: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
             --btn-hover: linear-gradient(135deg, #115e59 0%, #0f766e 100%);
+            --user-msg-bg: #e6f2f0;
+            --assistant-msg-bg: #ffffff;
+            --border-color: #99f6e4;
             --text-dark: #0f172a;
         }
 
@@ -155,7 +158,7 @@ def inject_css():
             color: var(--text-dark);
         }
 
-        /* Hero Banner */
+        /* Hero Banner Redesign */
         .hero-banner {
             background: var(--hero-gradient);
             border-radius: 20px;
@@ -200,6 +203,13 @@ def inject_css():
             gap: 6px;
             backdrop-filter: blur(8px);
             white-space: nowrap;
+        }
+        .creator-badge span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #2dd4bf;
+            border-radius: 50%;
         }
 
         /* Sidebar Styling */
@@ -253,7 +263,7 @@ def inject_css():
             color: #f0fdfa !important;
         }
 
-        /* Buttons */
+        /* Button Styles */
         .stButton > button {
             background: var(--btn-gradient) !important;
             color: #ffffff !important;
@@ -270,6 +280,7 @@ def inject_css():
             box-shadow: 0 6px 18px rgba(13, 148, 136, 0.4) !important;
         }
 
+        /* Sidebar Buttons */
         section[data-testid="stSidebar"] .stButton > button {
             background: rgba(45, 212, 191, 0.15) !important;
             border: 1px solid rgba(45, 212, 191, 0.4) !important;
@@ -278,7 +289,7 @@ def inject_css():
             box-shadow: none !important;
         }
 
-        /* Selectbox */
+        /* Selectbox Styling */
         div[data-baseweb="select"] {
             border-radius: 10px !important;
             border: 1.5px solid #0d9488 !important;
@@ -288,64 +299,61 @@ def inject_css():
             color: #0f172a !important;
         }
 
-        /* --- MAIN CARD CONTAINER --- */
-        .main-chatbot-card {
-            background-color: #ffffff;
-            border: 2px solid #fecdd3;
-            border-radius: 18px;
-            padding: 1.2rem;
-            box-shadow: 0 10px 25px rgba(159, 18, 57, 0.08);
-            margin-bottom: 1.5rem;
-        }
-
-        /* --- SIDE CARD CONTAINER (FAQ/Quick Prompts) --- */
-        .side-card {
-            background-color: #ffffff;
-            border: 2px solid #fecdd3;
-            border-radius: 18px;
-            padding: 1.2rem;
-            box-shadow: 0 10px 25px rgba(159, 18, 57, 0.08);
-            margin-bottom: 1.5rem;
+        /* Dedicated Chatbot Container Box */
+        .chatbot-container {
+            background: #ffffff;
+            border: 2px solid #99f6e4;
+            border-radius: 20px;
+            box-shadow: 0 12px 32px rgba(17, 42, 46, 0.12);
+            padding: 1.5rem;
+            margin: 0 auto 2rem auto;
+            max-width: 900px;
         }
 
         .chatbot-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: linear-gradient(135deg, #881337 0%, #9f1239 50%, #be123c 100%);
-            padding: 0.9rem 1.3rem;
-            border-radius: 12px;
+            background: var(--hero-gradient);
+            padding: 0.8rem 1.2rem;
+            border-radius: 14px;
             color: white;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 12px rgba(159, 18, 57, 0.15);
+            margin-bottom: 1.2rem;
         }
 
         .chatbot-avatar {
             width: 40px;
             height: 40px;
-            background: #ffe4e6;
+            background: #2dd4bf;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-            border: 2px solid #fecdd3;
+            font-size: 1.3rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
-        /* Chat Messages */
+        .chat-scroll-area {
+            max-height: 480px;
+            overflow-y: auto;
+            padding-right: 8px;
+            margin-bottom: 1rem;
+        }
+
+        /* Output Chat Messages */
         [data-testid="stChatMessage"] {
-            border-radius: 12px !important;
-            padding: 0.9rem !important;
-            margin-bottom: 0.8rem !important;
+            border-radius: 14px !important;
+            padding: 1rem !important;
+            margin-bottom: 0.9rem !important;
         }
         [data-testid="stChatMessage"]:nth-child(even) {
-            background-color: #ffe4e6 !important;
-            border: 1px solid #fecdd3 !important;
+            background-color: var(--user-msg-bg) !important;
+            border: 1px solid #99f6e4 !important;
         }
         [data-testid="stChatMessage"]:nth-child(odd) {
-            background-color: #f8fafc !important;
-            border: 1px solid #e2e8f0 !important;
+            background-color: var(--assistant-msg-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            box-shadow: 0 2px 10px rgba(17, 42, 46, 0.04) !important;
         }
 
         .response-meta {
@@ -353,25 +361,27 @@ def inject_css():
             align-items: center;
             gap: 10px;
             font-size: 0.78rem;
-            color: #be123c;
+            color: #0d9488;
             font-weight: 600;
-            margin-top: 0.5rem;
+            margin-top: 0.6rem;
             padding-top: 0.4rem;
-            border-top: 1px dashed #fecdd3;
+            border-top: 1px dashed #99f6e4;
         }
 
-        /* Footer */
+        /* Custom Footer Banner */
         .custom-footer {
             background: var(--hero-gradient);
-            border-radius: 12px;
-            padding: 0.6rem 1.8rem;
+            border-radius: 14px;
+            padding: 1.1rem;
             text-align: center;
             color: #ccfbf1;
-            margin: 1.5rem auto 1rem auto;
-            font-size: 0.82rem;
-            box-shadow: 0 4px 12px rgba(17, 42, 46, 0.15);
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            box-shadow: 0 8px 20px rgba(17, 42, 46, 0.2);
             border: 1px solid rgba(153, 246, 228, 0.2);
-            width: fit-content;
+        }
+        .custom-footer p {
+            margin: 0.2rem 0;
         }
 
         footer {
@@ -384,7 +394,7 @@ def inject_css():
 
 
 # ---------------------------------------------------------------------------
-# Cached Model Loaders
+# Cached model / client loaders
 # ---------------------------------------------------------------------------
 @st.cache_resource(show_spinner=False)
 def get_embedding_model():
@@ -413,7 +423,7 @@ def get_groq_client(api_key):
 
 
 # ---------------------------------------------------------------------------
-# PDF Processing & FAISS
+# PDF processing pipeline
 # ---------------------------------------------------------------------------
 def load_pdf_files():
     return sorted(glob.glob(os.path.join(KB_DIR, "*.pdf")))
@@ -564,7 +574,7 @@ def load_or_build_knowledge_base(force_rebuild=False):
 
 
 # ---------------------------------------------------------------------------
-# Context Retrieval
+# Retrieval
 # ---------------------------------------------------------------------------
 def retrieve_context(query, index, chunks, model, top_k=TOP_K, threshold=RELEVANCE_THRESHOLD):
     if index is None or not chunks:
@@ -583,7 +593,7 @@ def retrieve_context(query, index, chunks, model, top_k=TOP_K, threshold=RELEVAN
 
 
 # ---------------------------------------------------------------------------
-# Answer Generation (Groq)
+# Answer generation (Groq)
 # ---------------------------------------------------------------------------
 def generate_answer(query, context_chunks, language, history):
     api_key = os.getenv("GROQ_API_KEY")
@@ -619,7 +629,7 @@ def generate_answer(query, context_chunks, language, history):
 
 
 # ---------------------------------------------------------------------------
-# Voice & Audio
+# Voice transcription
 # ---------------------------------------------------------------------------
 def transcribe_audio(audio_bytes, language):
     model = get_whisper_model()
@@ -649,6 +659,9 @@ def transcribe_audio(audio_bytes, language):
                 pass
 
 
+# ---------------------------------------------------------------------------
+# Text-to-speech (gTTS)
+# ---------------------------------------------------------------------------
 def generate_tts(text, language):
     if not text:
         return None
@@ -665,7 +678,7 @@ def generate_tts(text, language):
 
 
 # ---------------------------------------------------------------------------
-# Sources Rendering
+# Sources rendering
 # ---------------------------------------------------------------------------
 def render_sources(context_chunks):
     if not context_chunks:
@@ -679,7 +692,7 @@ def render_sources(context_chunks):
 
 
 # ---------------------------------------------------------------------------
-# Session State Initialization
+# Session state initialization
 # ---------------------------------------------------------------------------
 def init_session_state():
     defaults = {
@@ -698,7 +711,7 @@ def init_session_state():
 
 
 # ---------------------------------------------------------------------------
-# Greetings Helper
+# Smart Greetings Check
 # ---------------------------------------------------------------------------
 def is_greeting(query):
     cleaned = re.sub(r"[^\w\s]", "", query.lower().strip())
@@ -708,15 +721,15 @@ def is_greeting(query):
 
 def get_greeting_response(language):
     if language == "Urdu":
-        return "السلام علیکم! میں آپ کا Healthcare Assistant ہوں۔ میں آپ کی کیا مدد کر سکتا ہوں؟"
+        return "السلام علیکم! میں آپ کا Healthcare Assistant ہوں۔ میں آپ کی کیا مدد کر سکتا ہوں؟ آپ ہسپتال کی سہولیات، رجسٹریشن اور دیگر معلومات کے بارے میں پوچھ سکتے ہیں۔"
     elif language == "Roman Urdu":
-        return "Aoa! Main aap ka Healthcare Assistant hoon. Main aap ki kya madad kar sakta hoon?"
+        return "Aoa! Main aap ka Healthcare Assistant hoon. Main aap ki kya madad kar sakta hoon? Aap hospital ki visiting hours, registration ya kisi bhi policy ke baray mein pooch saktay hain."
     else:
-        return "Hello! Welcome to Healthcare Assistant. How can I assist you today?"
+        return "Hello! Welcome to Healthcare Assistant. How can I assist you today? You can ask me about hospital services, visiting hours, registration, and patient guidelines."
 
 
 # ---------------------------------------------------------------------------
-# Core Question Handler
+# Core question handling
 # ---------------------------------------------------------------------------
 def handle_question(query, label=None):
     query = (query or "").strip()
@@ -729,6 +742,7 @@ def handle_question(query, label=None):
 
     language = st.session_state.language
 
+    # Quick Greeting Handling
     if is_greeting(query):
         answer = get_greeting_response(language)
         context_chunks = []
@@ -788,7 +802,7 @@ def handle_voice(audio_bytes):
 
 
 # ---------------------------------------------------------------------------
-# Layout Components
+# UI Rendering
 # ---------------------------------------------------------------------------
 def render_header():
     st.markdown(
@@ -796,9 +810,12 @@ def render_header():
         <div class="hero-banner">
             <div class="hero-top-row">
                 <h1>Healthcare Assistant</h1>
-                <div class="creator-badge">🟢 Created by Areeba Imran</div>
+                <div class="creator-badge">
+                    <span></span> Created by Areeba Imran
+                </div>
             </div>
-            <p>Welcome to Healthcare Assistant. Access verified hospital policies, specialist availability, and clinical department guidelines in real time.</p>
+            <p>Welcome to <b>Healthcare Assistant</b> — an advanced, retrieval-augmented healthcare information system. 
+            Designed to deliver fast, verified, and grounded answers directly from hospital documentation.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -808,22 +825,19 @@ def render_header():
     if status == "no_pdfs":
         st.warning("No knowledge base documents found. Please add PDF files to the knowledge_base folder.")
     elif status in ("faiss_error", "embedding_error"):
-        st.error("System index build error. Please click 'Rebuild Index' in the sidebar.")
+        st.error("System index build error. Please click 'Rebuild Search Index' in the sidebar.")
 
     if not os.getenv("GROQ_API_KEY"):
         st.warning(MISSING_KEY_MESSAGE)
 
 
 def render_quick_prompt_dropdown():
-    # Wrap side FAQ dropdown inside .side-card container for border styling
-    st.markdown('<div class="side-card">', unsafe_allow_html=True)
     st.markdown("**🏥 Frequently Asked Questions**")
     selected_option = st.selectbox(
         "Select a frequent question to ask immediately:",
         QUICK_PROMPT_OPTIONS,
         label_visibility="collapsed"
     )
-    st.markdown('</div>', unsafe_allow_html=True)
     
     if selected_option and selected_option != QUICK_PROMPT_OPTIONS[0]:
         clean_query = (
@@ -867,8 +881,7 @@ def render_chat_messages():
 
 
 def render_chatbot_card():
-    st.markdown('<div class="main-chatbot-card">', unsafe_allow_html=True)
-
+    # Centered dedicated Chatbot Card Box
     st.markdown(
         """
         <div class="chatbot-header">
@@ -876,7 +889,7 @@ def render_chatbot_card():
                 <div class="chatbot-avatar">🤖</div>
                 <div>
                     <h3 style="margin:0; font-size:1.15rem; color:#ffffff;">Healthcare Assistant Bot</h3>
-                    <span style="font-size:0.75rem; color:#fecdd3;">● Online | Grounded AI</span>
+                    <span style="font-size:0.75rem; color:#2dd4bf;">● Online | Grounded AI</span>
                 </div>
             </div>
         </div>
@@ -884,10 +897,12 @@ def render_chatbot_card():
         unsafe_allow_html=True
     )
 
+    # Chat history viewport inside card
     render_chat_messages()
 
-    st.markdown("<hr style='margin:1rem 0; border-color:#fecdd3;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin:1rem 0; border-color:#99f6e4;'>", unsafe_allow_html=True)
 
+    # Unified Text Input Form inside the bot card
     with st.form("chatbot_card_form", clear_on_submit=True):
         col_inp, col_btn = st.columns([5, 1])
         with col_inp:
@@ -903,6 +918,7 @@ def render_chatbot_card():
             handle_question(typed_question)
             st.rerun()
 
+    # Integrated Mic Recorder underneath text input inside card
     try:
         from streamlit_mic_recorder import mic_recorder
         st.caption("🎙️ Or click below to ask via voice:")
@@ -923,23 +939,21 @@ def render_chatbot_card():
     except Exception:
         st.caption("Voice recording component unavailable.")
 
-    st.markdown('</div>', unsafe_allow_html=True)
-
 
 def render_info_panel():
     with st.sidebar:
         st.markdown(
             """
             <div class="sidebar-brand">
-                <h2>Healthcare System</h2>
+                <h2>🏥 Controls & Status</h2>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-        st.markdown("### 🌐 Language Settings")
+        # Language Selection Dropdown
         selected_lang = st.selectbox(
-            "Select Response Language",
+            "🌐 Select Language:",
             LANGUAGE_OPTIONS,
             index=LANGUAGE_OPTIONS.index(st.session_state.language),
         )
@@ -949,36 +963,62 @@ def render_info_panel():
 
         st.markdown("---")
 
+        # Knowledge Base Status Card
+        kb_count = st.session_state.kb_loaded_count
+        status_color = "#2dd4bf" if st.session_state.kb_status == "ready" else "#ef4444"
+        
+        st.markdown(
+            f"""
+            <div class="sidebar-info-card">
+                <h4>📚 Knowledge Base Status</h4>
+                <p>Status: <strong style="color: {status_color};">{st.session_state.kb_status.upper()}</strong></p>
+                <p>Indexed Documents: <strong>{kb_count}</strong></p>
+                <p>Total Chunks: <strong>{len(st.session_state.kb_chunks) if st.session_state.kb_chunks else 0}</strong></p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        # Index Rebuild Trigger
+        if st.button("🔄 Rebuild Knowledge Base", use_container_width=True):
+            with st.spinner("Rebuilding FAISS index from PDFs..."):
+                load_or_build_knowledge_base(force_rebuild=True)
+            st.rerun()
+
+        # Chat History Clear Trigger
+        if st.button("🗑️ Clear Chat History", use_container_width=True):
+            st.session_state.chat_history = []
+            st.rerun()
+
+        st.markdown("---")
+
+        # System Architecture Info Card
         st.markdown(
             """
             <div class="sidebar-info-card">
-                <h4>🏥 Hospital Info</h4>
+                <h4>⚙️ Architecture Overview</h4>
                 <ul>
-                    <li>OPD & Emergency: 24/7 Care</li>
-                    <li>Specialties: Cardiology, Neurology, Pediatrics</li>
+                    <li><b>Embeddings:</b> MiniLM-L6-v2</li>
+                    <li><b>Vector Store:</b> FAISS Index</li>
+                    <li><b>LLM Core:</b> Groq (Llama-3/GPT-OSS)</li>
+                    <li><b>Speech-to-Text:</b> Faster-Whisper</li>
+                    <li><b>Text-to-Speech:</b> gTTS</li>
                 </ul>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-        if st.button("🔄 Rebuild Index", use_container_width=True):
-            with st.spinner("Rebuilding FAISS index from PDFs..."):
-                load_or_build_knowledge_base(force_rebuild=True)
-            st.rerun()
-
-        if st.button("🗑️ Clear Chat History", use_container_width=True):
-            st.session_state.chat_history = []
-            st.rerun()
-
 
 def render_footer():
     st.markdown(
         """
         <div class="custom-footer">
-            <h3 style="margin: 0; font-size: 0.95rem; color: #ffffff;">Healthcare Assistant • Grounded System</h3>
-            <p style="margin: 0.2rem 0; font-weight: 500;">Designed & Developed by Areeba Imran</p>
-            <p style="font-size: 0.75rem; opacity: 0.85; margin-top: 0.2rem;">© 2026 All rights reserved.</p>
+            <p><strong>Healthcare Assistant</strong> — Demonstration & Educational Project</p>
+            <p style="font-size: 0.78rem; opacity: 0.85;">
+                ⚠️ <i>Disclaimer: This application is an automated demonstration using artificial intelligence. 
+                It does not render real medical diagnoses or treatment recommendations. Always consult a licensed medical professional for urgent or personal health concerns.</i>
+            </p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -986,18 +1026,21 @@ def render_footer():
 
 
 # ---------------------------------------------------------------------------
-# Main App Execution
+# Application Entry Point
 # ---------------------------------------------------------------------------
 def main():
     inject_css()
     init_session_state()
 
+    # Automatically build or load FAISS index on first boot
     if st.session_state.kb_status == "not_loaded":
         load_or_build_knowledge_base(force_rebuild=False)
 
+    # Render App Layout
     render_header()
     render_info_panel()
 
+    # Main Grid Layout
     col_main, col_side = st.columns([2.8, 1.2])
 
     with col_main:
