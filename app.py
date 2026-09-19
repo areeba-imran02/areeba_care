@@ -136,248 +136,304 @@ CONTEXT FROM KNOWLEDGE BASE:
 """
 
 # ---------------------------------------------------------------------------
-# Custom Vibrant Slate & Light Red Chatbot UI
+# Professional Clinical UI — design tokens & global styling
+#
+# Palette:
+#   Deep teal-navy   (#0c2f35 / #12474b) -> sidebar, hero, header strips
+#   Clinical teal    (#1c7d74)           -> primary actions, active/chat accent
+#   Warm amber       (#b8823a)           -> secondary accent, reference/FAQ panel
+#   Neutral surfaces (#eef2f2 / #ffffff) -> page background / card surfaces
+#   Ink              (#16262b / #55696c) -> body text / muted text (both pass
+#                                           WCAG AA contrast on white and on
+#                                           the deep navy panels)
+#
+# Every card in the layout (hero, chat panel, FAQ panel, hospital-info card,
+# footer) gets an explicit, visible border on all four sides, either via a
+# real `border:` rule or via Streamlit's native bordered container, so
+# sections read as distinct, separated regions rather than floating text.
 # ---------------------------------------------------------------------------
 def inject_css():
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
         :root {
-            --primary-bg: #f3f7f6;
-            --hero-gradient: linear-gradient(135deg, #112a2e 0%, #1a3d42 50%, #224d53 100%);
-            --btn-gradient: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
-            --btn-hover: linear-gradient(135deg, #115e59 0%, #0f766e 100%);
-            --user-msg-bg: #ffe4e6;
-            --assistant-msg-bg: #ffffff;
-            --border-color: #fecdd3;
-            --text-dark: #0f172a;
+            --bg: #eef2f2;
+            --surface: #ffffff;
+            --surface-tint: #f4f9f8;
+
+            --border: #d3dfdf;
+            --border-strong: #aec3c4;
+
+            --ink: #16262b;
+            --ink-muted: #55696c;
+
+            --navy-900: #0c2f35;
+            --navy-700: #12474b;
+
+            --teal-600: #1c7d74;
+            --teal-100: #e2f2ef;
+
+            --amber-600: #b8823a;
+            --amber-100: #faf1e2;
+
+            --radius-lg: 18px;
+            --radius-md: 12px;
         }
 
         html, body, .stApp {
-            background-color: var(--primary-bg) !important;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: var(--text-dark);
+            background-color: var(--bg) !important;
+            font-family: 'Inter', sans-serif;
+            color: var(--ink);
         }
 
-        /* Hero Banner */
+        h1, h2, h3, h4, .hero-banner h1, .chatbot-title, .panel-title {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        /* ---------------------------------------------------------------
+           Hero banner
+        --------------------------------------------------------------- */
         .hero-banner {
-            background: var(--hero-gradient);
-            border-radius: 20px;
-            padding: 1.8rem 2.2rem;
-            margin-bottom: 1.5rem;
-            color: #ffffff;
-            box-shadow: 0 14px 35px -10px rgba(17, 42, 46, 0.45);
-            border: 1px solid rgba(153, 246, 228, 0.2);
+            background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-700) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: var(--radius-lg);
+            padding: 1.7rem 2.1rem;
+            margin-bottom: 1.4rem;
+            box-shadow: 0 10px 28px -14px rgba(12, 47, 53, 0.55);
         }
         .hero-top-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.6rem;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 0.55rem;
         }
         .hero-banner h1 {
             color: #ffffff !important;
             margin: 0;
-            font-size: 2.1rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
         }
         .hero-banner p {
-            color: #ccfbf1 !important;
+            color: #d7e7e5 !important;
             margin: 0;
-            font-size: 0.98rem;
-            line-height: 1.5;
-            max-width: 820px;
+            font-size: 0.97rem;
+            line-height: 1.55;
+            max-width: 780px;
         }
-
-        /* Creator Badge */
         .creator-badge {
-            background: rgba(45, 212, 191, 0.12);
-            border: 1px solid rgba(45, 212, 191, 0.4);
-            color: #2dd4bf !important;
-            padding: 0.4rem 0.9rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #eafaf7 !important;
+            padding: 0.38rem 0.85rem;
             border-radius: 30px;
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            backdrop-filter: blur(8px);
             white-space: nowrap;
         }
 
-        /* Sidebar Styling */
+        /* ---------------------------------------------------------------
+           Sidebar
+        --------------------------------------------------------------- */
         section[data-testid="stSidebar"] {
-            background-color: #112a2e !important;
-            border-right: 1px solid rgba(153, 246, 228, 0.15);
+            background-color: var(--navy-900) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
         }
-        section[data-testid="stSidebar"] h1, 
-        section[data-testid="stSidebar"] h2, 
-        section[data-testid="stSidebar"] h3, 
-        section[data-testid="stSidebar"] label,
-        section[data-testid="stSidebar"] p {
-            color: #f0fdfa !important;
+        section[data-testid="stSidebar"] * {
+            color: #eafaf7 !important;
+        }
+        section[data-testid="stSidebar"] h1,
+        section[data-testid="stSidebar"] h2,
+        section[data-testid="stSidebar"] h3 {
+            font-family: 'Manrope', sans-serif;
+            font-weight: 700;
         }
 
         .sidebar-brand {
-            padding: 0.5rem 0 1rem 0;
+            padding-bottom: 0.9rem;
             margin-bottom: 1rem;
-            border-bottom: 1px solid rgba(153, 246, 228, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
         }
         .sidebar-brand h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.35rem;
             margin: 0;
-            color: #ffffff !important;
         }
-
-        .sidebar-info-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(153, 246, 228, 0.25);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 0.9rem;
-        }
-        .sidebar-info-card h4 {
-            font-size: 0.9rem;
-            font-weight: 600;
+        .sidebar-section-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
             margin: 0 0 0.5rem 0;
-            color: #2dd4bf !important;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
         }
-        .sidebar-info-card ul {
+        .sidebar-section-label.teal { color: #6fd6c8 !important; }
+        .sidebar-section-label.amber { color: #e7be82 !important; }
+
+        .sidebar-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .sidebar-card ul {
             margin: 0;
             padding-left: 1.1rem;
-            font-size: 0.85rem;
-            line-height: 1.4;
-            color: #f0fdfa !important;
-        }
-        .sidebar-info-card li {
-            color: #f0fdfa !important;
+            font-size: 0.86rem;
+            line-height: 1.55;
         }
 
-        /* Standard Buttons */
+        /* Selectbox styling (sidebar + main area) */
+        div[data-baseweb="select"] {
+            border-radius: 10px !important;
+            border: 1.5px solid var(--teal-600) !important;
+            background-color: #ffffff !important;
+        }
+        div[data-baseweb="select"] * {
+            color: var(--ink) !important;
+        }
+        section[data-testid="stSidebar"] div[data-baseweb="select"] * {
+            color: var(--ink) !important;
+        }
+
+        /* Buttons */
         .stButton > button {
-            background: var(--btn-gradient) !important;
+            background: linear-gradient(135deg, var(--teal-600) 0%, #16645d 100%) !important;
             color: #ffffff !important;
             border-radius: 10px !important;
             border: none !important;
             font-weight: 600 !important;
             padding: 0.55rem 1.2rem !important;
-            box-shadow: 0 4px 14px rgba(13, 148, 136, 0.25) !important;
-            transition: all 0.2s ease-in-out !important;
+            box-shadow: 0 4px 14px rgba(28, 125, 116, 0.25) !important;
+            transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
         }
         .stButton > button:hover {
-            background: var(--btn-hover) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(13, 148, 136, 0.4) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(28, 125, 116, 0.4) !important;
         }
-
-        /* Sidebar Buttons */
         section[data-testid="stSidebar"] .stButton > button {
-            background: rgba(45, 212, 191, 0.15) !important;
-            border: 1px solid rgba(45, 212, 191, 0.4) !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
             color: #ffffff !important;
             width: 100%;
             box-shadow: none !important;
         }
 
-        /* Selectbox Styling */
-        div[data-baseweb="select"] {
-            border-radius: 10px !important;
-            border: 1.5px solid #0d9488 !important;
-            background-color: #ffffff !important;
-        }
-        div[data-baseweb="select"] * {
-            color: #0f172a !important;
-        }
-
-        /* --- LIGHT RED DISTINCT CHATBOT CONTAINER --- */
-        .chatbot-container {
-            background: #fff1f2;
-            border: 2px solid #fecdd3;
-            border-radius: 20px;
-            box-shadow: 0 12px 30px rgba(225, 29, 72, 0.08);
-            padding: 1.5rem;
-            margin: 0 auto 2rem auto;
-            max-width: 900px;
+        /* ---------------------------------------------------------------
+           Bordered panels (Streamlit's native container border)
+           Used for: the chat panel and the FAQ panel. A visible 1.5px
+           border on all four sides, distinct background, and rounded
+           corners so each region reads as its own enclosed card.
+        --------------------------------------------------------------- */
+        [data-testid="stVerticalBlockBorderWrapper"] {
+            border: 1.5px solid var(--border) !important;
+            border-radius: var(--radius-lg) !important;
+            background: var(--surface) !important;
+            box-shadow: 0 6px 20px -14px rgba(12, 47, 53, 0.3);
         }
 
-        .chatbot-header {
+        /* Panel title bars (rendered as the first element inside a
+           bordered container) */
+        .panel-title-bar {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            background: linear-gradient(135deg, #881337 0%, #9f1239 50%, #be123c 100%);
-            padding: 0.9rem 1.3rem;
-            border-radius: 14px;
-            color: white;
-            margin-bottom: 1.2rem;
-            box-shadow: 0 6px 18px rgba(159, 18, 57, 0.25);
+            gap: 12px;
+            padding: 0.85rem 1.1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
         }
-
-        .chatbot-avatar {
-            width: 42px;
-            height: 42px;
-            background: #ffe4e6;
+        .panel-title-bar.chat {
+            background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-700) 100%);
+        }
+        .panel-title-bar.faq {
+            background: linear-gradient(135deg, #8f611f 0%, var(--amber-600) 100%);
+        }
+        .panel-title-bar .panel-icon {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
+            background: rgba(255, 255, 255, 0.16);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            border: 2px solid #fecdd3;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .panel-title-bar .panel-title {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        .panel-title-bar .panel-subtitle {
+            margin: 0;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.85);
         }
 
-        /* Chat Messages inside Red Container */
+        /* Chat messages */
         [data-testid="stChatMessage"] {
-            border-radius: 14px !important;
-            padding: 1rem !important;
-            margin-bottom: 0.9rem !important;
+            border-radius: var(--radius-md) !important;
+            padding: 0.95rem 1.05rem !important;
+            margin-bottom: 0.85rem !important;
+            border: 1px solid var(--border) !important;
         }
-        [data-testid="stChatMessage"]:nth-child(even) {
-            background-color: #ffe4e6 !important;
-            border: 1px solid #fecdd3 !important;
+        [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
+            background-color: var(--teal-100) !important;
+            border-color: #bfe3dc !important;
         }
-        [data-testid="stChatMessage"]:nth-child(odd) {
-            background-color: #ffffff !important;
-            border: 1px solid #ffe4e6 !important;
-            box-shadow: 0 2px 10px rgba(159, 18, 57, 0.04) !important;
+        [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) {
+            background-color: var(--surface-tint) !important;
+        }
+        [data-testid="stChatMessage"] p,
+        [data-testid="stChatMessage"] li,
+        [data-testid="stChatMessage"] span {
+            color: var(--ink) !important;
         }
 
         .response-meta {
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 0.78rem;
-            color: #be123c;
+            font-size: 0.76rem;
+            color: var(--navy-700) !important;
             font-weight: 600;
             margin-top: 0.6rem;
-            padding-top: 0.4rem;
-            border-top: 1px dashed #fecdd3;
+            padding-top: 0.5rem;
+            border-top: 1px dashed var(--border-strong);
         }
 
-        /* Footer Styling */
+        /* Text input inside the chat form */
+        .stTextInput input {
+            color: var(--ink) !important;
+            background-color: #ffffff !important;
+            border-radius: 10px !important;
+        }
+
+        /* FAQ helper caption */
+        .faq-caption {
+            font-size: 0.83rem;
+            color: var(--ink-muted);
+            margin-bottom: 0.7rem;
+        }
+
+        /* Footer */
         .custom-footer {
-            background: var(--hero-gradient);
-            border-radius: 14px;
+            background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-700) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: var(--radius-lg);
             padding: 1.1rem;
             text-align: center;
-            color: #ccfbf1;
-            margin-top: 2rem;
-            font-size: 0.85rem;
-            box-shadow: 0 8px 20px rgba(17, 42, 46, 0.2);
-            border: 1px solid rgba(153, 246, 228, 0.2);
+            margin-top: 1.6rem;
+            box-shadow: 0 10px 28px -18px rgba(12, 47, 53, 0.55);
         }
-        .custom-footer p {
-            margin: 0.2rem 0;
-        }
+        .custom-footer h3 { color: #ffffff; margin: 0; font-size: 1.05rem; }
+        .custom-footer p { color: #d7e7e5; margin: 0.25rem 0; }
+        .custom-footer p.fine-print { font-size: 0.76rem; opacity: 0.85; }
 
-        footer {
-            visibility: hidden;
-        }
+        footer { visibility: hidden; }
         </style>
         """,
         unsafe_allow_html=True,
@@ -859,7 +915,7 @@ def render_header():
                 <h1>Healthcare Assistant</h1>
                 <div class="creator-badge">🟢 Created by Areeba Imran</div>
             </div>
-            <p>Welcome to Healthcare Assistant. Access verified hospital policies, specialist availability, and clinical department guidelines in real time.</p>
+            <p>Access verified hospital policies, specialist availability, and clinical department guidelines in real time.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -888,9 +944,9 @@ def _quick_prompt_on_change():
     placeholder inside the callback, which is the safe point in the
     Streamlit lifecycle to mutate a widget's own session_state key.
 
-    This is what fixes the bug where the previously selected quick
-    question kept re-firing on every rerun (causing the same answer to
-    repeat and drowning out answers to newly typed questions).
+    This is what prevents a previously selected quick question from
+    re-firing on every rerun (which used to repeat the same answer and
+    drown out answers to newly typed questions).
     """
     selected_option = st.session_state.get("quick_prompt_select")
     if selected_option and selected_option != QUICK_PROMPT_OPTIONS[0]:
@@ -901,15 +957,31 @@ def _quick_prompt_on_change():
     st.session_state.quick_prompt_select = QUICK_PROMPT_OPTIONS[0]
 
 
-def render_quick_prompt_dropdown():
-    st.markdown("**🏥 Frequently Asked Questions**")
-    st.selectbox(
-        "Select a frequent question to ask immediately:",
-        QUICK_PROMPT_OPTIONS,
-        key="quick_prompt_select",
-        on_change=_quick_prompt_on_change,
-        label_visibility="collapsed",
-    )
+def render_quick_prompt_panel():
+    with st.container(border=True):
+        st.markdown(
+            """
+            <div class="panel-title-bar faq">
+                <div class="panel-icon">❓</div>
+                <div>
+                    <p class="panel-title">Frequently Asked Questions</p>
+                    <p class="panel-subtitle">Quick reference — jump straight to a common topic</p>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            '<p class="faq-caption">Pick a topic below to get an instant answer:</p>',
+            unsafe_allow_html=True,
+        )
+        st.selectbox(
+            "Select a frequent question to ask immediately:",
+            QUICK_PROMPT_OPTIONS,
+            key="quick_prompt_select",
+            on_change=_quick_prompt_on_change,
+            label_visibility="collapsed",
+        )
 
 
 def render_chat_messages():
@@ -922,12 +994,12 @@ def render_chat_messages():
                     st.audio(turn["audio"], format="audio/mp3")
                 if turn.get("sources"):
                     render_sources(turn["sources"])
-                
+
                 if turn.get("time"):
                     st.markdown(
                         f"""
                         <div class="response-meta">
-                            <span>⚡ Response Time: {turn['time']}s</span> • 
+                            <span>⚡ Response Time: {turn['time']}s</span> •
                             <span>🔒 Grounded Verification</span>
                         </div>
                         """,
@@ -935,64 +1007,61 @@ def render_chat_messages():
                     )
 
 
-def render_chatbot_card():
-    # Light Red / Rose Styled Chatbot Card Container
-    st.markdown(
-        """
-        <div class="chatbot-header">
-            <div style="display:flex; align-items:center; gap:12px;">
-                <div class="chatbot-avatar">🤖</div>
+def render_chatbot_panel():
+    with st.container(border=True):
+        st.markdown(
+            """
+            <div class="panel-title-bar chat">
+                <div class="panel-icon">🤖</div>
                 <div>
-                    <h3 style="margin:0; font-size:1.15rem; color:#ffffff;">Healthcare Assistant Bot</h3>
-                    <span style="font-size:0.75rem; color:#fecdd3;">● Online | Grounded AI</span>
+                    <p class="panel-title">Healthcare Assistant Bot</p>
+                    <p class="panel-subtitle">● Online · Grounded AI</p>
                 </div>
             </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    # Chat history viewport inside card
-    render_chat_messages()
-
-    st.markdown("<hr style='margin:1rem 0; border-color:#fecdd3;'>", unsafe_allow_html=True)
-
-    # Unified Text Input Form inside the bot card
-    with st.form("chatbot_card_form", clear_on_submit=True):
-        col_inp, col_btn = st.columns([5, 1])
-        with col_inp:
-            typed_question = st.text_input(
-                "Type query...",
-                label_visibility="collapsed",
-                placeholder="Ask doctor availability, visiting hours, or hospital rules...",
-            )
-        with col_btn:
-            submitted = st.form_submit_button("Send 💬", use_container_width=True)
-
-        if submitted and typed_question.strip():
-            handle_question(typed_question)
-            st.rerun()
-
-    # Integrated Mic Recorder underneath text input inside card
-    try:
-        from streamlit_mic_recorder import mic_recorder
-        st.caption("🎙️ Or click below to ask via voice:")
-        audio = mic_recorder(
-            start_prompt="🔴 Tap to Speak",
-            stop_prompt="🟩 Stop & Process",
-            just_once=True,
-            use_container_width=True,
-            format="wav",
-            key="chatbot_mic",
+            """,
+            unsafe_allow_html=True,
         )
-        if audio and audio.get("bytes"):
-            audio_hash = hashlib.md5(audio["bytes"]).hexdigest()
-            if st.session_state.last_audio_hash != audio_hash:
-                st.session_state.last_audio_hash = audio_hash
-                handle_voice(audio["bytes"])
+
+        render_chat_messages()
+
+        st.divider()
+
+        # Unified Text Input Form inside the bot panel
+        with st.form("chatbot_card_form", clear_on_submit=True):
+            col_inp, col_btn = st.columns([5, 1])
+            with col_inp:
+                typed_question = st.text_input(
+                    "Type query...",
+                    label_visibility="collapsed",
+                    placeholder="Ask doctor availability, visiting hours, or hospital rules...",
+                )
+            with col_btn:
+                submitted = st.form_submit_button("Send 💬", use_container_width=True)
+
+            if submitted and typed_question.strip():
+                handle_question(typed_question)
                 st.rerun()
-    except Exception:
-        st.caption("Voice recording component unavailable.")
+
+        # Integrated Mic Recorder underneath text input inside the panel
+        try:
+            from streamlit_mic_recorder import mic_recorder
+            st.caption("🎙️ Or click below to ask via voice:")
+            audio = mic_recorder(
+                start_prompt="🔴 Tap to Speak",
+                stop_prompt="🟩 Stop & Process",
+                just_once=True,
+                use_container_width=True,
+                format="wav",
+                key="chatbot_mic",
+            )
+            if audio and audio.get("bytes"):
+                audio_hash = hashlib.md5(audio["bytes"]).hexdigest()
+                if st.session_state.last_audio_hash != audio_hash:
+                    st.session_state.last_audio_hash = audio_hash
+                    handle_voice(audio["bytes"])
+                    st.rerun()
+        except Exception:
+            st.caption("Voice recording component unavailable.")
 
 
 # ---------------------------------------------------------------------------
@@ -1009,25 +1078,23 @@ def render_info_panel():
             unsafe_allow_html=True,
         )
 
-        st.markdown("### 🌐 Language Settings")
+        st.markdown('<p class="sidebar-section-label teal">🌐 LANGUAGE SETTINGS</p>', unsafe_allow_html=True)
         selected_lang = st.selectbox(
             "Select Response Language",
             LANGUAGE_OPTIONS,
             index=LANGUAGE_OPTIONS.index(st.session_state.language),
+            label_visibility="collapsed",
         )
         if selected_lang != st.session_state.language:
             st.session_state.language = selected_lang
             st.rerun()
 
-        st.markdown("---")
-
-        # Hospital Info Card
+        st.markdown('<p class="sidebar-section-label amber" style="margin-top:1.2rem;">🏥 HOSPITAL INFO</p>', unsafe_allow_html=True)
         st.markdown(
             """
-            <div class="sidebar-info-card">
-                <h4>🏥 Hospital Info</h4>
+            <div class="sidebar-card">
                 <ul>
-                    <li>OPD & Emergency: 24/7 Care</li>
+                    <li>OPD &amp; Emergency: 24/7 Care</li>
                     <li>Specialties: Cardiology, Neurology, Pediatrics</li>
                 </ul>
             </div>
@@ -1061,9 +1128,9 @@ def render_footer():
     st.markdown(
         """
         <div class="custom-footer">
-            <h3 style="margin: 0; font-size: 1.1rem; color: #ffffff;">Healthcare Assistant • Grounded System</h3>
-            <p style="margin: 0.3rem 0; font-weight: 500;">Designed & Developed by Areeba Imran</p>
-            <p style="font-size: 0.78rem; opacity: 0.85; margin-top: 0.4rem;">© 2026 All rights reserved.</p>
+            <h3>Healthcare Assistant • Grounded System</h3>
+            <p>Designed &amp; Developed by Areeba Imran</p>
+            <p class="fine-print">© 2026 All rights reserved.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -1089,10 +1156,10 @@ def main():
     col_main, col_side = st.columns([2.8, 1.2])
 
     with col_main:
-        render_chatbot_card()
+        render_chatbot_panel()
 
     with col_side:
-        render_quick_prompt_dropdown()
+        render_quick_prompt_panel()
 
     render_footer()
 
