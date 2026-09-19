@@ -1,3 +1,4 @@
+"""
 AreebaCare Healthcare Assistant
 --------------------------------
 A grounded, retrieval-augmented healthcare information assistant built on top
