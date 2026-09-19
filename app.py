@@ -816,30 +816,41 @@ def render_header():
         st.warning(MISSING_KEY_MESSAGE)
 
 
+def _strip_prompt_emoji(text):
+    for prefix in ("🚨 ", "🕒 ", "🏥 ", "📋 ", "💳 ", "🩺 ", "🧪 ", "📜 ", "💊 ", "🚙 "):
+        text = text.replace(prefix, "")
+    return text
+
+
+def _quick_prompt_on_change():
+    """
+    Callback fired ONLY when the user actually changes the selectbox value
+    (not on every rerun). It immediately resets the widget back to the
+    placeholder inside the callback, which is the safe point in the
+    Streamlit lifecycle to mutate a widget's own session_state key.
+
+    This is what fixes the bug where the previously selected quick
+    question kept re-firing on every rerun (causing the same answer to
+    repeat and drowning out answers to newly typed questions).
+    """
+    selected_option = st.session_state.get("quick_prompt_select")
+    if selected_option and selected_option != QUICK_PROMPT_OPTIONS[0]:
+        clean_query = _strip_prompt_emoji(selected_option)
+        handle_question(clean_query)
+    # Reset immediately so this exact selection can't retrigger on the
+    # next rerun, and so the same question can be picked again later.
+    st.session_state.quick_prompt_select = QUICK_PROMPT_OPTIONS[0]
+
+
 def render_quick_prompt_dropdown():
     st.markdown("**🏥 Frequently Asked Questions**")
-    selected_option = st.selectbox(
+    st.selectbox(
         "Select a frequent question to ask immediately:",
         QUICK_PROMPT_OPTIONS,
-        label_visibility="collapsed"
+        key="quick_prompt_select",
+        on_change=_quick_prompt_on_change,
+        label_visibility="collapsed",
     )
-    
-    if selected_option and selected_option != QUICK_PROMPT_OPTIONS[0]:
-        clean_query = (
-            selected_option
-            .replace("🚨 ", "")
-            .replace("🕒 ", "")
-            .replace("🏥 ", "")
-            .replace("📋 ", "")
-            .replace("💳 ", "")
-            .replace("🩺 ", "")
-            .replace("🧪 ", "")
-            .replace("📜 ", "")
-            .replace("💊 ", "")
-            .replace("🚙 ", "")
-        )
-        handle_question(clean_query)
-        st.rerun()
 
 
 def render_chat_messages():
