@@ -133,7 +133,7 @@ CONTEXT FROM KNOWLEDGE BASE:
 """
 
 # ---------------------------------------------------------------------------
-# Custom Vibrant Slate & Light Red Chatbot UI
+# Custom CSS Styling
 # ---------------------------------------------------------------------------
 def inject_css():
     st.markdown(
@@ -142,13 +142,10 @@ def inject_css():
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
         :root {
-            --primary-bg: #f3f7f6;
+            --primary-bg: #f8fafc;
             --hero-gradient: linear-gradient(135deg, #112a2e 0%, #1a3d42 50%, #224d53 100%);
             --btn-gradient: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
             --btn-hover: linear-gradient(135deg, #115e59 0%, #0f766e 100%);
-            --user-msg-bg: #ffe4e6;
-            --assistant-msg-bg: #ffffff;
-            --border-color: #fecdd3;
             --text-dark: #0f172a;
         }
 
@@ -256,7 +253,7 @@ def inject_css():
             color: #f0fdfa !important;
         }
 
-        /* Standard Buttons */
+        /* Buttons */
         .stButton > button {
             background: var(--btn-gradient) !important;
             color: #ffffff !important;
@@ -273,7 +270,6 @@ def inject_css():
             box-shadow: 0 6px 18px rgba(13, 148, 136, 0.4) !important;
         }
 
-        /* Sidebar Buttons */
         section[data-testid="stSidebar"] .stButton > button {
             background: rgba(45, 212, 191, 0.15) !important;
             border: 1px solid rgba(45, 212, 191, 0.4) !important;
@@ -282,7 +278,7 @@ def inject_css():
             box-shadow: none !important;
         }
 
-        /* Selectbox Styling */
+        /* Selectbox */
         div[data-baseweb="select"] {
             border-radius: 10px !important;
             border: 1.5px solid #0d9488 !important;
@@ -292,14 +288,14 @@ def inject_css():
             color: #0f172a !important;
         }
 
-        /* --- OUTER FULL CARD WRAPPER --- */
+        /* --- SINGLE MAIN CARD CONTAINER --- */
         .main-chatbot-card {
-            background-color: #fff1f2;
+            background-color: #ffffff;
             border: 2px solid #fecdd3;
-            border-radius: 20px;
-            padding: 1.5rem;
-            box-shadow: 0 12px 30px rgba(225, 29, 72, 0.08);
-            margin-bottom: 2rem;
+            border-radius: 18px;
+            padding: 1.2rem;
+            box-shadow: 0 10px 25px rgba(159, 18, 57, 0.08);
+            margin-bottom: 1.5rem;
         }
 
         .chatbot-header {
@@ -308,39 +304,38 @@ def inject_css():
             justify-content: space-between;
             background: linear-gradient(135deg, #881337 0%, #9f1239 50%, #be123c 100%);
             padding: 0.9rem 1.3rem;
-            border-radius: 14px;
+            border-radius: 12px;
             color: white;
-            margin-bottom: 1.2rem;
-            box-shadow: 0 6px 18px rgba(159, 18, 57, 0.25);
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(159, 18, 57, 0.15);
         }
 
         .chatbot-avatar {
-            width: 42px;
-            height: 42px;
+            width: 40px;
+            height: 40px;
             background: #ffe4e6;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            font-size: 1.2rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
             border: 2px solid #fecdd3;
         }
 
-        /* Chat Messages inside Red Container */
+        /* Chat Messages */
         [data-testid="stChatMessage"] {
-            border-radius: 14px !important;
-            padding: 1rem !important;
-            margin-bottom: 0.9rem !important;
+            border-radius: 12px !important;
+            padding: 0.9rem !important;
+            margin-bottom: 0.8rem !important;
         }
         [data-testid="stChatMessage"]:nth-child(even) {
             background-color: #ffe4e6 !important;
             border: 1px solid #fecdd3 !important;
         }
         [data-testid="stChatMessage"]:nth-child(odd) {
-            background-color: #ffffff !important;
-            border: 1px solid #ffe4e6 !important;
-            box-shadow: 0 2px 10px rgba(159, 18, 57, 0.04) !important;
+            background-color: #f8fafc !important;
+            border: 1px solid #e2e8f0 !important;
         }
 
         .response-meta {
@@ -350,12 +345,12 @@ def inject_css():
             font-size: 0.78rem;
             color: #be123c;
             font-weight: 600;
-            margin-top: 0.6rem;
+            margin-top: 0.5rem;
             padding-top: 0.4rem;
             border-top: 1px dashed #fecdd3;
         }
 
-        /* Compact & Centered Footer Styling */
+        /* Footer */
         .custom-footer {
             background: var(--hero-gradient);
             border-radius: 12px;
@@ -368,9 +363,6 @@ def inject_css():
             border: 1px solid rgba(153, 246, 228, 0.2);
             width: fit-content;
         }
-        .custom-footer p {
-            margin: 0.15rem 0;
-        }
 
         footer {
             visibility: hidden;
@@ -382,7 +374,7 @@ def inject_css():
 
 
 # ---------------------------------------------------------------------------
-# Cached model / client loaders
+# Cached Model Loaders
 # ---------------------------------------------------------------------------
 @st.cache_resource(show_spinner=False)
 def get_embedding_model():
@@ -411,7 +403,7 @@ def get_groq_client(api_key):
 
 
 # ---------------------------------------------------------------------------
-# PDF processing pipeline
+# PDF Processing & FAISS
 # ---------------------------------------------------------------------------
 def load_pdf_files():
     return sorted(glob.glob(os.path.join(KB_DIR, "*.pdf")))
@@ -562,7 +554,7 @@ def load_or_build_knowledge_base(force_rebuild=False):
 
 
 # ---------------------------------------------------------------------------
-# Retrieval
+# Context Retrieval
 # ---------------------------------------------------------------------------
 def retrieve_context(query, index, chunks, model, top_k=TOP_K, threshold=RELEVANCE_THRESHOLD):
     if index is None or not chunks:
@@ -581,7 +573,7 @@ def retrieve_context(query, index, chunks, model, top_k=TOP_K, threshold=RELEVAN
 
 
 # ---------------------------------------------------------------------------
-# Answer generation (Groq)
+# Answer Generation (Groq)
 # ---------------------------------------------------------------------------
 def generate_answer(query, context_chunks, language, history):
     api_key = os.getenv("GROQ_API_KEY")
@@ -617,7 +609,7 @@ def generate_answer(query, context_chunks, language, history):
 
 
 # ---------------------------------------------------------------------------
-# Voice transcription
+# Voice & Audio
 # ---------------------------------------------------------------------------
 def transcribe_audio(audio_bytes, language):
     model = get_whisper_model()
@@ -647,9 +639,6 @@ def transcribe_audio(audio_bytes, language):
                 pass
 
 
-# ---------------------------------------------------------------------------
-# Text-to-speech (gTTS)
-# ---------------------------------------------------------------------------
 def generate_tts(text, language):
     if not text:
         return None
@@ -666,7 +655,7 @@ def generate_tts(text, language):
 
 
 # ---------------------------------------------------------------------------
-# Sources rendering
+# Sources Rendering
 # ---------------------------------------------------------------------------
 def render_sources(context_chunks):
     if not context_chunks:
@@ -680,7 +669,7 @@ def render_sources(context_chunks):
 
 
 # ---------------------------------------------------------------------------
-# Session state initialization
+# Session State Initialization
 # ---------------------------------------------------------------------------
 def init_session_state():
     defaults = {
@@ -699,7 +688,7 @@ def init_session_state():
 
 
 # ---------------------------------------------------------------------------
-# Smart Greetings Check
+# Greetings Helper
 # ---------------------------------------------------------------------------
 def is_greeting(query):
     cleaned = re.sub(r"[^\w\s]", "", query.lower().strip())
@@ -709,15 +698,15 @@ def is_greeting(query):
 
 def get_greeting_response(language):
     if language == "Urdu":
-        return "السلام علیکم! میں آپ کا Healthcare Assistant ہوں۔ میں آپ کی کیا مدد کر سکتا ہوں؟ آپ ہسپتال کی سہولیات، رجسٹریشن اور دیگر معلومات کے بارے میں پوچھ سکتے ہیں۔"
+        return "السلام علیکم! میں آپ کا Healthcare Assistant ہوں۔ میں آپ کی کیا مدد کر سکتا ہوں؟"
     elif language == "Roman Urdu":
-        return "Aoa! Main aap ka Healthcare Assistant hoon. Main aap ki kya madad kar sakta hoon? Aap hospital ki visiting hours, registration ya kisi bhi policy ke baray mein pooch saktay hain."
+        return "Aoa! Main aap ka Healthcare Assistant hoon. Main aap ki kya madad kar sakta hoon?"
     else:
-        return "Hello! Welcome to Healthcare Assistant. How can I assist you today? You can ask me about hospital services, visiting hours, registration, and patient guidelines."
+        return "Hello! Welcome to Healthcare Assistant. How can I assist you today?"
 
 
 # ---------------------------------------------------------------------------
-# Core question handling
+# Core Question Handler
 # ---------------------------------------------------------------------------
 def handle_question(query, label=None):
     query = (query or "").strip()
@@ -730,7 +719,6 @@ def handle_question(query, label=None):
 
     language = st.session_state.language
 
-    # Quick Greeting Handling
     if is_greeting(query):
         answer = get_greeting_response(language)
         context_chunks = []
@@ -790,7 +778,7 @@ def handle_voice(audio_bytes):
 
 
 # ---------------------------------------------------------------------------
-# Custom Header Render
+# Layout Components
 # ---------------------------------------------------------------------------
 def render_header():
     st.markdown(
@@ -866,10 +854,10 @@ def render_chat_messages():
 
 
 def render_chatbot_card():
-    # Entire unified card wrapper start
+    # Outer card wrapper start (Blank top box has been completely removed)
     st.markdown('<div class="main-chatbot-card">', unsafe_allow_html=True)
 
-    # Header inside Card
+    # Red Header Inside Card
     st.markdown(
         """
         <div class="chatbot-header">
@@ -885,12 +873,12 @@ def render_chatbot_card():
         unsafe_allow_html=True
     )
 
-    # Chat history area
+    # Chat history
     render_chat_messages()
 
     st.markdown("<hr style='margin:1rem 0; border-color:#fecdd3;'>", unsafe_allow_html=True)
 
-    # Text Input Form inside Card
+    # Input Form
     with st.form("chatbot_card_form", clear_on_submit=True):
         col_inp, col_btn = st.columns([5, 1])
         with col_inp:
@@ -906,7 +894,7 @@ def render_chatbot_card():
             handle_question(typed_question)
             st.rerun()
 
-    # Integrated Mic Recorder inside Card
+    # Voice Input Component
     try:
         from streamlit_mic_recorder import mic_recorder
         st.caption("🎙️ Or click below to ask via voice:")
@@ -927,13 +915,10 @@ def render_chatbot_card():
     except Exception:
         st.caption("Voice recording component unavailable.")
 
-    # Entire unified card wrapper end
+    # Outer card wrapper end
     st.markdown('</div>', unsafe_allow_html=True)
 
 
-# ---------------------------------------------------------------------------
-# Custom Sidebar Render
-# ---------------------------------------------------------------------------
 def render_info_panel():
     with st.sidebar:
         st.markdown(
@@ -957,7 +942,6 @@ def render_info_panel():
 
         st.markdown("---")
 
-        # Hospital Info Card
         st.markdown(
             """
             <div class="sidebar-info-card">
@@ -971,21 +955,16 @@ def render_info_panel():
             unsafe_allow_html=True,
         )
 
-        # Index Rebuild Trigger Button
         if st.button("🔄 Rebuild Index", use_container_width=True):
             with st.spinner("Rebuilding FAISS index from PDFs..."):
                 load_or_build_knowledge_base(force_rebuild=True)
             st.rerun()
 
-        # Chat History Clear Trigger Button
         if st.button("🗑️ Clear Chat History", use_container_width=True):
             st.session_state.chat_history = []
             st.rerun()
 
 
-# ---------------------------------------------------------------------------
-# Custom Footer Render
-# ---------------------------------------------------------------------------
 def render_footer():
     st.markdown(
         """
@@ -1000,21 +979,18 @@ def render_footer():
 
 
 # ---------------------------------------------------------------------------
-# Application Entry Point
+# Main App Execution
 # ---------------------------------------------------------------------------
 def main():
     inject_css()
     init_session_state()
 
-    # Automatically build or load FAISS index on first boot
     if st.session_state.kb_status == "not_loaded":
         load_or_build_knowledge_base(force_rebuild=False)
 
-    # Render App Layout
     render_header()
     render_info_panel()
 
-    # Main Grid Layout
     col_main, col_side = st.columns([2.8, 1.2])
 
     with col_main:
