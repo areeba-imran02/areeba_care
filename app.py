@@ -306,15 +306,26 @@ def inject_css():
             color: var(--ink) !important;
             fill: var(--ink) !important;
         }
-        /* Extra specificity so the sidebar's blanket
-           `section[data-testid="stSidebar"] * { color: #eafaf7 }` rule
-           cannot win against the closed-box text color */
-        section[data-testid="stSidebar"] div[data-baseweb="select"] > div {
-            background-color: #ffffff !important;
+        /* SIDEBAR OVERRIDE — targets Streamlit's own stSelectbox wrapper
+           together with the BaseWeb select, which is MORE specific than
+           the blanket `section[data-testid="stSidebar"] * { color:
+           #eafaf7 }` rule above (two attribute selectors instead of one),
+           so it wins regardless of source order. This is what was making
+           "English" render as near-invisible faded text before. */
+        section[data-testid="stSidebar"] div[data-testid="stSelectbox"] {
+            background-color: transparent !important;
         }
-        section[data-testid="stSidebar"] div[data-baseweb="select"] > div,
-        section[data-testid="stSidebar"] div[data-baseweb="select"] > div * {
+        section[data-testid="stSidebar"] div[data-testid="stSelectbox"] > div > div {
+            background-color: #ffffff !important;
+            border: 1.5px solid var(--teal-600) !important;
+            border-radius: 10px !important;
+        }
+        section[data-testid="stSidebar"] div[data-testid="stSelectbox"] * {
             color: var(--ink) !important;
+            opacity: 1 !important;
+        }
+        section[data-testid="stSidebar"] div[data-testid="stSelectbox"] svg {
+            fill: var(--ink) !important;
         }
 
         /* Open dropdown options list (rendered in a body-level portal) */
