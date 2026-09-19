@@ -181,7 +181,7 @@ def inject_css():
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap');
 
         :root {
             --bg: #eef2f2;
@@ -209,7 +209,7 @@ def inject_css():
 
         html, body, .stApp {
             background-color: var(--bg) !important;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', 'Noto Naskh Arabic', sans-serif;
             color: var(--ink);
         }
 
@@ -229,7 +229,7 @@ def inject_css():
             background: linear-gradient(120deg, #0a2e33 0%, #124a49 45%, #1c7d74 100%);
             border: 1px solid rgba(111, 214, 200, 0.35);
             border-radius: var(--radius-lg);
-            padding: 1.9rem 2.2rem;
+            padding: 1.6rem 2rem;
             margin-bottom: 1.4rem;
             overflow: hidden;
             box-shadow:
@@ -262,7 +262,7 @@ def inject_css():
         .hero-banner h1 {
             color: #ffffff !important;
             margin: 0;
-            font-size: 2.15rem;
+            font-size: 2rem;
             font-weight: 800;
             letter-spacing: -0.015em;
             text-shadow: 0 2px 18px rgba(0, 0, 0, 0.25);
@@ -552,6 +552,224 @@ def inject_css():
         .custom-footer h3 { color: #ffffff; margin: 0; font-size: 1.05rem; }
         .custom-footer p { color: #d7e7e5; margin: 0.25rem 0; }
         .custom-footer p.fine-print { font-size: 0.76rem; opacity: 0.85; }
+
+        /* ==================================================================
+           LAYOUT BALANCE & POLISH
+           Consistent spacing, aligned control heights, capped page width,
+           Urdu (RTL) friendly text, and an empty-state for the chat panel.
+        ================================================================== */
+
+        /* Page frame: centred + capped so wide monitors stay balanced */
+        .block-container {
+            max-width: 1320px !important;
+            padding-top: 1.6rem !important;
+            padding-bottom: 2.4rem !important;
+        }
+        header[data-testid="stHeader"] { background: transparent !important; }
+        [data-testid="stDecoration"],
+        [data-testid="stAppDeployButton"],
+        .stDeployButton,
+        #MainMenu { display: none !important; }
+
+        input, textarea { font-family: 'Inter', 'Noto Naskh Arabic', sans-serif; }
+
+        /* Hero: feature chips row */
+        .hero-chips {
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1.1rem;
+        }
+        .hero-chip {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #eafaf7 !important;
+            padding: 0.3rem 0.8rem;
+            border-radius: 999px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* Sidebar: brand block, status card, section spacing */
+        .sidebar-brand .brand-row { display: flex; align-items: center; gap: 0.7rem; }
+        .sidebar-brand .brand-icon {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.12);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; flex-shrink: 0;
+        }
+        .sidebar-brand p.brand-tag {
+            margin: 0.1rem 0 0 0;
+            font-size: 0.74rem;
+            opacity: 0.8;
+        }
+        .sidebar-section-label { margin: 0.5rem 0 -0.35rem 0; }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.6rem;
+            padding: 0.4rem 0;
+            font-size: 0.84rem;
+        }
+        .status-row + .status-row { border-top: 1px solid rgba(255, 255, 255, 0.12); }
+        .status-pill {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.14rem 0.6rem;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+        .status-pill.ok   { color: #8ff0e2 !important; background: rgba(111, 214, 200, 0.14); border-color: rgba(111, 214, 200, 0.4); }
+        .status-pill.warn { color: #f3cf98 !important; background: rgba(231, 190, 130, 0.14); border-color: rgba(231, 190, 130, 0.4); }
+        .status-pill.bad  { color: #ffb4a8 !important; background: rgba(255, 120, 100, 0.14); border-color: rgba(255, 140, 120, 0.4); }
+
+        section[data-testid="stSidebar"] .stButton > button:hover {
+            background: rgba(255, 255, 255, 0.16) !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+        }
+        .stButton > button { min-height: 2.6rem; }
+
+        /* Chat form: no double border, input + Send button share one height */
+        [data-testid="stForm"] {
+            border: none !important;
+            padding: 0 !important;
+            background: transparent !important;
+        }
+        div[data-baseweb="input"] {
+            min-height: 2.75rem;
+            background-color: #ffffff !important;
+            border: 1.5px solid var(--border-strong) !important;
+            border-radius: 10px !important;
+        }
+        div[data-baseweb="input"]:focus-within {
+            border-color: var(--teal-600) !important;
+            box-shadow: 0 0 0 3px rgba(28, 125, 116, 0.16) !important;
+        }
+        div[data-baseweb="input"] > div,
+        div[data-baseweb="base-input"] { background-color: transparent !important; }
+        [data-testid="stFormSubmitButton"] button {
+            background: linear-gradient(135deg, var(--teal-600) 0%, #16645d 100%) !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 10px !important;
+            min-height: 2.75rem;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 14px rgba(28, 125, 116, 0.25) !important;
+            transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+        }
+        [data-testid="stFormSubmitButton"] button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(28, 125, 116, 0.4) !important;
+        }
+        [data-testid="stFormSubmitButton"] button * { color: #ffffff !important; }
+
+        /* Chat messages: readable line height, Urdu answers align right */
+        [data-testid="stChatMessage"] [data-testid="stMarkdownContainer"] p,
+        [data-testid="stChatMessage"] [data-testid="stMarkdownContainer"] li {
+            unicode-bidi: plaintext;
+            text-align: start;
+            line-height: 1.65;
+        }
+        .stTextInput input { unicode-bidi: plaintext; }
+
+        /* Chat empty state (shown before the first question) */
+        .empty-state {
+            text-align: center;
+            padding: 2.4rem 1.5rem;
+            margin-bottom: 0.4rem;
+            background: var(--surface-tint);
+            border: 1.5px dashed var(--border-strong);
+            border-radius: var(--radius-md);
+        }
+        .empty-state .empty-icon {
+            width: 54px; height: 54px;
+            margin: 0 auto 0.8rem auto;
+            border-radius: 50%;
+            background: var(--teal-100);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+        }
+        .empty-state p.empty-title {
+            margin: 0 0 0.35rem 0;
+            font-family: 'Manrope', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--ink);
+        }
+        .empty-state p.empty-text {
+            margin: 0 auto;
+            max-width: 480px;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            color: var(--ink-muted);
+        }
+
+        /* FAQ panel: tips card + sticky so it stays in view while chat grows */
+        div[data-testid="stColumn"]:has(.faq-anchor),
+        div[data-testid="column"]:has(.faq-anchor) {
+            position: sticky;
+            top: 1rem;
+            align-self: flex-start;
+        }
+        .tips-card {
+            margin-top: 1.1rem;
+            padding: 0.9rem 1rem;
+            background: var(--amber-100);
+            border: 1px solid #ecd9b6;
+            border-radius: var(--radius-md);
+        }
+        .tips-card p.tips-title {
+            margin: 0 0 0.4rem 0;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #7a5216;
+        }
+        .tips-card ul {
+            margin: 0;
+            padding-left: 1.1rem;
+            font-size: 0.82rem;
+            line-height: 1.6;
+            color: var(--ink);
+        }
+        .tips-card p.tips-note {
+            margin: 0.6rem 0 0 0;
+            padding-top: 0.5rem;
+            border-top: 1px dashed #dcc48f;
+            font-size: 0.74rem;
+            color: var(--ink-muted);
+        }
+
+        /* Long FAQ questions wrap inside the dropdown instead of being cut */
+        div[data-baseweb="popover"] li[role="option"] {
+            height: auto !important;
+            min-height: 2.6rem;
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+            line-height: 1.4 !important;
+        }
+        div[data-baseweb="popover"] li[role="option"] * {
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+        }
+
+        /* Footer: a little more air above */
+        .custom-footer { margin-top: 2rem; }
+
+        /* Smaller screens */
+        @media (max-width: 900px) {
+            .hero-banner { padding: 1.3rem 1.2rem; }
+            .hero-banner h1 { font-size: 1.6rem; }
+            .hero-chip { white-space: normal; }
+            div[data-testid="stColumn"]:has(.faq-anchor),
+            div[data-testid="column"]:has(.faq-anchor) { position: static; }
+        }
 
         footer { visibility: hidden; }
         </style>
@@ -967,10 +1185,26 @@ def to_english_search_query(query):
         {
             "role": "system",
             "content": (
-                "You convert a question for a hospital information assistant into ONE "
-                "short English search query. The input may be Urdu script, Roman Urdu, "
-                "Hindi, English, or a mix, and may contain speech-recognition mistakes. "
-                "Keep hospital terms and abbreviations (OPD, ICU, MRI, etc.) unchanged. "
+                "You convert a question for a HOSPITAL INFORMATION assistant into ONE "
+                "short English search query.\n\n"
+                "The input may be Urdu script, Roman Urdu, Hindi, English, or a mix. It may "
+                "contain spelling mistakes, words wrongly split or joined, or speech-"
+                "recognition errors (for example Urdu 'ایمو جنسی' is a mis-spelling of "
+                "'ایمرجنسی' = emergency). Do NOT translate such garbled words literally.\n\n"
+                "The assistant only answers questions about hospital services, so when a "
+                "word is ambiguous or looks misspelled, choose the most plausible "
+                "HOSPITAL-SERVICE meaning, based on topics like: emergency and helpline "
+                "numbers, ambulance, visiting hours, wards and ICU, admission, discharge, "
+                "doctors and departments, appointments, insurance and billing, laboratory "
+                "and radiology timings, pharmacy, parking. Do not turn a vague or "
+                "misspelled word into a specific disease or medical procedure unless the "
+                "user clearly named it.\n\n"
+                "Ignore greetings and filler (hello, salam, can you tell me, please).\n"
+                "Keep abbreviations (OPD, ICU, MRI, etc.) unchanged.\n\n"
+                "Examples:\n"
+                "'ہیلو کیا تم مجھے ایمو جنسی کے بارے میں بتا سکتے ہو؟' -> emergency services and helpline numbers\n"
+                "'ICU mein visiting time kab hota hai' -> ICU visiting hours\n"
+                "'مجھے ڈاکٹر سے ملنا ہے' -> how to book an appointment with a doctor\n\n"
                 "Output ONLY the English query: no quotes, no explanation."
             ),
         },
@@ -1205,6 +1439,11 @@ def render_header():
                 <div class="creator-badge">🟢 Created by Areeba Imran</div>
             </div>
             <p class="hero-sub">Welcome to Healthcare Assistant. Access verified hospital policies, specialist availability, and clinical department guidelines in real time.</p>
+            <div class="hero-chips">
+                <span class="hero-chip">🔒 Grounded in hospital documents</span>
+                <span class="hero-chip">🎙️ Voice enabled</span>
+                <span class="hero-chip">🌐 English · اردو · Roman Urdu</span>
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -1250,11 +1489,12 @@ def render_quick_prompt_panel():
     with st.container(border=True):
         st.markdown(
             """
+            <span class="faq-anchor"></span>
             <div class="panel-title-bar faq">
                 <div class="panel-icon">❓</div>
                 <div>
                     <p class="panel-title">Frequently Asked Questions</p>
-                    <p class="panel-subtitle">Quick reference — jump straight to a common topic</p>
+                    <p class="panel-subtitle">Quick answers to common topics</p>
                 </div>
             </div>
             """,
@@ -1271,9 +1511,36 @@ def render_quick_prompt_panel():
             on_change=_quick_prompt_on_change,
             label_visibility="collapsed",
         )
+        st.markdown(
+            """
+            <div class="tips-card">
+                <p class="tips-title">💡 Tips for best results</p>
+                <ul>
+                    <li>Type or speak in English, اردو, or Roman Urdu.</li>
+                    <li>Keep questions short and specific.</li>
+                    <li>Answers come only from the hospital's documents.</li>
+                </ul>
+                <p class="tips-note">Educational demo. Not medical advice or diagnosis.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 def render_chat_messages():
+    if not st.session_state.chat_history:
+        st.markdown(
+            """
+            <div class="empty-state">
+                <div class="empty-icon">💬</div>
+                <p class="empty-title">How can I help you today?</p>
+                <p class="empty-text">Ask about visiting hours, departments, admission, billing or emergency services, by text or voice, in English, اردو or Roman Urdu.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        return
+
     for turn in st.session_state.chat_history:
         role = turn["role"]
         with st.chat_message(role):
@@ -1363,7 +1630,13 @@ def render_info_panel():
         st.markdown(
             """
             <div class="sidebar-brand">
-                <h2>Healthcare System</h2>
+                <div class="brand-row">
+                    <div class="brand-icon">🏥</div>
+                    <div>
+                        <h2>Healthcare System</h2>
+                        <p class="brand-tag">Hospital Information Assistant</p>
+                    </div>
+                </div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -1380,7 +1653,7 @@ def render_info_panel():
             st.session_state.language = selected_lang
             st.rerun()
 
-        st.markdown('<p class="sidebar-section-label amber" style="margin-top:1.2rem;">🏥 HOSPITAL INFO</p>', unsafe_allow_html=True)
+        st.markdown('<p class="sidebar-section-label amber">🏥 HOSPITAL INFO</p>', unsafe_allow_html=True)
         st.markdown(
             """
             <div class="sidebar-card">
@@ -1392,6 +1665,35 @@ def render_info_panel():
             """,
             unsafe_allow_html=True,
         )
+
+        # System status (read-only, derived from existing session state)
+        kb_status = st.session_state.get("kb_status")
+        kb_docs = st.session_state.get("kb_loaded_count", 0)
+        if kb_status == "ready":
+            kb_pill = f'<span class="status-pill ok">{kb_docs} doc{"s" if kb_docs != 1 else ""} ready</span>'
+        elif kb_status == "no_pdfs":
+            kb_pill = '<span class="status-pill warn">No PDFs</span>'
+        elif kb_status in ("faiss_error", "embedding_error"):
+            kb_pill = '<span class="status-pill bad">Error</span>'
+        else:
+            kb_pill = '<span class="status-pill warn">Loading</span>'
+        ai_pill = (
+            '<span class="status-pill ok">Connected</span>'
+            if os.getenv("GROQ_API_KEY")
+            else '<span class="status-pill bad">No API key</span>'
+        )
+        st.markdown('<p class="sidebar-section-label teal">📊 SYSTEM STATUS</p>', unsafe_allow_html=True)
+        st.markdown(
+            f"""
+            <div class="sidebar-card">
+                <div class="status-row"><span>Knowledge base</span>{kb_pill}</div>
+                <div class="status-row"><span>AI model</span>{ai_pill}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        st.markdown('<p class="sidebar-section-label amber">⚙️ ACTIONS</p>', unsafe_allow_html=True)
 
         # Index Rebuild Trigger Button
         if st.button("🔄 Rebuild Index", use_container_width=True):
@@ -1444,7 +1746,7 @@ def main():
     render_info_panel()
 
     # Main Grid Layout
-    col_main, col_side = st.columns([2.8, 1.2])
+    col_main, col_side = st.columns([2, 1], gap="large")
 
     with col_main:
         render_chatbot_panel()
