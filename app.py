@@ -314,21 +314,24 @@ def inject_css():
             font-weight: 700;
         }
 
-        /* Sidebar layout: consistent padding and rhythm */
+        /* Sidebar layout: consistent side padding, even rhythm.
+           Every custom block below is self-contained (own padding, plain
+           <div>s instead of <p>/<h2>) so its spacing never depends on
+           Streamlit's default markdown margins. */
         section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
             padding: 1.4rem 1.1rem 1.6rem 1.1rem;
         }
         section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
-            gap: 0.8rem;
+            gap: 1rem;
         }
+        .sb-block { padding-bottom: 1rem; }
 
         /* Brand */
         .sidebar-brand {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.8rem;
             padding-bottom: 1.1rem;
-            margin-bottom: 0.9rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
         .sidebar-brand .brand-icon {
@@ -338,27 +341,37 @@ def inject_css():
             display: flex; align-items: center; justify-content: center;
             font-size: 1.3rem; flex-shrink: 0;
         }
-        .sidebar-brand h2 {
-            font-size: 1.12rem;
-            line-height: 1.2;
-            margin: 0;
-            padding: 0;
+        .sidebar-brand .brand-name {
+            font-family: 'Manrope', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            line-height: 1.25;
         }
-        .sidebar-brand p.brand-tag {
-            margin: 0.2rem 0 0 0;
+        .sidebar-brand .brand-tag {
+            margin-top: 0.25rem;
             font-size: 0.74rem;
+            line-height: 1.35;
             opacity: 0.75;
         }
 
-        /* Section label (small caps) */
-        section[data-testid="stSidebar"] p.sb-label {
-            margin: 0.4rem 0 0 0;
-            line-height: 1.4;
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.09em;
-            text-transform: uppercase;
+        /* Section labels: our own (Hospital info) and the native label of
+           the language dropdown, styled identically */
+        section[data-testid="stSidebar"] .sb-label,
+        section[data-testid="stSidebar"] div[data-testid="stSelectbox"] [data-testid="stWidgetLabel"],
+        section[data-testid="stSidebar"] div[data-testid="stSelectbox"] [data-testid="stWidgetLabel"] * {
+            font-size: 0.7rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.09em !important;
+            text-transform: uppercase !important;
+            line-height: 1.4 !important;
             color: #8fd9cd !important;
+            background: transparent !important;
+            border: none !important;
+        }
+        .sb-label { margin-bottom: 0.65rem; }
+        section[data-testid="stSidebar"] div[data-testid="stSelectbox"] [data-testid="stWidgetLabel"] {
+            margin-bottom: 0.5rem;
+            min-height: 0;
         }
 
         /* Info card with icon rows */
@@ -367,13 +380,12 @@ def inject_css():
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: var(--radius-md);
             padding: 0.3rem 0.9rem;
-            margin-bottom: 0.6rem;
         }
         .sb-row {
             display: flex;
             align-items: flex-start;
             gap: 0.75rem;
-            padding: 0.7rem 0;
+            padding: 0.75rem 0;
         }
         .sb-row + .sb-row { border-top: 1px solid rgba(255, 255, 255, 0.1); }
         .sb-icon {
@@ -383,15 +395,8 @@ def inject_css():
             display: flex; align-items: center; justify-content: center;
             font-size: 0.95rem; flex-shrink: 0;
         }
-        .sb-row p { margin: 0; }
-        .sb-row p.sb-title { font-size: 0.7rem; opacity: 0.7; letter-spacing: 0.02em; }
-        .sb-row p.sb-value { font-size: 0.86rem; font-weight: 600; line-height: 1.4; margin-top: 0.1rem; }
-
-        .sb-divider {
-            height: 1px;
-            background: rgba(255, 255, 255, 0.12);
-            margin: 0.2rem 0 0.8rem 0;
-        }
+        .sb-title { font-size: 0.72rem; line-height: 1.4; opacity: 0.7; }
+        .sb-value { font-size: 0.87rem; font-weight: 600; line-height: 1.4; margin-top: 0.15rem; }
 
         /* ==================================================================
            SELECTBOX VISIBILITY — FULL OVERRIDE
@@ -1703,52 +1708,28 @@ def render_info_panel():
     with st.sidebar:
         st.markdown(
             """
-            <div class="sidebar-brand">
-                <div class="brand-icon">🏥</div>
-                <div>
-                    <h2>Healthcare System</h2>
-                    <p class="brand-tag">Hospital Information Assistant</p>
-                </div>
-            </div>
+            <div class="sb-block"><div class="sidebar-brand"><div class="brand-icon">🏥</div><div><div class="brand-name">Healthcare System</div><div class="brand-tag">Hospital Information Assistant</div></div></div></div>
             """,
             unsafe_allow_html=True,
         )
 
-        st.markdown('<p class="sb-label">Response language</p>', unsafe_allow_html=True)
+        # Native widget label (styled as a small-caps section label in CSS),
+        # so the label can never overlap the dropdown.
         selected_lang = st.selectbox(
-            "Select Response Language",
+            "Response language",
             LANGUAGE_OPTIONS,
             index=LANGUAGE_OPTIONS.index(st.session_state.language),
-            label_visibility="collapsed",
         )
         if selected_lang != st.session_state.language:
             st.session_state.language = selected_lang
             st.rerun()
 
-        st.markdown('<p class="sb-label">Hospital info</p>', unsafe_allow_html=True)
         st.markdown(
             """
-            <div class="sb-card">
-                <div class="sb-row">
-                    <div class="sb-icon">🚑</div>
-                    <div>
-                        <p class="sb-title">OPD &amp; Emergency</p>
-                        <p class="sb-value">24/7 Care</p>
-                    </div>
-                </div>
-                <div class="sb-row">
-                    <div class="sb-icon">🩺</div>
-                    <div>
-                        <p class="sb-title">Specialties</p>
-                        <p class="sb-value">Cardiology, Neurology, Pediatrics</p>
-                    </div>
-                </div>
-            </div>
+            <div class="sb-block"><div class="sb-label">Hospital info</div><div class="sb-card"><div class="sb-row"><div class="sb-icon">🚑</div><div><div class="sb-title">OPD &amp; Emergency</div><div class="sb-value">24/7 Care</div></div></div><div class="sb-row"><div class="sb-icon">🩺</div><div><div class="sb-title">Specialties</div><div class="sb-value">Cardiology, Neurology, Pediatrics</div></div></div></div></div>
             """,
             unsafe_allow_html=True,
         )
-
-        st.markdown('<div class="sb-divider"></div>', unsafe_allow_html=True)
 
         # Index Rebuild Trigger Button
         if st.button("🔄 Rebuild Index", use_container_width=True):
