@@ -187,7 +187,11 @@ def inject_css():
             background-color: #022c22 !important;
             border-right: 1px solid rgba(167, 243, 208, 0.15);
         }
-        section[data-testid="stSidebar"] * {
+        section[data-testid="stSidebar"] h1, 
+        section[data-testid="stSidebar"] h2, 
+        section[data-testid="stSidebar"] h3, 
+        section[data-testid="stSidebar"] label,
+        section[data-testid="stSidebar"] p {
             color: #f0fdf4 !important;
         }
 
@@ -223,6 +227,10 @@ def inject_css():
             padding-left: 1.2rem;
             font-size: 0.88rem;
             line-height: 1.5;
+            color: #ecfdf5 !important;
+        }
+        .sidebar-info-card li {
+            color: #ecfdf5 !important;
         }
 
         /* Button Styles */
@@ -254,10 +262,17 @@ def inject_css():
             background: rgba(52, 211, 153, 0.3) !important;
         }
 
-        /* Custom Form Input & Selectboxes */
+        /* Custom Selectbox Dropdown Fix */
         div[data-baseweb="select"] {
             border-radius: 10px !important;
             border: 1.5px solid #059669 !important;
+            background-color: #ffffff !important;
+        }
+        div[data-baseweb="select"] * {
+            color: #022c22 !important;
+        }
+        div[data-baseweb="popover"] * {
+            color: #022c22 !important;
             background-color: #ffffff !important;
         }
 
@@ -838,21 +853,29 @@ def render_info_panel():
         st.markdown(
             """
             <div class="sidebar-info-card">
-                <h4>✨ Assistant Capabilities & AI Models</h4>
+                <h4>🏥 Hospital Services & Info</h4>
                 <ul>
-                    <li><b>Vector Search:</b> FAISS + MiniLM-L6 Embeddings</li>
-                    <li><b>LLM Engine:</b> Groq (GPT-OSS-120B)</li>
-                    <li><b>Voice Processing:</b> Whisper Speech-to-Text ASR</li>
-                    <li><b>Audio Synthesis:</b> gTTS (Google Text-To-Speech)</li>
+                    <li><b>OPD & Emergency:</b> 24/7 Trauma & Urgent Care</li>
+                    <li><b>Specialties:</b> Cardiology, Neurology, Pediatrics & Orthopedics</li>
+                    <li><b>Diagnostics:</b> Radiology, MRI, CT Scan & Pathology Lab</li>
+                    <li><b>Support:</b> Pharmacy & Ambulance Services</li>
                 </ul>
             </div>
 
             <div class="sidebar-info-card">
-                <h4>🔒 Grounding & Safety</h4>
+                <h4>🕒 Ward Visiting Hours</h4>
                 <ul>
-                    <li>Strictly answers from local PDF KB</li>
-                    <li>No external hallucinated responses</li>
-                    <li>No medical diagnosis or drug prescriptions</li>
+                    <li><b>General Wards:</b> 4:00 PM – 7:00 PM (Daily)</li>
+                    <li><b>ICU / CCU:</b> 11:00 AM – 12:00 PM & 5:00 PM – 6:00 PM</li>
+                    <li><b>Visitor Rules:</b> Maximum 2 visitors per patient</li>
+                </ul>
+            </div>
+
+            <div class="sidebar-info-card">
+                <h4>ℹ️ Patient Help Desk</h4>
+                <ul>
+                    <li><b>Admission:</b> Requires CNIC & Doctor Referral</li>
+                    <li><b>Billing:</b> Cashless Insurance & Card Payments Supported</li>
                 </ul>
             </div>
             """,
