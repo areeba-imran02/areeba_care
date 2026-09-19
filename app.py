@@ -1,4 +1,4 @@
-"""
+]"""
 AreebaCare Healthcare Assistant
 --------------------------------
 A grounded, retrieval-augmented healthcare information assistant built on top
@@ -135,8 +135,19 @@ def inject_css():
     st.markdown(
         """
         <style>
-        .stApp {
+        html, body, .stApp {
             background: linear-gradient(135deg, #f5f2fa 0%, #ece3f2 20%, #cfc0dd 42%, #7d6a95 65%, #362e49 85%, #1d1828 100%);
+            background-attachment: fixed;
+            background-size: cover;
+            min-height: 100vh;
+        }
+        [data-testid="stAppViewContainer"],
+        [data-testid="stMain"],
+        [data-testid="stBottomBlockContainer"],
+        [data-testid="stBottom"],
+        .main,
+        .block-container {
+            background: transparent !important;
         }
         [data-testid="stHeader"] {
             background: rgba(0, 0, 0, 0);
