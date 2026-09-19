@@ -57,27 +57,24 @@ CHUNK_OVERLAP_WORDS = 100
 TOP_K = 4
 RELEVANCE_THRESHOLD = 0.30
 
-LANGUAGE_OPTIONS = ["English", "Urdu", "Roman Urdu", "Hindi"]
+LANGUAGE_OPTIONS = ["English", "Urdu", "Roman Urdu"]
 
 LANGUAGE_INSTRUCTIONS = {
     "English": "Respond entirely in clear, professional English.",
     "Urdu": "Respond entirely in the Urdu language, written using Urdu script.",
     "Roman Urdu": "Respond entirely in Roman Urdu (the Urdu language written using English/Latin letters, not Urdu script).",
-    "Hindi": "Respond entirely in the Hindi language, written using Devanagari script.",
 }
 
 GTTS_LANG_MAP = {
     "English": "en",
     "Urdu": "ur",
     "Roman Urdu": "ur",
-    "Hindi": "hi",
 }
 
 WHISPER_LANG_HINT = {
     "English": "en",
     "Urdu": "ur",
     "Roman Urdu": "ur",
-    "Hindi": "hi",
 }
 
 EXAMPLE_QUESTIONS = [
@@ -139,26 +136,47 @@ def inject_css():
         """
         <style>
         .stApp {
-            background: linear-gradient(160deg, #101826 0%, #1b2436 38%, #241f33 70%, #2e2438 100%);
+            background: linear-gradient(135deg, #f5f2fa 0%, #ece3f2 20%, #cfc0dd 42%, #7d6a95 65%, #362e49 85%, #1d1828 100%);
         }
         [data-testid="stHeader"] {
             background: rgba(0, 0, 0, 0);
         }
+        section[data-testid="stSidebar"] {
+            background: linear-gradient(180deg, #211c30 0%, #2c2540 55%, #3a2f4d 100%);
+            border-right: 1px solid rgba(214, 196, 230, 0.15);
+        }
+        section[data-testid="stSidebar"] h1,
+        section[data-testid="stSidebar"] h2,
+        section[data-testid="stSidebar"] h3,
+        section[data-testid="stSidebar"] h4 {
+            color: #f5f2fa;
+        }
+        section[data-testid="stSidebar"] p,
+        section[data-testid="stSidebar"] span,
+        section[data-testid="stSidebar"] label,
+        section[data-testid="stSidebar"] .stMarkdown,
+        section[data-testid="stSidebar"] .stCaption {
+            color: #ded7ea;
+        }
+        section[data-testid="stSidebar"] [data-testid="stVerticalBlockBorderWrapper"] {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(214, 196, 230, 0.22);
+        }
         h1, h2, h3, h4 {
-            color: #f5f3fa;
+            color: #241f33;
             font-family: "Segoe UI", "Helvetica Neue", sans-serif;
             letter-spacing: 0.2px;
         }
         p, span, label, .stMarkdown, .stCaption {
-            color: #e7e4ef;
+            color: #34293f;
         }
         [data-testid="stVerticalBlockBorderWrapper"] {
-            background: linear-gradient(160deg, rgba(255,255,255,0.06), rgba(214,196,230,0.05));
-            border: 1px solid rgba(214, 196, 230, 0.18);
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(120, 100, 150, 0.20);
             border-radius: 14px;
         }
         .stButton > button {
-            background: linear-gradient(120deg, #6d5a8c, #8a6f8f);
+            background: linear-gradient(120deg, #5c4a78, #8a6f8f);
             color: #ffffff;
             border: none;
             border-radius: 10px;
@@ -166,15 +184,16 @@ def inject_css():
             font-weight: 500;
         }
         .stButton > button:hover {
-            background: linear-gradient(120deg, #7c6a9c, #9c7f9f);
+            background: linear-gradient(120deg, #6d5a8c, #9c7f9f);
             color: #ffffff;
         }
         [data-testid="stChatInput"] {
             border-radius: 12px;
         }
-        .areebacare-status-ready {
-            color: #c9b8e0;
-            font-weight: 500;
+        [data-testid="stChatMessage"] {
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 12px;
+            border: 1px solid rgba(120, 100, 150, 0.15);
         }
         </style>
         """,
@@ -573,21 +592,15 @@ def handle_voice(audio_bytes):
 # UI sections
 # ---------------------------------------------------------------------------
 def render_header():
-    col_title, col_status = st.columns([3, 1])
-    with col_title:
+    with st.container(border=True):
         st.title("AreebaCare Healthcare Assistant")
         st.caption("Reliable healthcare information, grounded in the AreebaCare knowledge base.")
 
-    with col_status:
-        status = st.session_state.kb_status
-        if status == "ready":
-            st.success(f"Knowledge Base Ready\n\n{st.session_state.kb_loaded_count} knowledge documents loaded")
-        elif status == "no_pdfs":
-            st.warning("No knowledge-base documents were found. Please add PDF files to the knowledge_base folder.")
-        elif status in ("faiss_error", "embedding_error"):
-            st.error("There was a problem preparing the knowledge base. Please try rebuilding it.")
-        else:
-            st.info("Preparing knowledge base...")
+    status = st.session_state.kb_status
+    if status == "no_pdfs":
+        st.warning("No knowledge-base documents were found. Please add PDF files to the knowledge_base folder.")
+    elif status in ("faiss_error", "embedding_error"):
+        st.error("There was a problem preparing the knowledge base. Please try rebuilding it.")
 
     if not os.getenv("GROQ_API_KEY"):
         st.warning(MISSING_KEY_MESSAGE)
@@ -664,38 +677,45 @@ def render_voice_input():
 
 
 def render_info_panel():
-    with st.container(border=True):
-        st.subheader("AreebaCare")
-        st.write(
-            "A fictional educational healthcare information assistant designed "
-            "to answer questions using a controlled hospital knowledge base."
-        )
+    with st.sidebar:
+        st.subheader("Information Panel")
 
-    with st.container(border=True):
-        st.subheader("Response Flow")
-        st.write("Question")
-        st.write("\u2192 Retrieval")
-        st.write("\u2192 Grounded Answer")
-        st.write("\u2192 Audio Response")
+        with st.container(border=True):
+            st.subheader("AreebaCare")
+            st.write(
+                "A fictional educational healthcare information assistant designed "
+                "to answer questions using a controlled hospital knowledge base."
+            )
 
-    with st.container(border=True):
-        st.subheader("Knowledge Base")
-        st.write(f"{st.session_state.kb_loaded_count} documents")
-        st.write("PDF-based")
-        st.write("FAISS retrieval")
-        st.write("Grounded responses")
+        with st.container(border=True):
+            st.subheader("Response Flow")
+            st.write("Question")
+            st.write("\u2192 Retrieval")
+            st.write("\u2192 Grounded Answer")
+            st.write("\u2192 Audio Response")
 
-    with st.container(border=True):
-        st.subheader("Supported Languages")
-        for lang in LANGUAGE_OPTIONS:
-            st.write(lang)
+        with st.container(border=True):
+            st.subheader("Knowledge Base")
+            if st.session_state.kb_status == "ready":
+                st.write(f"{st.session_state.kb_loaded_count} documents")
+                st.caption("Knowledge base ready")
+            else:
+                st.caption("Knowledge base not ready yet")
+            st.write("PDF-based")
+            st.write("FAISS retrieval")
+            st.write("Grounded responses")
 
-    with st.container(border=True):
-        st.subheader("Safety")
-        st.write("Educational information only.")
-        st.write("No diagnosis.")
-        st.write("No treatment prescription.")
-        st.write("No invented medical information.")
+        with st.container(border=True):
+            st.subheader("Supported Languages")
+            for lang in LANGUAGE_OPTIONS:
+                st.write(lang)
+
+        with st.container(border=True):
+            st.subheader("Safety")
+            st.write("Educational information only.")
+            st.write("No diagnosis.")
+            st.write("No treatment prescription.")
+            st.write("No invented medical information.")
 
 
 def render_footer():
@@ -716,25 +736,20 @@ def main():
     if st.session_state.kb_status == "not_loaded":
         load_or_build_knowledge_base(force_rebuild=False)
 
+    render_info_panel()
+
     render_header()
     render_controls()
 
-    left, right = st.columns([2, 1])
+    st.subheader("Main Assistant")
+    render_example_questions()
 
-    with left:
-        st.subheader("Main Assistant")
-        render_example_questions()
+    typed_question = st.chat_input("Ask AreebaCare a question...")
+    if typed_question:
+        handle_question(typed_question)
 
-        typed_question = st.chat_input("Ask AreebaCare a question...")
-        if typed_question:
-            handle_question(typed_question)
-
-        render_voice_input()
-        render_chat_history()
-
-    with right:
-        st.subheader("Information Panel")
-        render_info_panel()
+    render_voice_input()
+    render_chat_history()
 
     render_footer()
 
