@@ -403,11 +403,8 @@ def get_whisper_model():
 def get_groq_client(api_key):
     if not api_key:
         return None
-    try:
-        from groq import Groq
-        return Groq(api_key=api_key)
-    except Exception:
-        return None
+    from groq import Groq  # let ImportError surface if the package isn't installed
+    return Groq(api_key=api_key)
 
 
 # ---------------------------------------------------------------------------
@@ -585,9 +582,17 @@ def retrieve_context(query, index, chunks, model, top_k=TOP_K, threshold=RELEVAN
 # ---------------------------------------------------------------------------
 def generate_answer(query, context_chunks, language, history):
     api_key = os.getenv("GROQ_API_KEY")
-    client = get_groq_client(api_key)
-    if client is None:
+
+    if not api_key:
         return None, "missing_key"
+
+    try:
+        client = get_groq_client(api_key)
+    except Exception as e:
+        return None, f"client_init_error: {e!r}"
+
+    if client is None:
+        return None, "client_init_error: get_groq_client() returned None (groq package likely not installed, or client creation raised and was swallowed)"
 
     context_text = "\n\n".join(
         f"[Source: {c['source']}]\n{c['text']}" for c in context_chunks
@@ -613,7 +618,8 @@ def generate_answer(query, context_chunks, language, history):
         answer = response.choices[0].message.content.strip()
         return answer, None
     except Exception as e:
-        return None, str(e)
+        import traceback
+        return None, f"{type(e).__name__}: {e}\n{traceback.format_exc()}"
 
 
 # ---------------------------------------------------------------------------
@@ -752,6 +758,11 @@ def handle_question(query, label=None):
                         answer = MISSING_KEY_MESSAGE
                         context_chunks = []
                     elif error:
+                        # Log the real reason to the server console/logs and
+                        # keep it in session_state so it can be inspected
+                        # from the sidebar debug panel below.
+                        print(f"[Groq generate_answer error] {error}")
+                        st.session_state.last_groq_error = error
                         answer = GROQ_ERROR_MESSAGE
                         context_chunks = []
 
@@ -986,6 +997,13 @@ def render_info_panel():
         if st.button("🗑️ Clear Chat History", use_container_width=True):
             st.session_state.chat_history = []
             st.rerun()
+
+        # Debug panel: shows the real reason the last Groq call failed,
+        # if any. Safe to leave in — it's empty/collapsed when there's
+        # no error, and only ever shows technical text, not user data.
+        if st.session_state.get("last_groq_error"):
+            with st.expander("🛠️ Last technical error (debug)"):
+                st.code(st.session_state.last_groq_error)
 
 
 # ---------------------------------------------------------------------------
