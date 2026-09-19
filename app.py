@@ -52,8 +52,8 @@ os.makedirs(INDEX_DIR, exist_ok=True)
 # ---------------------------------------------------------------------------
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 WHISPER_MODEL_SIZE = "small"
-GROQ_MODEL_NAME = "openai/gpt-oss-120b"
-GROQ_FALLBACK_MODEL_NAME = "llama-3.1-8b-instant"
+GROQ_MODEL_NAME = "llama-3.1-8b-instant"
+GROQ_FALLBACK_MODEL_NAME = "openai/gpt-oss-120b"
 
 CHUNK_SIZE_WORDS = 600
 CHUNK_OVERLAP_WORDS = 100
