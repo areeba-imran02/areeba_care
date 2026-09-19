@@ -1,6 +1,6 @@
 """
-AreebaCare Healthcare Assistant
---------------------------------
+Healthcare Assistant
+--------------------
 A grounded, retrieval-augmented healthcare information assistant built on top
 of a local PDF knowledge base. This single-file Streamlit application covers
 the full pipeline:
@@ -28,7 +28,7 @@ import streamlit as st
 # Page configuration (must be the first Streamlit call)
 # ---------------------------------------------------------------------------
 st.set_page_config(
-    page_title="AreebaCare Healthcare Assistant",
+    page_title="Healthcare Assistant",
     page_icon="🏥",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -79,20 +79,22 @@ WHISPER_LANG_HINT = {
     "Roman Urdu": "ur",
 }
 
-QUICK_PROMPTS = [
-    {"label": "🚨 Emergency Policy", "query": "What are the emergency protocols and contact rules?"},
-    {"label": "🕒 Visiting Hours", "query": "What are the visiting hours for general and ICU wards?"},
-    {"label": "🏥 Available Departments", "query": "Which specialized medical departments are available?"},
-    {"label": "📋 Admission Requirements", "query": "What documents and steps are required for patient admission?"},
+QUICK_PROMPT_OPTIONS = [
+    "-- Select a sample question to ask --",
+    "🚨 What are the emergency protocols and contact rules?",
+    "🕒 What are the visiting hours for general and ICU wards?",
+    "🏥 Which specialized medical departments are available?",
+    "📋 What documents and steps are required for patient admission?",
+    "💳 What insurance and billing policies are supported?",
 ]
 
 NOT_FOUND_MESSAGE = (
-    "I couldn't find enough relevant information in the AreebaCare "
+    "I couldn't find enough relevant information in the hospital "
     "knowledge base to answer that question accurately."
 )
 
 KB_NOT_READY_MESSAGE = (
-    "The AreebaCare knowledge base is not ready yet. Please add PDF "
+    "The knowledge base is not ready yet. Please add PDF "
     "documents to the knowledge_base folder and use \"Rebuild Knowledge Base\"."
 )
 
@@ -102,15 +104,15 @@ MISSING_KEY_MESSAGE = (
 )
 
 GROQ_ERROR_MESSAGE = (
-    "AreebaCare is temporarily unable to generate an answer. Please wait a "
+    "Healthcare Assistant is temporarily unable to generate an answer. Please wait a "
     "moment and try again."
 )
 
-SYSTEM_PROMPT_TEMPLATE = """You are the AreebaCare Healthcare Assistant, an educational information \
-assistant for a fictional hospital called AreebaCare.
+SYSTEM_PROMPT_TEMPLATE = """You are the Healthcare Assistant, an educational information \
+assistant for a hospital system.
 
 STRICT RULES YOU MUST ALWAYS FOLLOW:
-1. Answer ONLY using the AreebaCare knowledge base context provided below. Never use outside or general medical knowledge.
+1. Answer ONLY using the knowledge base context provided below. Never use outside or general medical knowledge.
 2. Never invent, guess, or assume information that is not explicitly present in the provided context.
 3. If the provided context does not contain enough information to answer the question, clearly say so.
 4. Never diagnose a medical condition.
@@ -119,14 +121,14 @@ STRICT RULES YOU MUST ALWAYS FOLLOW:
 7. Never claim to replace a licensed doctor or medical professional.
 8. Keep answers clear, concise, and genuinely useful.
 9. {language_instruction}
-10. Remember that AreebaCare is a fictional, educational hospital knowledge base used for demonstration purposes only.
+10. Remember that this is an educational hospital knowledge base used for demonstration purposes only.
 
-CONTEXT FROM AREEBACARE KNOWLEDGE BASE:
+CONTEXT FROM KNOWLEDGE BASE:
 {context}
 """
 
 # ---------------------------------------------------------------------------
-# Custom Modern UI & Updated Color Palette
+# Custom Vibrant Emerald & Teal UI (Zero Blue / Zero Plain Grey)
 # ---------------------------------------------------------------------------
 def inject_css():
     st.markdown(
@@ -135,146 +137,146 @@ def inject_css():
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
         :root {
-            --primary-bg: #f8fafc;
-            --hero-gradient: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
-            --btn-gradient: linear-gradient(135deg, #2563eb 0%, #0284c7 100%);
-            --btn-hover: linear-gradient(135deg, #1d4ed8 0%, #0369a1 100%);
-            --card-bg: #ffffff;
-            --user-msg-bg: #f0f9ff;
+            --primary-bg: #f4fbf7;
+            --hero-gradient: linear-gradient(135deg, #064e3b 0%, #047857 50%, #0f766e 100%);
+            --btn-gradient: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+            --btn-hover: linear-gradient(135deg, #0f766e 0%, #047857 100%);
+            --user-msg-bg: #e6f4f1;
             --assistant-msg-bg: #ffffff;
-            --border-indigo: #c7d2fe;
-            --text-dark: #0f172a;
+            --border-emerald: #a7f3d0;
+            --text-dark: #022c22;
         }
 
         html, body, .stApp {
             background-color: var(--primary-bg) !important;
             font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-dark);
         }
 
         /* Hero Banner */
-        .areebacare-hero {
+        .hero-banner {
             background: var(--hero-gradient);
-            border-radius: 20px;
+            border-radius: 18px;
             padding: 2.2rem 2.5rem;
             margin-bottom: 1.8rem;
             color: #ffffff;
-            box-shadow: 0 12px 30px -8px rgba(49, 46, 129, 0.35);
+            box-shadow: 0 12px 30px -8px rgba(4, 120, 87, 0.35);
         }
-        .areebacare-hero h1 {
+        .hero-banner h1 {
             color: #ffffff !important;
-            margin: 0 0 0.4rem 0;
-            font-size: 2.3rem;
+            margin: 0 0 0.6rem 0;
+            font-size: 2.4rem;
             font-weight: 700;
             letter-spacing: -0.02em;
         }
-        .areebacare-hero .creator-badge {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.15);
-            color: #e0e7ff;
-            padding: 0.3rem 0.9rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 0.8rem;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-        }
-        .areebacare-hero p {
-            color: #e0e7ff !important;
+        .hero-banner p {
+            color: #ecfdf5 !important;
             margin: 0;
-            font-size: 1.02rem;
+            font-size: 1.05rem;
             line-height: 1.6;
-            max-width: 820px;
+            max-width: 880px;
+        }
+        .creator-text {
+            color: #6ee7b7 !important;
+            font-weight: 700;
+            margin-left: 0.3rem;
         }
 
         /* Sidebar Styling */
         section[data-testid="stSidebar"] {
-            background-color: #0f172a !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: #022c22 !important;
+            border-right: 1px solid rgba(167, 243, 208, 0.15);
         }
         section[data-testid="stSidebar"] * {
-            color: #f8fafc !important;
+            color: #f0fdf4 !important;
         }
 
         .sidebar-brand {
-            padding: 1rem 0;
-            margin-bottom: 1.2rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 0.5rem 0 1rem 0;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(167, 243, 208, 0.2);
         }
         .sidebar-brand h2 {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 700;
             margin: 0;
             color: #ffffff !important;
         }
-        .sidebar-brand p {
-            font-size: 0.85rem;
-            color: #38bdf8 !important;
-            margin: 0.2rem 0 0 0;
-            font-weight: 500;
-        }
 
         .sidebar-info-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 14px;
-            padding: 1.2rem;
-            margin-bottom: 1.2rem;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(167, 243, 208, 0.25);
+            border-radius: 12px;
+            padding: 1.1rem;
+            margin-bottom: 1rem;
         }
         .sidebar-info-card h4 {
-            font-size: 0.92rem;
+            font-size: 0.95rem;
             font-weight: 600;
-            margin: 0 0 0.5rem 0;
-            color: #38bdf8 !important;
+            margin: 0 0 0.6rem 0;
+            color: #34d399 !important;
             text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .sidebar-info-card ul {
+            margin: 0;
+            padding-left: 1.2rem;
+            font-size: 0.88rem;
+            line-height: 1.5;
         }
 
         /* Button Styles */
         .stButton > button {
             background: var(--btn-gradient) !important;
             color: #ffffff !important;
-            border-radius: 12px !important;
+            border-radius: 10px !important;
             border: none !important;
             font-weight: 600 !important;
-            padding: 0.65rem 1.4rem !important;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3) !important;
+            padding: 0.6rem 1.3rem !important;
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25) !important;
             transition: all 0.2s ease-in-out !important;
         }
         .stButton > button:hover {
             background: var(--btn-hover) !important;
             transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45) !important;
+            box-shadow: 0 6px 18px rgba(5, 150, 105, 0.4) !important;
         }
 
         /* Sidebar Buttons */
         section[data-testid="stSidebar"] .stButton > button {
-            background: rgba(255, 255, 255, 0.12) !important;
-            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            background: rgba(52, 211, 153, 0.15) !important;
+            border: 1px solid rgba(52, 211, 153, 0.4) !important;
             color: #ffffff !important;
             width: 100%;
             box-shadow: none !important;
         }
         section[data-testid="stSidebar"] .stButton > button:hover {
-            background: rgba(255, 255, 255, 0.22) !important;
+            background: rgba(52, 211, 153, 0.3) !important;
+        }
+
+        /* Custom Form Input & Selectboxes */
+        div[data-baseweb="select"] {
+            border-radius: 10px !important;
+            border: 1.5px solid #059669 !important;
+            background-color: #ffffff !important;
         }
 
         /* Output Chat Messages */
         [data-testid="stChatMessage"] {
-            border-radius: 16px !important;
-            padding: 1.3rem !important;
-            margin-bottom: 1.2rem !important;
-            transition: all 0.2s ease;
+            border-radius: 14px !important;
+            padding: 1.2rem !important;
+            margin-bottom: 1.1rem !important;
         }
         /* User Message Style */
         [data-testid="stChatMessage"]:nth-child(even) {
             background-color: var(--user-msg-bg) !important;
-            border: 1px solid #bae6fd !important;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.06) !important;
+            border: 1px solid #99f6e4 !important;
         }
         /* Assistant Response Style */
         [data-testid="stChatMessage"]:nth-child(odd) {
             background-color: var(--assistant-msg-bg) !important;
-            border: 1px solid var(--border-indigo) !important;
-            box-shadow: 0 6px 18px rgba(49, 46, 129, 0.06) !important;
+            border: 1px solid var(--border-emerald) !important;
+            box-shadow: 0 4px 15px rgba(6, 78, 59, 0.05) !important;
         }
 
         /* Response Metadata Badge */
@@ -282,24 +284,27 @@ def inject_css():
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 0.78rem;
-            color: #2563eb;
+            font-size: 0.8rem;
+            color: #059669;
             font-weight: 600;
             margin-top: 0.8rem;
-            padding-top: 0.6rem;
-            border-top: 1px dashed #cbd5e1;
+            padding-top: 0.5rem;
+            border-top: 1px dashed #a7f3d0;
         }
 
-        /* Language Select Box */
-        div[data-baseweb="select"] {
-            border-radius: 12px !important;
-            border: 2px solid #818cf8 !important;
-            background-color: #ffffff !important;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1) !important;
+        /* Custom Rich Footer Banner */
+        .custom-footer {
+            background: var(--hero-gradient);
+            border-radius: 14px;
+            padding: 1.3rem;
+            text-align: center;
+            color: #ecfdf5;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            box-shadow: 0 8px 20px rgba(4, 120, 87, 0.2);
         }
-        div[data-baseweb="select"] * {
-            color: #0f172a !important;
-            font-weight: 600 !important;
+        .custom-footer p {
+            margin: 0.2rem 0;
         }
 
         footer {
@@ -622,7 +627,6 @@ def init_session_state():
         "kb_failed": [],
         "kb_status": "not_loaded",
         "last_audio_hash": None,
-        "pending_example": None,
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -640,11 +644,11 @@ def is_greeting(query):
 
 def get_greeting_response(language):
     if language == "Urdu":
-        return "السلام علیکم! میں AreebaCare Healthcare Assistant ہوں۔ میں آپ کی کیا مدد کر سکتا ہوں؟ آپ ہسپتال کی سہولیات، رجسٹریشن اور دیگر معلومات کے بارے میں پوچھ سکتے ہیں۔"
+        return "السلام علیکم! میں آپ کا Healthcare Assistant ہوں۔ میں آپ کی کیا مدد کر سکتا ہوں؟ آپ ہسپتال کی سہولیات، رجسٹریشن اور دیگر معلومات کے بارے میں پوچھ سکتے ہیں۔"
     elif language == "Roman Urdu":
-        return "Aoa! Main AreebaCare Healthcare Assistant hoon. Main aap ki kya madad kar sakta hoon? Aap hospital ki visiting hours, registration ya kisi bhi policy ke baray mein pooch saktay hain."
+        return "Aoa! Main aap ka Healthcare Assistant hoon. Main aap ki kya madad kar sakta hoon? Aap hospital ki visiting hours, registration ya kisi bhi policy ke baray mein pooch saktay hain."
     else:
-        return "Hello! Welcome to AreebaCare Healthcare Assistant. How can I assist you today? You can ask me about hospital services, visiting hours, registration, and patient guidelines."
+        return "Hello! Welcome to Healthcare Assistant. How can I assist you today? You can ask me about hospital services, visiting hours, registration, and patient guidelines."
 
 
 # ---------------------------------------------------------------------------
@@ -726,12 +730,12 @@ def handle_voice(audio_bytes):
 def render_header():
     st.markdown(
         """
-        <div class="areebacare-hero">
-            <div class="creator-badge">Created by Areeba Imran</div>
-            <h1>AreebaCare Healthcare Assistant</h1>
-            <p>Welcome to <b>AreebaCare Healthcare Assistant</b> — an advanced, retrieval-augmented healthcare information system. 
+        <div class="hero-banner">
+            <h1>Healthcare Assistant</h1>
+            <p>Welcome to <b>Healthcare Assistant</b> — an advanced, retrieval-augmented healthcare information system. 
             Designed to deliver fast, verified, and grounded answers directly from hospital documentation, 
-            empowering users with accurate guidance on registration, services, policies, and care.</p>
+            empowering users with accurate guidance on registration, services, policies, and care.
+            <span class="creator-text">• Created by Areeba Imran</span></p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -747,24 +751,18 @@ def render_header():
         st.warning(MISSING_KEY_MESSAGE)
 
 
-def render_language_selector():
-    col_lang, _ = st.columns([1.3, 2.7])
-    with col_lang:
-        st.session_state.language = st.selectbox(
-            "🌐 Select Response Language", 
-            LANGUAGE_OPTIONS, 
-            index=LANGUAGE_OPTIONS.index(st.session_state.language)
-        )
-
-
-def render_quick_prompts():
-    st.markdown("**⚡ Quick Action Prompts**")
-    cols = st.columns(len(QUICK_PROMPTS))
-    for idx, item in enumerate(QUICK_PROMPTS):
-        with cols[idx]:
-            if st.button(item["label"], key=f"quick_{idx}", use_container_width=True):
-                handle_question(item["query"])
-                st.rerun()
+def render_quick_prompt_dropdown():
+    st.markdown("**💡 Explore Common Questions (Select from Dropdown)**")
+    selected_option = st.selectbox(
+        "Select a frequent question to ask immediately:",
+        QUICK_PROMPT_OPTIONS,
+        label_visibility="collapsed"
+    )
+    
+    if selected_option and selected_option != QUICK_PROMPT_OPTIONS[0]:
+        clean_query = selected_option.replace("🚨 ", "").replace("🕒 ", "").replace("🏥 ", "").replace("📋 ", "").replace("💳 ", "")
+        handle_question(clean_query)
+        st.rerun()
 
 
 def render_chat_history():
@@ -778,13 +776,13 @@ def render_chat_history():
                 if turn.get("sources"):
                     render_sources(turn["sources"])
                 
-                # Enhanced Output Metadata Footer
+                # Output Metadata Footer
                 if turn.get("time"):
                     st.markdown(
                         f"""
                         <div class="response-meta">
                             <span>⚡ Response Time: {turn['time']}s</span> • 
-                            <span>🔒 Verified RAG Output</span>
+                            <span>🔒 Verified Grounded RAG</span>
                         </div>
                         """,
                         unsafe_allow_html=True
@@ -805,7 +803,7 @@ def render_voice_input():
         just_once=True,
         use_container_width=True,
         format="wav",
-        key="areebacare_mic",
+        key="healthcare_mic",
     )
 
     if audio and audio.get("bytes"):
@@ -821,26 +819,40 @@ def render_info_panel():
         st.markdown(
             """
             <div class="sidebar-brand">
-                <h2>AreebaCare</h2>
-                <p>Created by Areeba Imran</p>
+                <h2>Healthcare System</h2>
             </div>
             """,
             unsafe_allow_html=True
         )
 
+        st.markdown("**🌐 Language Settings**")
+        st.session_state.language = st.selectbox(
+            "Select Response Language", 
+            LANGUAGE_OPTIONS, 
+            index=LANGUAGE_OPTIONS.index(st.session_state.language),
+            label_visibility="collapsed"
+        )
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
         st.markdown(
             """
             <div class="sidebar-info-card">
-                <h4>System Architecture</h4>
-                <p>Powered by Retrieval-Augmented Generation (RAG) to ensure responses are strictly grounded in official documentation.</p>
+                <h4>✨ Assistant Capabilities & AI Models</h4>
+                <ul>
+                    <li><b>Vector Search:</b> FAISS + MiniLM-L6 Embeddings</li>
+                    <li><b>LLM Engine:</b> Groq (GPT-OSS-120B)</li>
+                    <li><b>Voice Processing:</b> Whisper Speech-to-Text ASR</li>
+                    <li><b>Audio Synthesis:</b> gTTS (Google Text-To-Speech)</li>
+                </ul>
             </div>
 
             <div class="sidebar-info-card">
-                <h4>Safety & Compliance</h4>
+                <h4>🔒 Grounding & Safety</h4>
                 <ul>
-                    <li>Grounded strictly on knowledge base</li>
-                    <li>No medical diagnosis offered</li>
-                    <li>No drug prescriptions</li>
+                    <li>Strictly answers from local PDF KB</li>
+                    <li>No external hallucinated responses</li>
+                    <li>No medical diagnosis or drug prescriptions</li>
                 </ul>
             </div>
             """,
@@ -857,10 +869,16 @@ def render_info_panel():
 
 
 def render_footer():
-    st.divider()
-    st.caption("AreebaCare Healthcare Assistant • Grounded Information System")
-    st.caption("Created by Areeba Imran")
-    st.caption("© 2026 Areeba Imran. All rights reserved.")
+    st.markdown(
+        """
+        <div class="custom-footer">
+            <p><b>Healthcare Assistant • Grounded Intelligent System</b></p>
+            <p>Designed & Developed by <b>Areeba Imran</b></p>
+            <p>© 2026 All rights reserved.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -874,12 +892,10 @@ def main():
         load_or_build_knowledge_base(force_rebuild=False)
 
     render_info_panel()
-
     render_header()
-    render_language_selector()
 
     st.markdown("---")
-    render_quick_prompts()
+    render_quick_prompt_dropdown()
     st.markdown("---")
 
     col_heading, col_clear = st.columns([4, 1])
@@ -896,7 +912,7 @@ def main():
             col_input, col_submit = st.columns([5, 1])
             with col_input:
                 typed_question = st.text_input(
-                    "Ask AreebaCare Healthcare Assistant a question...",
+                    "Ask Healthcare Assistant a question...",
                     label_visibility="collapsed",
                     placeholder="Type your medical query, hospital policy question, or registration inquiry...",
                 )
