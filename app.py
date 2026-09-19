@@ -53,11 +53,14 @@ os.makedirs(INDEX_DIR, exist_ok=True)
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 WHISPER_MODEL_SIZE = "small"
 GROQ_MODEL_NAME = "openai/gpt-oss-120b"
+GROQ_FALLBACK_MODEL_NAME = "llama-3.1-8b-instant"
 
 CHUNK_SIZE_WORDS = 600
 CHUNK_OVERLAP_WORDS = 100
-TOP_K = 4
+TOP_K = 3
 RELEVANCE_THRESHOLD = 0.30
+MAX_ANSWER_TOKENS = 500
+HISTORY_TURNS_SENT = 4
 
 LANGUAGE_OPTIONS = ["English", "Urdu", "Roman Urdu"]
 
@@ -580,6 +583,23 @@ def retrieve_context(query, index, chunks, model, top_k=TOP_K, threshold=RELEVAN
 # ---------------------------------------------------------------------------
 # Answer generation (Groq)
 # ---------------------------------------------------------------------------
+def _call_groq(client, messages, model):
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            temperature=0.3,
+            max_tokens=MAX_ANSWER_TOKENS,
+        )
+        return response.choices[0].message.content.strip(), None
+    except Exception as e:
+        import traceback
+        status_code = getattr(e, "status_code", None)
+        if type(e).__name__ == "RateLimitError" or status_code == 429:
+            return None, f"rate_limit::{e}"
+        return None, f"{type(e).__name__}: {e}\n{traceback.format_exc()}"
+
+
 def generate_answer(query, context_chunks, language, history):
     api_key = os.getenv("GROQ_API_KEY")
 
@@ -603,23 +623,24 @@ def generate_answer(query, context_chunks, language, history):
     )
 
     messages = [{"role": "system", "content": system_prompt}]
-    for turn in history[-6:]:
+    for turn in history[-HISTORY_TURNS_SENT:]:
         if turn["role"] in ("user", "assistant"):
             messages.append({"role": turn["role"], "content": turn["content"]})
     messages.append({"role": "user", "content": query})
 
-    try:
-        response = client.chat.completions.create(
-            model=GROQ_MODEL_NAME,
-            messages=messages,
-            temperature=0.3,
-            max_tokens=900,
-        )
-        answer = response.choices[0].message.content.strip()
-        return answer, None
-    except Exception as e:
-        import traceback
-        return None, f"{type(e).__name__}: {e}\n{traceback.format_exc()}"
+    answer, error = _call_groq(client, messages, GROQ_MODEL_NAME)
+
+    if error and error.startswith("rate_limit::") and GROQ_FALLBACK_MODEL_NAME:
+        # Primary model's daily quota is exhausted — the fallback model has
+        # its own separate quota on Groq's free tier, so try it before
+        # giving up.
+        print(f"[Groq] {GROQ_MODEL_NAME} rate-limited, falling back to {GROQ_FALLBACK_MODEL_NAME}")
+        fallback_answer, fallback_error = _call_groq(client, messages, GROQ_FALLBACK_MODEL_NAME)
+        if fallback_answer:
+            return fallback_answer, None
+        return None, f"{error} | fallback ({GROQ_FALLBACK_MODEL_NAME}) also failed: {fallback_error}"
+
+    return answer, error
 
 
 # ---------------------------------------------------------------------------
@@ -722,6 +743,26 @@ def get_greeting_response(language):
         return "Hello! Welcome to Healthcare Assistant. How can I assist you today? You can ask me about hospital services, visiting hours, registration, and patient guidelines."
 
 
+def get_rate_limit_message(language, error_text):
+    wait_str = None
+    match = re.search(r"try again in ([\d.]+m[\d.]+s|[\d.]+s|[\d.]+m)", error_text or "")
+    if match:
+        wait_str = match.group(1)
+
+    if language == "Urdu":
+        if wait_str:
+            return f"معذرت، آج کے لیے AI ماڈل کی استعمال کی حد (rate limit) مکمل ہو چکی ہے۔ براہِ کرم تقریباً {wait_str} بعد دوبارہ کوشش کریں۔"
+        return "معذرت، آج کے لیے AI ماڈل کی استعمال کی حد مکمل ہو چکی ہے۔ براہِ کرم کچھ دیر بعد دوبارہ کوشش کریں۔"
+    elif language == "Roman Urdu":
+        if wait_str:
+            return f"Maazrat, aaj ke liye AI model ki usage limit (rate limit) poori ho chuki hai. Meharbani kar ke taqreeban {wait_str} baad dobara koshish karein."
+        return "Maazrat, aaj ke liye AI model ki usage limit poori ho chuki hai. Meharbani kar ke thodi der baad dobara koshish karein."
+    else:
+        if wait_str:
+            return f"We've hit today's usage limit for the AI model. Please try again in about {wait_str}."
+        return "We've hit today's usage limit for the AI model. Please try again in a little while."
+
+
 # ---------------------------------------------------------------------------
 # Core question handling
 # ---------------------------------------------------------------------------
@@ -763,7 +804,10 @@ def handle_question(query, label=None):
                         # from the sidebar debug panel below.
                         print(f"[Groq generate_answer error] {error}")
                         st.session_state.last_groq_error = error
-                        answer = GROQ_ERROR_MESSAGE
+                        if error.startswith("rate_limit::"):
+                            answer = get_rate_limit_message(language, error)
+                        else:
+                            answer = GROQ_ERROR_MESSAGE
                         context_chunks = []
 
     elapsed_time = round(time.time() - start_time, 2)
