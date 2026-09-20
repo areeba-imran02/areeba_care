@@ -1386,19 +1386,47 @@ def generate_tts(text, language):
         lang_code = GTTS_LANG_MAP.get(language, "en")
         chunks = _split_into_speech_chunks(text)
 
-        audio_bytes = io.BytesIO()
+        # Generate one standalone MP3 per chunk first (kept as separate
+        # in-memory buffers, not concatenated yet).
+        chunk_mp3s = []
         for chunk in chunks:
             # tokenizer_func=lambda t: [t] disables gTTS's own internal
             # sentence tokenizer (tuned for Latin punctuation), so it
             # sends our already-safe chunk as a single request instead of
-            # re-splitting it itself, which is what caused the repeated /
-            # stuttering Urdu audio even after pre-chunking.
+            # re-splitting it itself, which caused stuttering Urdu audio
+            # even after pre-chunking.
             tts = gTTS(text=chunk, lang=lang_code, tokenizer_func=lambda t: [t])
-            tts.write_to_fp(audio_bytes)
+            buf = io.BytesIO()
+            tts.write_to_fp(buf)
+            buf.seek(0)
+            chunk_mp3s.append(buf.read())
 
-        audio_bytes.seek(0)
-        result = audio_bytes.read()
-        return result if result else None
+        if not chunk_mp3s:
+            return None
+        if len(chunk_mp3s) == 1:
+            return chunk_mp3s[0]
+
+        # Multiple chunks: each is a COMPLETE, independent MP3 file with
+        # its own header. Simply concatenating those raw bytes (the old
+        # approach) glues several headers into one stream, which is what
+        # was actually causing the "stara stara" repeating/stuttering
+        # playback — some decoders get confused by the extra embedded
+        # headers partway through the file. Decoding every chunk to raw
+        # audio and re-exporting them together as ONE clean MP3 avoids
+        # that entirely. If pydub/ffmpeg aren't available, fall back to
+        # the old raw-concatenation behaviour rather than losing audio.
+        try:
+            from pydub import AudioSegment
+            combined = AudioSegment.empty()
+            for mp3_bytes in chunk_mp3s:
+                combined += AudioSegment.from_file(io.BytesIO(mp3_bytes), format="mp3")
+            out = io.BytesIO()
+            combined.export(out, format="mp3")
+            out.seek(0)
+            result = out.read()
+            return result if result else None
+        except Exception:
+            return b"".join(chunk_mp3s)
     except Exception:
         return None
 
