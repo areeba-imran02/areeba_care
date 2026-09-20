@@ -1326,17 +1326,79 @@ def to_english_search_query(query):
 # ---------------------------------------------------------------------------
 # Text-to-speech (gTTS)
 # ---------------------------------------------------------------------------
+def _split_into_speech_chunks(text, max_len=180):
+    """Split text into short, safe chunks before sending to gTTS.
+
+    gTTS's built-in sentence tokenizer is tuned for Latin punctuation and can
+    misbehave (repeating or stuttering audio) on Urdu script, which uses
+    different sentence-ending marks (e.g. \u06d4, \u061f). Splitting the text
+    ourselves and generating one gTTS request per chunk avoids that bug.
+    """
+    text = text.strip()
+    if not text:
+        return []
+
+    # Sentence boundaries for both Latin and Urdu punctuation.
+    sentences = re.split(r"(?<=[.!?\u06d4\u061f])\s+", text)
+
+    chunks = []
+    current = ""
+    for sentence in sentences:
+        sentence = sentence.strip()
+        if not sentence:
+            continue
+        if len(current) + len(sentence) + 1 <= max_len:
+            current = (current + " " + sentence).strip()
+            continue
+
+        if current:
+            chunks.append(current)
+            current = ""
+
+        if len(sentence) <= max_len:
+            current = sentence
+            continue
+
+        # A single sentence longer than max_len: break it up by words.
+        words = sentence.split()
+        sub = ""
+        for word in words:
+            if len(sub) + len(word) + 1 <= max_len:
+                sub = (sub + " " + word).strip()
+            else:
+                if sub:
+                    chunks.append(sub)
+                sub = word
+        if sub:
+            current = sub
+
+    if current:
+        chunks.append(current)
+
+    return chunks if chunks else [text]
+
+
 def generate_tts(text, language):
     if not text:
         return None
     try:
         from gtts import gTTS
         lang_code = GTTS_LANG_MAP.get(language, "en")
-        tts = gTTS(text=text, lang=lang_code)
-        buf = io.BytesIO()
-        tts.write_to_fp(buf)
-        buf.seek(0)
-        return buf.read()
+        chunks = _split_into_speech_chunks(text)
+
+        audio_bytes = io.BytesIO()
+        for chunk in chunks:
+            # tokenizer_func=lambda t: [t] disables gTTS's own internal
+            # sentence tokenizer (tuned for Latin punctuation), so it
+            # sends our already-safe chunk as a single request instead of
+            # re-splitting it itself, which is what caused the repeated /
+            # stuttering Urdu audio even after pre-chunking.
+            tts = gTTS(text=chunk, lang=lang_code, tokenizer_func=lambda t: [t])
+            tts.write_to_fp(audio_bytes)
+
+        audio_bytes.seek(0)
+        result = audio_bytes.read()
+        return result if result else None
     except Exception:
         return None
 
