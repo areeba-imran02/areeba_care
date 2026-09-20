@@ -1489,12 +1489,12 @@ def generate_tts(text, language):
 def render_sources(context_chunks):
     if not context_chunks:
         return
+    # Keep this simple for end users: just which hospital documents backed
+    # the answer, one per line, no relevance scores or raw extracted text.
+    doc_names = list(dict.fromkeys(c["source"] for c in context_chunks))
     with st.expander("📚 Knowledge Base Sources"):
-        for c in context_chunks:
-            st.markdown(f"**📄 Document:** `{c['source']}`")
-            st.caption(f"Relevance Score: {c['score']:.2f}")
-            with st.expander("Show extracted segment text", expanded=False):
-                st.write(c["text"])
+        for name in doc_names:
+            st.markdown(f"📄 {name}")
 
 
 # ---------------------------------------------------------------------------
