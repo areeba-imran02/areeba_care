@@ -1484,20 +1484,6 @@ def generate_tts(text, language):
 
 
 # ---------------------------------------------------------------------------
-# Sources rendering
-# ---------------------------------------------------------------------------
-def render_sources(context_chunks):
-    if not context_chunks:
-        return
-    # Keep this simple for end users: just which hospital documents backed
-    # the answer, one per line, no relevance scores or raw extracted text.
-    doc_names = list(dict.fromkeys(c["source"] for c in context_chunks))
-    with st.expander("📚 Knowledge Base Sources"):
-        for name in doc_names:
-            st.markdown(f"📄 {name}")
-
-
-# ---------------------------------------------------------------------------
 # Session state initialization
 # ---------------------------------------------------------------------------
 def init_session_state():
@@ -1617,6 +1603,8 @@ def handle_question(query, label=None):
     elapsed_time = round(time.time() - start_time, 2)
     audio_bytes = generate_tts(answer, language)
 
+    # NOTE: "sources" is still stored internally (handy for debugging or
+    # future use), but it is NOT displayed anywhere in the user interface.
     st.session_state.chat_history.append(
         {
             "role": "assistant",
@@ -1771,8 +1759,9 @@ def render_chat_messages():
             if role == "assistant":
                 if turn.get("audio"):
                     st.audio(turn["audio"], format="audio/mp3")
-                if turn.get("sources"):
-                    render_sources(turn["sources"])
+
+                # Knowledge Base Sources are intentionally NOT rendered here
+                # anymore -- end users should not see which PDFs were used.
 
                 if turn.get("time"):
                     st.markdown(
