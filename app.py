@@ -1424,8 +1424,18 @@ def generate_tts(text, language):
             combined.export(out, format="mp3")
             out.seek(0)
             result = out.read()
+            st.session_state.last_tts_error = None
             return result if result else None
-        except Exception:
+        except Exception as e:
+            # pydub/ffmpeg unavailable or failed -> falls back to raw
+            # concatenation, which is what causes repeating/stuttering
+            # audio on multi-chunk (usually Urdu) answers. Recorded here
+            # so it shows up in the sidebar debug panel instead of
+            # silently reappearing with no visible cause.
+            st.session_state.last_tts_error = (
+                f"pydub/ffmpeg audio join failed, used raw fallback (may stutter): {e!r}"
+            )
+            print(f"[TTS join error] {e!r}")
             return b"".join(chunk_mp3s)
     except Exception:
         return None
@@ -1838,6 +1848,11 @@ def render_info_panel():
         if st.session_state.get("last_groq_error"):
             with st.expander("🛠️ Last technical error (debug)"):
                 st.code(st.session_state.last_groq_error)
+
+        if st.session_state.get("last_tts_error"):
+            with st.expander("🔊 Audio joining warning (debug)"):
+                st.code(st.session_state.last_tts_error)
+                st.caption("This means pydub/ffmpeg is missing on the server, so audio for long answers may stutter. Add a packages.txt file with 'ffmpeg' in it (for Streamlit Community Cloud) or install ffmpeg in your environment.")
 
 
 # ---------------------------------------------------------------------------
