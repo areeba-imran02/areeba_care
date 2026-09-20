@@ -7,3 +7,4 @@ streamlit-mic-recorder
 faster-whisper
 gTTS
 numpy
+pydub
