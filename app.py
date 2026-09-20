@@ -1378,13 +1378,55 @@ def _split_into_speech_chunks(text, max_len=180):
     return chunks if chunks else [text]
 
 
+def _strip_markdown_for_speech(text):
+    """Remove Markdown syntax before sending text to TTS.
+
+    Groq's answers are Markdown (e.g. **bold**, bullet lists, `code`,
+    # headers). gTTS has no idea these are formatting symbols and reads
+    them out literally as words ("asterisk"), which is what was causing
+    the audio to repeatedly say "asterisk asterisk" / "sitara sitara" in
+    both English and Urdu answers -- it had nothing to do with chunking.
+    """
+    if not text:
+        return text
+
+    # Bold / italic / underline markers: **text**, __text__, *text*, _text_
+    text = re.sub(r"\*\*(.*?)\*\*", r"\1", text)
+    text = re.sub(r"__(.*?)__", r"\1", text)
+    text = re.sub(r"\*(.*?)\*", r"\1", text)
+    text = re.sub(r"(?<!\w)_(.*?)_(?!\w)", r"\1", text)
+
+    # Inline code and code fences
+    text = re.sub(r"```.*?```", " ", text, flags=re.DOTALL)
+    text = re.sub(r"`([^`]*)`", r"\1", text)
+
+    # Markdown headers ("# ", "## ", ...)
+    text = re.sub(r"^#{1,6}\s*", "", text, flags=re.MULTILINE)
+
+    # Bullet / numbered list markers at the start of a line
+    text = re.sub(r"^\s*[\*\-\+]\s+", "", text, flags=re.MULTILINE)
+    text = re.sub(r"^\s*\d+\.\s+", "", text, flags=re.MULTILINE)
+
+    # Links: [label](url) -> label
+    text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)
+
+    # Any leftover Markdown/formatting symbols
+    text = re.sub(r"[*_`#>]", "", text)
+
+    # Collapse extra whitespace left behind by the removals above
+    text = re.sub(r"[ \t]{2,}", " ", text)
+    text = re.sub(r"\n{2,}", "\n", text)
+    return text.strip()
+
+
 def generate_tts(text, language):
     if not text:
         return None
     try:
         from gtts import gTTS
         lang_code = GTTS_LANG_MAP.get(language, "en")
-        chunks = _split_into_speech_chunks(text)
+        speech_text = _strip_markdown_for_speech(text)
+        chunks = _split_into_speech_chunks(speech_text)
 
         # Generate one standalone MP3 per chunk first (kept as separate
         # in-memory buffers, not concatenated yet).
